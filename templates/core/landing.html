@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepal Guide Hub - Choose Your Journey</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'nepal-green': {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        'nepal-blue': '#003893',
+                        'nepal-red': '#DC143C',
+                        'forest-green': '#228B22',
+                        'mountain-gray': '#6B7280',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .mountain-bg {
+            background-image: linear-gradient(135deg, rgba(34, 139, 34, 0.9) 0%, rgba(22, 163, 74, 0.9) 100%), 
+                            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300"><polygon fill="%23228B22" points="0,300 0,200 200,100 400,150 600,50 800,100 1000,80 1000,300"/><polygon fill="%2316a34a" points="0,300 0,250 150,180 350,200 550,120 750,150 1000,130 1000,300"/></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .title-glow {
+            text-shadow: 0 0 30px rgba(34, 197, 94, 0.3), 0 0 60px rgba(34, 197, 94, 0.2);
+        }
+
+        .stats-glow {
+            backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stats-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stats-hover:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            80% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-full bg-gradient-to-br from-white via-nepal-green-50 to-nepal-green-100">
+    <!-- Hero Section with Mode Selection -->
+    <div class="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-white via-nepal-green-50 to-nepal-green-100">
+        <!-- Floating Elements -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="floating absolute top-20 left-20 text-white/20">
+                <i class="fas fa-mountain text-6xl"></i>
+            </div>
+            <div class="floating absolute top-40 right-32 text-white/20" style="animation-delay: -2s;">
+                <i class="fas fa-hiking text-4xl"></i>
+            </div>
+            <div class="floating absolute bottom-40 left-40 text-white/20" style="animation-delay: -4s;">
+                <i class="fas fa-camera text-5xl"></i>
+            </div>
+        </div>
+        
+        <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <!-- Logo and Title - IMPROVED SECTION -->
+            <div class="mb-12 mt-6">
+                <div class="relative mb-8">
+                    <!-- Pulsing rings behind the icon -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="pulse-ring bg-white/10 rounded-full w-24 h-24"></div>
+                    </div>
+                    <!-- Main icon with gradient background -->
+                    <div class="relative bg-gradient-to-br from-white/25 via-white/15 to-white/5 rounded-full p-8 mx-auto w-24 h-24 flex items-center justify-center border border-white/30 shadow-2xl">
+                        <i class="fas fa-mountain text-5xl text-green-600"></i>
+                    </div>
+                </div>  
+                
+                <div class="space-y-4">
+                    <h1 class="text-4xl font-black mb-4">
+                        <span class="gradient-text">Nepal</span> 
+                        <span class="text-black">Guide Hub</span>
+                    </h1>
+                        <p class="text-gray-600 font-medium">Your Gateway to Authentic Nepal</p>
+                </div>
+                 
+                <div class=" bg-gradient-to-r from-white/15 to-white/5 backdrop-blur-xl rounded-2xl p-6 pt-0 mt-2 border border-white/20 shadow-xl">
+                    <p class="text-lg md:text-xl max-w-3xl mx-auto leading-relaxed font-medium"> 
+                        <span class="text-nepal-green-400">Choose your path to an unforgettable adventure.</span>
+                    </p> 
+                </div>
+            </div>
+            
+            <!-- Mode Selection Cards -->
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Tourist Mode -->
+                <div class="hover-scale bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-white/20">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-nepal-green-500 to-nepal-green-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                            <i class="fa-solid fa-suitcase-rolling text-white text-2xl"></i>
+                        </div>
+                        
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">I'm a Tourist</h2>
+                        <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+                            Explore Nepal's breathtaking landscapes, rich culture, and thrilling adventures with expert guides and trusted agencies.
+                        </p>
+                        
+                        <div class="space-y-3 mb-8 text-left">
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-check-circle text-nepal-green-500 mr-3"></i>
+                                <span>Browse verified travel packages</span>
+                            </div>
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-check-circle text-nepal-green-500 mr-3"></i>
+                                <span>Connect with expert local guides</span>
+                            </div>
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-check-circle text-nepal-green-500 mr-3"></i>
+                                <span>Book with trusted agencies</span>
+                            </div>
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-check-circle text-nepal-green-500 mr-3"></i>
+                                <span>Read genuine reviews & ratings</span>
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'accounts:register' %}?user_type=tourist" 
+                           class="block w-full bg-gradient-to-r from-nepal-green-500 to-nepal-green-600 text-white font-semibold py-4 px-8 rounded-xl hover:from-nepal-green-600 hover:to-nepal-green-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Start Your Adventure
+                        </a>
+                        
+                        <p class="text-sm text-gray-500 mt-4">
+                            Already have an account? 
+                            <a href="{% url 'accounts:login' %}?next={% url 'core:home' %}" class="text-nepal-green-600 hover:text-nepal-green-700 font-medium">
+                                Sign in here
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Agency Mode -->
+                <div class="hover-scale bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-white/20">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-nepal-green-600 to-nepal-green-700 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-building text-white text-2xl"></i>
+                        </div>
+                        
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">I'm an Agency</h2>
+                        <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+                            Grow your tourism business by showcasing your services to travelers worldwide. Manage guides, packages, and bookings.
+                        </p>
+                        
+                        <div class="space-y-3 mb-8 text-left">
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-check-circle text-nepal-green-500 mr-3"></i>
+                                <span>Showcase your travel packages</span>
+                            </div>
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-check-circle text-nepal-green-500 mr-3"></i>
+                                <span>Manage your team of guides</span>
+                            </div>
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-check-circle text-nepal-green-500 mr-3"></i>
+                                <span>Handle bookings & payments</span>
+                            </div>
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-check-circle text-nepal-green-500 mr-3"></i>
+                                <span>Build your reputation online</span>
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'accounts:register' %}?user_type=agency" 
+                           class="block w-full bg-gradient-to-r from-nepal-green-600 to-nepal-green-700 text-white font-semibold py-4 px-8 rounded-xl hover:from-nepal-green-700 hover:to-nepal-green-800 transition-all duration-300 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-briefcase mr-2"></i>
+                            Join as Partner
+                        </a>
+                        
+                        <p class="text-sm text-gray-500 mt-4">
+                            Already registered? 
+                            <a href="{% url 'accounts:login' %}?next={% url 'agencies:dashboard' %}" class="text-nepal-green-600 hover:text-nepal-green-700 font-medium">
+                                Access dashboard
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trust Indicators - IMPROVED SECTION -->
+            <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="stats-glow stats-hover rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-black  mb-2 flex items-center justify-center">
+                        <i class="fas fa-box-open text-nepal-green-300 mr-2 text-2xl"></i>
+                        500+
+                    </div>
+                    <div class="text-nepal-green-400 font-semibold text-sm uppercase tracking-wider">Travel Packages</div>
+                    <div class="w-full bg-white/20 rounded-full h-1 mt-3">
+                        <div class="bg-gradient-to-r from-nepal-green-400 to-nepal-green-300 h-1 rounded-full w-4/5"></div>
+                    </div>
+                </div>
+                <div class="stats-glow stats-hover rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-black  mb-2 flex items-center justify-center">
+                        <i class="fas fa-user-tie text-nepal-green-300 mr-2 text-2xl"></i>
+                        200+
+                    </div>
+                    <div class="text-nepal-green-400 font-semibold text-sm uppercase tracking-wider">Expert Guides</div>
+                    <div class="w-full bg-white/20 rounded-full h-1 mt-3">
+                        <div class="bg-gradient-to-r from-nepal-green-400 to-nepal-green-300 h-1 rounded-full w-3/5"></div>
+                    </div>
+                </div>
+                <div class="stats-glow stats-hover rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-black mb-2 flex items-center justify-center">
+                        <i class="fas fa-handshake text-nepal-green-300 mr-2 text-2xl"></i>
+                        50+
+                    </div>
+                    <div class="text-nepal-green-400 font-semibold text-sm uppercase tracking-wider">Partner Agencies</div>
+                    <div class="w-full bg-white/20 rounded-full h-1 mt-3">
+                        <div class="bg-gradient-to-r from-nepal-green-400 to-nepal-green-300 h-1 rounded-full w-2/5"></div>
+                    </div>
+                </div>
+                <div class="stats-glow stats-hover rounded-2xl p-6">
+                    <div class="text-4xl font-black mb-2 flex items-center justify-center">
+                        <i class="fas fa-heart text-nepal-green-300 mr-2 text-2xl"></i>
+                        <p>10K+</p>
+                    </div>
+                    <div class="text-nepal-green-400 font-semibold text-sm uppercase tracking-wider">Happy Tourists</div>
+                    <div class="w-full bg-white/20 rounded-full h-1 mt-3">
+                        <div class="bg-gradient-to-r from-nepal-green-400 to-nepal-green-300 h-1 rounded-full w-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white animate-bounce">
+            <i class="fas fa-chevron-down text-2xl"></i>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Why Choose Nepal Guide Hub?</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    We connect authentic Nepal experiences with travelers through verified guides and trusted agencies
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-12">
+                <div class="text-center group">
+                    <div class="bg-gradient-to-br from-nepal-green-500 to-nepal-green-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-shield-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Verified & Trusted</h3>
+                    <p class="text-gray-600">All agencies and guides are thoroughly verified to ensure authentic and safe experiences.</p>
+                </div>
+                
+                <div class="text-center group">
+                    <div class="bg-gradient-to-br from-nepal-green-600 to-nepal-green-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-star text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Expert Guides</h3>
+                    <p class="text-gray-600">Connect with experienced local guides who know Nepal's hidden gems and cultural treasures.</p>
+                </div>
+                
+                <div class="text-center group">
+                    <div class="bg-gradient-to-br from-nepal-green-700 to-nepal-green-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-heart text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Authentic Experiences</h3>
+                    <p class="text-gray-600">Discover real Nepal through carefully curated packages and genuine local interactions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        // Add smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Add URL parameters for user type
+        const urlParams = new URLSearchParams(window.location.search);
+        const userType = urlParams.get('user_type');
+        
+        if (userType === 'tourist') {
+            document.querySelectorAll('a[href*="register"]')[0].href += '?user_type=tourist';
+        } else if (userType === 'agency') {
+            document.querySelectorAll('a[href*="register"]')[1].href += '?user_type=agency';
+        }
+    </script>
+</body>
+</html>

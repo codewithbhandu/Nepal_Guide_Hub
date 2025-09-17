@@ -1,0 +1,102 @@
+<!-- accounts/tourist_profile.html -->
+{% extends 'base.html' %}
+
+{% block title %}Tourist Profile - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-900">Complete Your Profile</h1>
+            <p class="text-gray-600">Help us personalize your Nepal travel experience</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="px-6 py-6 space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Full Name *
+                    </label>
+                    <div class="mt-1">
+                        {{ form.full_name }}
+                    </div>
+                    {% if form.full_name.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.full_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.nationality.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Nationality *
+                    </label>
+                    <div class="mt-1">
+                        {{ form.nationality }}
+                    </div>
+                    {% if form.nationality.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.nationality.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.date_of_birth.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Date of Birth
+                    </label>
+                    <div class="mt-1">
+                        {{ form.date_of_birth }}
+                    </div>
+                    {% if form.date_of_birth.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.date_of_birth.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.emergency_contact.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Emergency Contact Name
+                    </label>
+                    <div class="mt-1">
+                        {{ form.emergency_contact }}
+                    </div>
+                    {% if form.emergency_contact.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.emergency_contact.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.emergency_phone.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Emergency Contact Phone
+                    </label>
+                    <div class="mt-1">
+                        {{ form.emergency_phone }}
+                    </div>
+                    {% if form.emergency_phone.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.emergency_phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <label for="{{ form.profile_picture.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Profile Picture
+                </label>
+                <div class="mt-1">
+                    {{ form.profile_picture }}
+                </div>
+                {% if form.profile_picture.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.profile_picture.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'core:home' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                    Skip for now
+                </a>
+                <button type="submit" class="px-6 py-2 bg-nepal-blue text-white rounded-md hover:bg-blue-700 transition-colors">
+                    Save Profile
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

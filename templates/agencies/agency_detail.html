@@ -1,0 +1,602 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ agency.name }} - Travel Agency - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-br from-green-800 to-nepal-blue text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
+            <!-- Agency Logo -->
+            <div class="flex-shrink-0">
+                {% if agency.logo %}
+                <img src="{{ agency.logo.url }}" alt="{{ agency.name }}" 
+                     class="w-32 h-32 rounded-2xl object-cover shadow-2xl ring-4 ring-white/20">
+                {% else %}
+                <div class="w-32 h-32 rounded-2xl bg-white/10 flex items-center justify-center shadow-2xl ring-4 ring-white/20">
+                    <i class="fas fa-building text-5xl text-white/70"></i>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Agency Info -->
+            <div class="flex-1">
+                <div class="flex items-center space-x-3 mb-4">
+                    <h1 class="text-4xl md:text-5xl font-black">{{ agency.name }}</h1>
+                    {% if agency.is_verified %}
+                    <div class="bg-green-700 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Verified
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <p class="text-xl text-white/90 mb-6 leading-relaxed">{{ agency.description }}</p>
+                
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white/10 rounded-lg p-3 text-center backdrop-blur-sm">
+                        <div class="text-2xl font-bold">{{ agency.rating }}</div>
+                        <div class="text-sm text-white/80">Rating</div>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-3 text-center backdrop-blur-sm">
+                        <div class="text-2xl font-bold">{{ agency.guides.count }}</div>
+                        <div class="text-sm text-white/80">Guides</div>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-3 text-center backdrop-blur-sm">
+                        <div class="text-2xl font-bold">{{ agency.packages.count }}</div>
+                        <div class="text-sm text-white/80">Packages</div>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-3 text-center backdrop-blur-sm">
+                        <div class="text-2xl font-bold">{{ agency.established_year }}</div>
+                        <div class="text-sm text-white/80">Established</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Tabs -->
+<div class="bg-white border-b sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex space-x-8" id="agency-tabs">
+            <button onclick="showTab('overview')" class="tab-button active border-b-2 border-green-800 text-green-800 py-4 px-2 text-sm font-medium">
+                Overview
+            </button>
+            <button onclick="showTab('guides')" class="tab-button text-gray-500 hover:text-gray-700 py-4 px-2 text-sm font-medium border-b-2 border-transparent">
+                Guides ({{ agency.guides.count }})
+            </button>
+            <button onclick="showTab('packages')" class="tab-button text-gray-500 hover:text-gray-700 py-4 px-2 text-sm font-medium border-b-2 border-transparent">
+                Packages ({{ agency.packages.count }})
+            </button>
+            <button onclick="showTab('reviews')" class="tab-button text-gray-500 hover:text-gray-700 py-4 px-2 text-sm font-medium border-b-2 border-transparent">
+                Reviews ({{ agency.total_ratings }})
+            </button>
+            <button onclick="showTab('contact')" class="tab-button text-gray-500 hover:text-gray-700 py-4 px-2 text-sm font-medium border-b-2 border-transparent">
+                Contact
+            </button>
+        </nav>
+    </div>
+</div>
+
+<!-- Tab Content -->
+<div class="bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Overview Tab -->
+        <div id="overview-tab" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Info -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-6">About {{ agency.name }}</h2>
+                        <div class="prose max-w-none">
+                            <p class="text-gray-600 leading-relaxed">{{ agency.description }}</p>
+                        </div>
+                        
+                        {% if agency.specializations.all %}
+                        <div class="mt-8">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Our Specializations</h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% for spec in agency.specializations.all %}
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    {{ spec.name }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Gallery -->
+                    {% if agency.gallery_images.all %}
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6">Gallery</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {% for image in agency.gallery_images.all %}
+                            <div class="aspect-square rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
+                                 onclick="openGallery({{ forloop.counter0 }})">
+                                <img src="{{ image.image.url }}" alt="{{ image.caption }}" 
+                                     class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Contact Info -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Agency Information</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-user w-5 text-green-800 mr-3"></i>
+                                <div>
+                                    <div class="text-sm text-gray-500">Contact Person</div>
+                                    <div class="font-medium">{{ agency.contact_person }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <i class="fas fa-id-card w-5 text-green-800 mr-3"></i>
+                                <div>
+                                    <div class="text-sm text-gray-500">License</div>
+                                    <div class="font-medium font-mono">{{ agency.license_number }}</div>
+                                </div>
+                            </div>
+                            
+                            {% if agency.website %}
+                            <div class="flex items-center">
+                                <i class="fas fa-globe w-5 text-green-800 mr-3"></i>
+                                <div>
+                                    <div class="text-sm text-gray-500">Website</div>
+                                    <a href="{{ agency.website }}" target="_blank" class="font-medium text-green-800 hover:text-green-900">
+                                        Visit Website
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar w-5 text-green-800 mr-3"></i>
+                                <div>
+                                    <div class="text-sm text-gray-500">Member Since</div>
+                                    <div class="font-medium">{{ agency.created_at|date:"F Y" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rating Summary -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Ratings & Reviews</h3>
+                        <div class="text-center mb-4">
+                            <div class="text-4xl font-bold text-green-800 mb-2">{{ agency.rating }}</div>
+                            <div class="flex justify-center mb-2">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= agency.rating %}
+                                        <i class="fas fa-star text-yellow-400 text-lg"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-yellow-400 text-lg"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="text-gray-600">Based on {{ agency.total_ratings }} reviews</div>
+                        </div>
+                        
+                        <!-- Rating Breakdown -->
+                        <div class="space-y-2">
+                            {% for rating in "54321" %}
+                            <div class="flex items-center">
+                                <span class="text-sm w-3">{{ rating }}</span>
+                                <i class="fas fa-star text-yellow-400 text-xs mx-2"></i>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-800 h-2 rounded-full" style="width: {{ rating|mul:20 }}%"></div>
+                                </div>
+                                <span class="text-sm text-gray-600 ml-2">{{ rating|mul:3 }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Get in Touch</h3>
+                        <div class="space-y-3">
+                            <button onclick="showTab('contact')" class="w-full bg-green-800 text-white py-3 px-4 rounded-lg hover:bg-green-900 transition-colors font-medium">
+                                <i class="fas fa-envelope mr-2"></i>Contact Agency
+                            </button>
+                            <button onclick="showTab('packages')" class="w-full bg-nepal-blue text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                                <i class="fas fa-box mr-2"></i>View Packages
+                            </button>
+                            {% if agency.website %}
+                            <a href="{{ agency.website }}" target="_blank" class="block w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium text-center">
+                                <i class="fas fa-external-link-alt mr-2"></i>Visit Website
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Guides Tab -->
+        <div id="guides-tab" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8">Our Professional Guides</h2>
+                
+                {% if agency.guides.all %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for guide in agency.guides.all %}
+                    <div class="border rounded-lg p-6 hover:shadow-lg transition-all duration-300">
+                        <div class="flex items-center space-x-4 mb-4">
+                            {% if guide.user.profile.avatar %}
+                            <img src="{{ guide.user.profile.avatar.url }}" alt="{{ guide.user.get_full_name }}" 
+                                 class="w-16 h-16 rounded-full object-cover">
+                            {% else %}
+                            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-user text-green-800 text-xl"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">{{ guide.user.get_full_name }}</h3>
+                                <div class="flex items-center">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= guide.rating %}
+                                            <i class="fas fa-star text-yellow-400"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-yellow-400"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ml-2 text-sm text-gray-600">({{ guide.total_ratings }} reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-600 text-sm mb-4">{{ guide.bio|truncatewords:20 }}</p>
+                        
+                        <div class="text-sm text-gray-500 mb-4">
+                            <div><i class="fas fa-calendar mr-2"></i>{{ guide.experience_years }} years experience</div>
+                            <div><i class="fas fa-language mr-2"></i>{{ guide.languages.count }} languages</div>
+                        </div>
+                        
+                        <a href="{% url 'guides:guide_detail' guide.id %}" class="block w-full bg-green-800 text-white py-2 px-4 rounded-md hover:bg-green-900 transition-colors text-center font-medium">
+                            View Profile
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-users text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No guides yet</h3>
+                    <p class="text-gray-600">This agency hasn't added any guides to their team yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Packages Tab -->
+        <div id="packages-tab" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8">Travel Packages</h2>
+                
+                {% if agency.packages.all %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for package in agency.packages.all %}
+                    <div class="border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+                        {% if package.images.first %}
+                        <img src="{{ package.images.first.image.url }}" alt="{{ package.title }}" 
+                             class="w-full h-48 object-cover">
+                        {% else %}
+                        <div class="w-full h-48 bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-mountain text-green-800 text-4xl"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ package.title }}</h3>
+                            <p class="text-gray-600 text-sm mb-4">{{ package.short_description|truncatewords:15 }}</p>
+                            
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="text-2xl font-bold text-green-800">
+                                    ${{ package.price }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ package.duration }} days
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center text-sm text-gray-600 mb-4">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= package.rating %}
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-yellow-400"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ml-2">({{ package.total_ratings }} reviews)</span>
+                            </div>
+                            
+                            <a href="{% url 'packages:package_detail' package.id %}" class="block w-full bg-green-800 text-white py-2 px-4 rounded-md hover:bg-green-900 transition-colors text-center font-medium">
+                                View Package
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-box text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No packages available</h3>
+                    <p class="text-gray-600">This agency hasn't created any travel packages yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Reviews Tab -->
+        <div id="reviews-tab" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8">Customer Reviews</h2>
+                
+                <!-- Reviews will be loaded here -->
+                <div class="space-y-6" id="reviews-container">
+                    <!-- Sample reviews structure -->
+                    <div class="border-b pb-6">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-user text-green-800"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <h4 class="font-semibold text-gray-900">Sample Review</h4>
+                                    <div class="flex">
+                                        {% for i in "12345" %}
+                                            <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">Coming soon - customer reviews will be displayed here</p>
+                                <div class="text-xs text-gray-500">Reviewed on March 15, 2024</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Tab -->
+        <div id="contact-tab" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8">Contact {{ agency.name }}</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Contact Form -->
+                    <div>
+                        <form class="space-y-6" method="POST" action="{% url 'agencies:contact_agency' agency.id %}">
+                            {% csrf_token %}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                                <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-green-800 focus:border-green-800">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-green-800 focus:border-green-800">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                <input type="tel" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-green-800 focus:border-green-800">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                                <select name="subject" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-green-800 focus:border-green-800">
+                                    <option value="general">General Inquiry</option>
+                                    <option value="booking">Package Booking</option>
+                                    <option value="guide">Guide Services</option>
+                                    <option value="custom">Custom Package</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                                <textarea name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-green-800 focus:border-green-800" placeholder="Tell us about your travel plans..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-green-800 text-white py-3 px-6 rounded-lg hover:bg-green-900 transition-colors font-medium">
+                                <i class="fas fa-paper-plane mr-2"></i>Send Message
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Contact Information -->
+                    <div>
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Get in Touch</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-user w-5 text-green-800 mt-1"></i>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Contact Person</div>
+                                        <div class="text-gray-600">{{ agency.contact_person }}</div>
+                                    </div>
+                                </div>
+                                
+                                {% if agency.phone %}
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-phone w-5 text-green-800 mt-1"></i>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Phone</div>
+                                        <div class="text-gray-600">{{ agency.phone }}</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if agency.email %}
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-envelope w-5 text-green-800 mt-1"></i>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Email</div>
+                                        <div class="text-gray-600">{{ agency.email }}</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if agency.address %}
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-map-marker-alt w-5 text-green-800 mt-1"></i>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Address</div>
+                                        <div class="text-gray-600">{{ agency.address }}</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if agency.website %}
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-globe w-5 text-green-800 mt-1"></i>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Website</div>
+                                        <a href="{{ agency.website }}" target="_blank" class="text-green-800 hover:text-green-900">
+                                            {{ agency.website }}
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Response Time -->
+                            <div class="mt-6 p-4 bg-green-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock text-green-800 mr-2"></i>
+                                    <span class="text-sm text-green-900">
+                                        <strong>Response Time:</strong> Usually responds within 24 hours
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gallery Modal -->
+<div id="gallery-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+    <div class="relative max-w-4xl w-full">
+        <button onclick="closeGallery()" class="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 z-10">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="gallery-image" src="" alt="" class="w-full h-auto rounded-lg">
+        <div class="absolute bottom-4 left-4 right-4 text-white">
+            <div id="gallery-caption" class="text-lg font-medium mb-2"></div>
+            <div class="flex justify-between items-center">
+                <button onclick="previousImage()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <div id="gallery-counter" class="bg-white/20 px-4 py-2 rounded-lg"></div>
+                <button onclick="nextImage()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Tab functionality
+function showTab(tabName) {
+    // Hide all tabs
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => content.classList.add('hidden'));
+    
+    // Remove active class from all buttons
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+        button.classList.remove('active', 'border-green-800', 'text-green-800');
+        button.classList.add('text-gray-500', 'border-transparent');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.remove('hidden');
+    
+    // Add active class to selected button
+    const activeButton = event.target;
+    activeButton.classList.remove('text-gray-500', 'border-transparent');
+    activeButton.classList.add('active', 'border-green-800', 'text-green-800');
+}
+
+// Gallery functionality
+let galleryImages = [
+    {% for image in agency.gallery_images.all %}
+    {
+        src: '{{ image.image.url }}',
+        caption: '{{ image.caption|escapejs }}'
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+let currentImageIndex = 0;
+
+function openGallery(index) {
+    currentImageIndex = index;
+    updateGalleryImage();
+    document.getElementById('gallery-modal').classList.remove('hidden');
+}
+
+function closeGallery() {
+    document.getElementById('gallery-modal').classList.add('hidden');
+}
+
+function updateGalleryImage() {
+    if (galleryImages.length === 0) return;
+    
+    const image = galleryImages[currentImageIndex];
+    document.getElementById('gallery-image').src = image.src;
+    document.getElementById('gallery-caption').textContent = image.caption;
+    document.getElementById('gallery-counter').textContent = `${currentImageIndex + 1} / ${galleryImages.length}`;
+}
+
+function previousImage() {
+    currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+    updateGalleryImage();
+}
+
+function nextImage() {
+    currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+    updateGalleryImage();
+}
+
+// Keyboard navigation for gallery
+document.addEventListener('keydown', function(event) {
+    const modal = document.getElementById('gallery-modal');
+    if (!modal.classList.contains('hidden')) {
+        if (event.key === 'Escape') {
+            closeGallery();
+        } else if (event.key === 'ArrowLeft') {
+            previousImage();
+        } else if (event.key === 'ArrowRight') {
+            nextImage();
+        }
+    }
+});
+
+// Hash-based tab navigation
+window.addEventListener('load', function() {
+    const hash = window.location.hash.substring(1);
+    if (hash && ['overview', 'guides', 'packages', 'reviews', 'contact'].includes(hash)) {
+        showTab(hash);
+    }
+});
+</script>
+{% endblock %}

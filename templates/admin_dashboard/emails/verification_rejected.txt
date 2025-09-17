@@ -1,0 +1,36 @@
+VERIFICATION UPDATE - Additional Information Required
+
+Dear {{ agency.contact_person }},
+
+Thank you for submitting your agency verification request for {{ agency.name }}. After reviewing your application, we need additional information or corrections before we can approve your agency.
+
+⚠ VERIFICATION PENDING
+
+{% if notes %}
+Review Notes:
+{{ notes }}
+{% endif %}
+
+Common Requirements for Verification:
+• Valid tourism license or registration certificate
+• Complete business address and contact information
+• Detailed agency description and services offered
+• Professional contact person details
+• Clear agency logo or branding (optional but recommended)
+
+What to do next:
+1. Review the notes above carefully
+2. Update your agency profile with the required information
+3. Resubmit your verification request
+4. Our team will review your updated application within 2-3 business days
+
+If you have any questions about the verification process or need clarification on the requirements, please don't hesitate to contact our support team at support@nepalguidehub.com
+
+We appreciate your interest in joining the Nepal Guide Hub platform and look forward to welcoming you once all requirements are met.
+
+Best regards,
+The Nepal Guide Hub Team
+
+---
+© 2024 Nepal Guide Hub. All rights reserved.
+This email was sent to {{ agency.user.email }}

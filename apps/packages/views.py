@@ -1,0 +1,69 @@
+from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator
+from django.db.models import Q
+from .models import Package
+
+def package_list(request):
+    packages = Package.objects.filter(is_active=True, agency__is_verified=True)
+    
+    # Filtering
+    package_type = request.GET.get('type')
+    difficulty = request.GET.get('difficulty')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    
+    if package_type:
+        packages = packages.filter(package_type=package_type)
+    if difficulty:
+        packages = packages.filter(difficulty_level=difficulty)
+    if min_price:
+        packages = packages.filter(price_per_person__gte=min_price)
+    if max_price:
+        packages = packages.filter(price_per_person__lte=max_price)
+    
+    # Sorting
+    sort_by = request.GET.get('sort', 'created_at')
+    if sort_by == 'price_low':
+        packages = packages.order_by('price_per_person')
+    elif sort_by == 'price_high':
+        packages = packages.order_by('-price_per_person')
+    elif sort_by == 'rating':
+        packages = packages.order_by('-agency__rating')
+    else:
+        packages = packages.order_by('-created_at')
+    
+    # Pagination
+    paginator = Paginator(packages, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'package_types': Package.PACKAGE_TYPES,
+        'difficulty_levels': Package.DIFFICULTY_LEVELS,
+        'current_filters': {
+            'type': package_type,
+            'difficulty': difficulty,
+            'min_price': min_price,
+            'max_price': max_price,
+            'sort': sort_by,
+        }
+    }
+    return render(request, 'packages/package_list.html', context)
+
+def package_detail(request, slug):
+    package = get_object_or_404(Package, slug=slug, is_active=True, agency__is_verified=True)
+    package.increment_views()
+    
+    # Get related packages
+    related_packages = Package.objects.filter(
+        package_type=package.package_type,
+        is_active=True,
+        agency__is_verified=True
+    ).exclude(id=package.id)[:4]
+    
+    context = {
+        'package': package,
+        'related_packages': related_packages,
+    }
+    return render(request, 'packages/package_detail.html', context)

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reject Verification - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-full">
+    <div class="max-w-2xl mx-auto py-10 px-4">
+        <a href="{% url 'admin_dashboard:verification_requests' %}" class="inline-flex items-center text-sm text-gray-600 hover:text-gray-800 mb-6">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Requests
+        </a>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <h1 class="text-xl font-bold text-gray-900 mb-4">Reject Agency Verification</h1>
+
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                <div class="flex">
+                    <i class="fas fa-exclamation-triangle text-red-500 mr-3 mt-1"></i>
+                    <div>
+                        <h3 class="text-sm font-medium text-red-800">Warning</h3>
+                        <p class="text-sm text-red-700 mt-1">
+                            Rejecting this verification request will notify the agency that their request has been denied.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <p class="text-sm text-gray-700"><strong>Agency:</strong> {{ verification_request.agency.name }}</p>
+                <p class="text-sm text-gray-700"><strong>Requested By:</strong> {{ verification_request.requested_by.get_full_name|default:verification_request.requested_by.username }}</p>
+                <p class="text-sm text-gray-700"><strong>Requested At:</strong> {{ verification_request.created_at|date:"Y-m-d H:i" }}</p>
+            </div>
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Reason for Rejection <span class="text-red-500">*</span></label>
+                    <textarea name="admin_notes" rows="4" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="Please provide a clear reason for rejection. This will be included in the rejection email to help the agency understand what needs to be addressed."></textarea>
+                    <p class="mt-2 text-sm text-gray-500">This information will be sent to the agency in the rejection notification.</p>
+                </div>
+                <div class="flex items-center justify-end space-x-3">
+                    <a href="{% url 'admin_dashboard:verification_requests' %}" class="px-4 py-2 border rounded-md text-sm">Cancel</a>
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                        <i class="fas fa-times mr-2"></i> Reject
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

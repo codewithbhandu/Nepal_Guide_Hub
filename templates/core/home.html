@@ -1,0 +1,452 @@
+{% extends 'base.html' %}
+
+{% block title %}Nepal Guide Hub - Discover Nepal with Expert Guides{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="relative min-h-screen bg-gradient-to-br from-white via-green-50 to-green-100 overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-10 left-10 transform rotate-12">
+            <i class="fas fa-mountain text-green-800 text-8xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 transform -rotate-12">
+            <i class="fas fa-hiking text-green-700 text-6xl"></i>
+        </div>
+        <div class="absolute bottom-32 left-1/4 transform rotate-45">
+            <i class="fas fa-camera text-green-600 text-7xl"></i>
+        </div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <div class="text-center animate-fade-in">
+            <!-- Hero Content -->
+            <div class="mb-12">
+                <h1 class="text-5xl md:text-7xl font-black text-gray-900 mb-6 leading-tight">
+            Discover <span class="text-green-800">Nepal</span><br>
+            with <span class="text-green-700">Expert Guides</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
+                    Connect with verified travel agencies and professional guides for authentic Nepal experiences.
+                    Your adventure of a lifetime starts here.
+                </p>
+            </div>
+            
+            <!-- Enhanced Search Bar -->
+            <div class="max-w-4xl mx-auto mb-16">
+                <div class="bg-white rounded-2xl shadow-xl p-6 glass-effect border border-white">
+                    <form method="GET" action="{% url 'core:search' %}" class="space-y-4">
+                        <div class="flex flex-col lg:flex-row gap-4">
+                            <div class="flex-1">
+                                <input type="text" name="query" placeholder="Where do you want to explore in Nepal?" 
+                                       class="w-full px-6 py-4 text-gray-900 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-green-800 focus:bg-white transition-all duration-300 text-lg">
+                            </div>
+                            <button type="submit" class="bg-gradient-to-r from-green-700 to-green-800 text-white px-8 py-4 rounded-xl hover:from-green-800 hover:to-green-900 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-semibold">
+                                <i class="fas fa-search mr-2"></i>Explore Now
+                            </button>
+                        </div>
+                        
+                        <!-- Quick Filters -->
+                        <div class="flex flex-wrap justify-center gap-3 mt-6">
+                            <button type="button" class="filter-btn px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200 transition-colors" data-filter="trekking">
+                                <i class="fas fa-hiking mr-1"></i>Trekking
+                            </button>
+                            <button type="button" class="filter-btn px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200 transition-colors" data-filter="cultural">
+                                <i class="fas fa-temple mr-1"></i>Cultural
+                            </button>
+                            <button type="button" class="filter-btn px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200 transition-colors" data-filter="wildlife">
+                                <i class="fas fa-paw mr-1"></i>Wildlife
+                            </button>
+                            <button type="button" class="filter-btn px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200 transition-colors" data-filter="adventure">
+                                <i class="fas fa-parachute-box mr-1"></i>Adventure
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Trust Indicators -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 counter-card">
+                    <i class="fas fa-mountain text-3xl text-green-800 mb-4"></i>
+                    <div class="text-3xl font-bold text-gray-900 counter" data-target="500">0</div>
+                    <div class="text-gray-600 font-medium">Travel Packages</div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 counter-card">
+                    <i class="fas fa-user-tie text-3xl text-green-800 mb-4"></i>
+                    <div class="text-3xl font-bold text-gray-900 counter" data-target="200">0</div>
+                    <div class="text-gray-600 font-medium">Expert Guides</div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 counter-card">
+                    <i class="fas fa-building text-3xl text-green-800 mb-4"></i>
+                    <div class="text-3xl font-bold text-gray-900 counter" data-target="50">0</div>
+                    <div class="text-gray-600 font-medium">Partner Agencies</div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 counter-card">
+                    <i class="fas fa-heart text-3xl text-green-800 mb-4"></i>
+                    <div class="text-3xl font-bold text-gray-900 counter" data-target="10000">0</div>
+                    <div class="text-gray-600 font-medium">Happy Tourists</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce-slow">
+        <i class="fas fa-chevron-down text-green-800 text-2xl"></i>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Why Choose Nepal Guide Hub?</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                We connect authentic Nepal experiences with travelers through verified guides and trusted agencies
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-12">
+            <div class="text-center group animate-slide-up">
+                <div class="bg-gradient-to-br from-nepal-green-500 to-nepal-green-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <i class="fas fa-shield-alt text-white text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Verified & Trusted</h3>
+                <p class="text-gray-600 leading-relaxed">All agencies and guides are thoroughly verified to ensure authentic and safe experiences for every traveler.</p>
+            </div>
+            
+            <div class="text-center group animate-slide-up" style="animation-delay: 0.2s;">
+                <div class="bg-gradient-to-br from-nepal-green-600 to-nepal-green-700 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <i class="fas fa-star text-white text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Expert Local Guides</h3>
+                <p class="text-gray-600 leading-relaxed">Connect with experienced local guides who know Nepal's hidden gems and cultural treasures intimately.</p>
+            </div>
+            
+            <div class="text-center group animate-slide-up" style="animation-delay: 0.4s;">
+                <div class="bg-gradient-to-br from-nepal-green-700 to-nepal-green-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <i class="fas fa-heart text-white text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Authentic Experiences</h3>
+                <p class="text-gray-600 leading-relaxed">Discover real Nepal through carefully curated packages and genuine local interactions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Packages -->
+{% if featured_packages %}
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Packages</h2>
+            <p class="text-xl text-gray-600">Discover our most popular travel experiences</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for package in featured_packages %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                {% if package.get_main_image %}
+                <img src="{{ package.get_main_image.image.url }}" alt="{{ package.title }}" 
+                     class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-gradient-to-r from-nepal-blue to-blue-600 flex items-center justify-center">
+                    <i class="fas fa-mountain text-white text-4xl"></i>
+                </div>
+                {% endif %}
+                
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="inline-block bg-nepal-blue text-white text-xs px-2 py-1 rounded-full uppercase tracking-wide">
+                            {{ package.get_package_type_display }}
+                        </span>
+                        <span class="text-sm text-gray-500">{{ package.duration_days }} days</span>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ package.title }}</h3>
+                    <p class="text-gray-600 text-sm mb-4">{{ package.description|truncatewords:20 }}</p>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-building text-gray-400 text-sm mr-2"></i>
+                            <span class="text-sm text-gray-600">{{ package.agency.name }}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-nepal-blue">${{ package.price_per_person }}</div>
+                            <div class="text-sm text-gray-500">per person</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t">
+                        <a href="{% url 'packages:package_detail' package.slug %}" 
+                           class="block w-full bg-nepal-blue text-white text-center py-2 rounded-md hover:bg-blue-700 transition-colors">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-8">
+            <a href="{% url 'packages:package_list' %}" 
+               class="inline-block bg-nepal-green text-white px-8 py-3 rounded-md hover:bg-green-700 transition-colors">
+                View All Packages
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Top Rated Guides -->
+{% if top_guides %}
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Top Rated Guides</h2>
+            <p class="text-xl text-gray-600">Meet our experienced and highly rated local guides</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for guide in top_guides %}
+            <div class="bg-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                {% if guide.profile_picture %}
+                <img src="{{ guide.profile_picture.url }}" alt="{{ guide.name }}" 
+                     class="w-24 h-24 rounded-full mx-auto mb-4 object-cover">
+                {% else %}
+                <div class="w-24 h-24 rounded-full mx-auto mb-4 bg-gray-300 flex items-center justify-center">
+                    <i class="fas fa-user text-gray-500 text-2xl"></i>
+                </div>
+                {% endif %}
+                
+                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ guide.name }}</h3>
+                <p class="text-gray-600 text-sm mb-4">{{ guide.bio|truncatewords:15 }}</p>
+                
+                <div class="flex items-center justify-center mb-4">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= guide.rating %}
+                            <i class="fas fa-star text-yellow-400"></i>
+                        {% else %}
+                            <i class="far fa-star text-yellow-400"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="ml-2 text-sm text-gray-600">({{ guide.total_ratings }} reviews)</span>
+                </div>
+                
+                <div class="text-sm text-gray-600 mb-4">
+                    <i class="fas fa-clock mr-1"></i>{{ guide.experience_years }} years experience
+                </div>
+                
+                <div class="text-2xl font-bold text-nepal-blue mb-4">${{ guide.daily_rate }}/day</div>
+                
+                <a href="{% url 'guides:guide_detail' guide.id %}" 
+                   class="inline-block bg-nepal-green text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors">
+                    View Profile
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-8">
+            <a href="{% url 'guides:guide_list' %}" 
+               class="inline-block bg-nepal-blue text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors">
+                View All Guides
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Partner Agencies -->
+{% if top_agencies %}
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Partner Agencies</h2>
+            <p class="text-xl text-gray-600">Trusted and verified travel agencies</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for agency in top_agencies %}
+            <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <div class="flex items-center mb-4">
+                    {% if agency.logo %}
+                    <img src="{{ agency.logo.url }}" alt="{{ agency.name }}" 
+                         class="w-16 h-16 rounded-lg object-cover mr-4">
+                    {% else %}
+                    <div class="w-16 h-16 rounded-lg bg-nepal-blue flex items-center justify-center mr-4">
+                        <i class="fas fa-building text-white text-xl"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">{{ agency.name }}</h3>
+                        <div class="flex items-center">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= agency.rating %}
+                                    <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                {% else %}
+                                    <i class="far fa-star text-yellow-400 text-sm"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ml-2 text-sm text-gray-600">({{ agency.total_ratings }})</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-gray-600 text-sm mb-4">{{ agency.description|truncatewords:20 }}</p>
+                
+                <div class="flex items-center justify-between text-sm text-gray-600 mb-4">
+                    <span><i class="fas fa-users mr-1"></i>{{ agency.guides.count }} Guides</span>
+                    <span><i class="fas fa-box mr-1"></i>{{ agency.packages.count }} Packages</span>
+                </div>
+                
+                <a href="{% url 'agencies:agency_detail' agency.id %}" 
+                   class="block w-full bg-nepal-red text-white text-center py-2 rounded-md hover:bg-red-700 transition-colors">
+                    View Agency
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-8">
+            <a href="{% url 'agencies:agency_list' %}" 
+               class="inline-block bg-nepal-red text-white px-8 py-3 rounded-md hover:bg-red-700 transition-colors">
+                View All Agencies
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-16 bg-gradient-to-r from-nepal-green to-green-700 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Explore Nepal?</h2>
+        <p class="text-xl mb-8">Join thousands of travelers who discovered Nepal with our expert guides</p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'packages:package_list' %}" 
+               class="bg-white text-nepal-green px-8 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors">
+                Browse Packages
+            </a>
+            <a href="{% url 'guides:guide_list' %}" 
+               class="border-2 border-white text-white px-8 py-3 rounded-md font-semibold hover:bg-white hover:text-nepal-green transition-colors">
+                Find a Guide
+            </a>
+        </div>
+    </div>
+</section>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Counter Animation
+    function animateCounters() {
+        const counters = document.querySelectorAll('.counter');
+        const speed = 200;
+        
+        counters.forEach(counter => {
+            const target = +counter.getAttribute('data-target');
+            const count = +counter.innerText;
+            const inc = target / speed;
+            
+            if (count < target) {
+                counter.innerText = Math.ceil(count + inc);
+                setTimeout(() => animateCounters(), 1);
+            } else {
+                counter.innerText = target.toLocaleString();
+            }
+        });
+    }
+    
+    // Intersection Observer for counter animation
+    const counterSection = document.querySelector('.counter-card');
+    let hasAnimated = false;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !hasAnimated) {
+                animateCounters();
+                hasAnimated = true;
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    if (counterSection) {
+        observer.observe(counterSection);
+    }
+    
+    // Filter buttons functionality
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const searchInput = document.querySelector('input[name="query"]');
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterBtns.forEach(b => b.classList.remove('bg-nepal-green-500', 'text-white'));
+            filterBtns.forEach(b => b.classList.add('bg-nepal-green-100', 'text-nepal-green-700'));
+            
+            // Add active class to clicked button
+            this.classList.remove('bg-nepal-green-100', 'text-nepal-green-700');
+            this.classList.add('bg-nepal-green-500', 'text-white');
+            
+            // Update search input with filter value
+            const filterValue = this.getAttribute('data-filter');
+            searchInput.value = filterValue;
+            
+            // Optional: Auto-submit form
+            // this.closest('form').submit();
+        });
+    });
+    
+    // Smooth scroll for scroll indicator
+    const scrollIndicator = document.querySelector('.animate-bounce-slow');
+    if (scrollIndicator) {
+        scrollIndicator.addEventListener('click', function() {
+            const featuresSection = document.querySelector('section');
+            if (featuresSection) {
+                featuresSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
+    
+    // Add parallax effect to hero background
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelector('.absolute.inset-0.opacity-10');
+        if (parallax) {
+            parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
+    });
+    
+    // Add hover effects to cards
+    const cards = document.querySelectorAll('.shadow-lg');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // Animate elements on scroll
+    const animateElements = document.querySelectorAll('.animate-slide-up');
+    const slideObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    animateElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+        slideObserver.observe(el);
+    });
+});
+</script>
+{% endblock %}

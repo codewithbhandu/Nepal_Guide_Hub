@@ -1,0 +1,205 @@
+<!-- packages/package_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}Travel Packages - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-br from-white via-nepal-green-50 to-nepal-green-100 py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-6xl font-black text-gray-900 mb-6">Travel Packages</h1>
+        <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">Discover amazing adventures with our curated travel packages from verified agencies</p>
+        
+        <!-- Enhanced Search -->
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-6 border border-white">
+                <form method="GET" class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <input type="text" name="search" placeholder="Search for your dream destination..." value="{{ request.GET.search }}" 
+                               class="w-full px-6 py-4 text-gray-900 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-nepal-green-500 focus:bg-white transition-all duration-300 text-lg">
+                    </div>
+                    <button type="submit" class="bg-gradient-to-r from-nepal-green-500 to-nepal-green-600 text-white px-8 py-4 rounded-xl hover:from-nepal-green-600 hover:to-nepal-green-700 transition-all duration-300 shadow-lg font-semibold">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Filters -->
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Package Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Package Type</label>
+                    <select name="type" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-blue focus:border-nepal-blue">
+                        <option value="">All Types</option>
+                        {% for value, label in package_types %}
+                            <option value="{{ value }}" {% if current_filters.type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Difficulty -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+                    <select name="difficulty" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-blue focus:border-nepal-blue">
+                        <option value="">All Levels</option>
+                        {% for value, label in difficulty_levels %}
+                            <option value="{{ value }}" {% if current_filters.difficulty == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Price Range -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Min Price ($)</label>
+                    <input type="number" name="min_price" value="{{ current_filters.min_price }}" placeholder="0"
+                           class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-blue focus:border-nepal-blue">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Max Price ($)</label>
+                    <input type="number" name="max_price" value="{{ current_filters.max_price }}" placeholder="10000"
+                           class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-blue focus:border-nepal-blue">
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                <!-- Sort -->
+                <div class="flex items-center space-x-4">
+                    <label class="text-sm font-medium text-gray-700">Sort by:</label>
+                    <select name="sort" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-blue focus:border-nepal-blue">
+                        <option value="created_at" {% if current_filters.sort == 'created_at' %}selected{% endif %}>Newest</option>
+                        <option value="price_low" {% if current_filters.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high" {% if current_filters.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="rating" {% if current_filters.sort == 'rating' %}selected{% endif %}>Top Rated</option>
+                    </select>
+                </div>
+
+                <!-- Filter/Reset buttons -->
+                <div class="flex space-x-2">
+                    <button type="submit" class="bg-nepal-blue text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-filter mr-2"></i>Apply Filters
+                    </button>
+                    <a href="{% url 'packages:package_list' %}" class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-times mr-2"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results -->
+    {% if page_obj %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for package in page_obj %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <!-- Package Image -->
+                {% if package.get_main_image %}
+                <img src="{{ package.get_main_image.image.url }}" alt="{{ package.title }}" 
+                     class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-gradient-to-r from-nepal-blue to-blue-600 flex items-center justify-center">
+                    <i class="fas fa-mountain text-white text-4xl"></i>
+                </div>
+                {% endif %}
+                
+                <div class="p-6">
+                    <!-- Package Type & Duration -->
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-block bg-nepal-blue text-white text-xs px-2 py-1 rounded-full uppercase tracking-wide">
+                            {{ package.get_package_type_display }}
+                        </span>
+                        <div class="flex items-center text-gray-500 text-sm">
+                            <i class="fas fa-calendar-alt mr-1"></i>
+                            <span>{{ package.duration_days }} days</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Title -->
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ package.title }}</h3>
+                    
+                    <!-- Description -->
+                    <p class="text-gray-600 text-sm mb-4">{{ package.description|truncatewords:20 }}</p>
+                    
+                    <!-- Details -->
+                    <div class="space-y-2 text-sm text-gray-600 mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-building text-gray-400 w-4 mr-2"></i>
+                            <span>{{ package.agency.name }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-users text-gray-400 w-4 mr-2"></i>
+                            <span>{{ package.min_people }}-{{ package.max_people }} people</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-chart-line text-gray-400 w-4 mr-2"></i>
+                            <span>{{ package.get_difficulty_level_display }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Price & Action -->
+                    <div class="flex items-center justify-between pt-4 border-t">
+                        <div>
+                            <div class="text-2xl font-bold text-nepal-blue">${{ package.price_per_person }}</div>
+                            <div class="text-sm text-gray-500">per person</div>
+                        </div>
+                        <a href="{% url 'packages:package_detail' package.slug %}" 
+                           class="bg-nepal-green text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" 
+                   class="px-3 py-2 bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 rounded-md">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="px-3 py-2 bg-nepal-blue text-white rounded-md">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}" class="px-3 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" 
+                   class="px-3 py-2 bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 rounded-md">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-search text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No packages found</h3>
+            <p class="text-gray-600">Try adjusting your search criteria.</p>
+        </div>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Guides - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-br from-white via-nepal-green-50 to-nepal-green-100 py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-6xl font-black text-gray-900 mb-6">Find Expert Guides</h1>
+        <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">Connect with experienced local guides who know Nepal's hidden gems and cultural treasures</p>
+        
+        <!-- Enhanced Search -->
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-6 border border-white">
+                <form method="GET" class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <input type="text" name="search" placeholder="Search for guides by name, location, or specialty..." value="{{ request.GET.search }}" 
+                               class="w-full px-6 py-4 text-gray-900 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-nepal-green-500 focus:bg-white transition-all duration-300 text-lg">
+                    </div>
+                    <button type="submit" class="bg-gradient-to-r from-nepal-green-500 to-nepal-green-600 text-white px-8 py-4 rounded-xl hover:from-nepal-green-600 hover:to-nepal-green-700 transition-all duration-300 shadow-lg font-semibold">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Section -->
+<div class="bg-white py-8 border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-gray-50 rounded-lg p-6">
+            <form method="GET" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Specialty Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Specialty</label>
+                        <select name="specialty" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                            <option value="">All Specialties</option>
+                            <option value="trekking" {% if request.GET.specialty == 'trekking' %}selected{% endif %}>Trekking</option>
+                            <option value="mountaineering" {% if request.GET.specialty == 'mountaineering' %}selected{% endif %}>Mountaineering</option>
+                            <option value="cultural" {% if request.GET.specialty == 'cultural' %}selected{% endif %}>Cultural Tours</option>
+                            <option value="wildlife" {% if request.GET.specialty == 'wildlife' %}selected{% endif %}>Wildlife Safari</option>
+                            <option value="adventure" {% if request.GET.specialty == 'adventure' %}selected{% endif %}>Adventure Sports</option>
+                        </select>
+                    </div>
+
+                    <!-- Experience Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Experience</label>
+                        <select name="experience" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                            <option value="">Any Experience</option>
+                            <option value="1-3" {% if request.GET.experience == '1-3' %}selected{% endif %}>1-3 years</option>
+                            <option value="3-5" {% if request.GET.experience == '3-5' %}selected{% endif %}>3-5 years</option>
+                            <option value="5-10" {% if request.GET.experience == '5-10' %}selected{% endif %}>5-10 years</option>
+                            <option value="10+" {% if request.GET.experience == '10+' %}selected{% endif %}>10+ years</option>
+                        </select>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Daily Rate ($)</label>
+                        <input type="number" name="max_rate" value="{{ request.GET.max_rate }}" placeholder="Any price"
+                               class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                    </div>
+
+                    <!-- Language -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                        <select name="language" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                            <option value="">Any Language</option>
+                            <option value="en" {% if request.GET.language == 'en' %}selected{% endif %}>English</option>
+                            <option value="ne" {% if request.GET.language == 'ne' %}selected{% endif %}>Nepali</option>
+                            <option value="hi" {% if request.GET.language == 'hi' %}selected{% endif %}>Hindi</option>
+                            <option value="zh" {% if request.GET.language == 'zh' %}selected{% endif %}>Chinese</option>
+                            <option value="fr" {% if request.GET.language == 'fr' %}selected{% endif %}>French</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <label class="text-sm font-medium text-gray-700">Sort by:</label>
+                        <select name="sort" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                            <option value="rating" {% if request.GET.sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+                            <option value="experience" {% if request.GET.sort == 'experience' %}selected{% endif %}>Most Experienced</option>
+                            <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        </select>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button type="submit" class="bg-nepal-green-600 text-white px-6 py-2 rounded-md hover:bg-nepal-green-700 transition-colors">
+                            <i class="fas fa-filter mr-2"></i>Apply Filters
+                        </button>
+                        <a href="{% url 'guides:guide_list' %}" class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition-colors">
+                            <i class="fas fa-times mr-2"></i>Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Guides Grid -->
+<div class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if guides %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for guide in guides %}
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                    <div class="p-6">
+                        <!-- Guide Photo -->
+                        <div class="flex flex-col items-center text-center mb-6">
+                            {% if guide.profile_picture %}
+                            <img src="{{ guide.profile_picture.url }}" alt="{{ guide.name }}" 
+                                 class="w-24 h-24 rounded-full object-cover mb-4 ring-4 ring-nepal-green-100 group-hover:ring-nepal-green-200 transition-all">
+                            {% else %}
+                            <div class="w-24 h-24 rounded-full bg-nepal-green-100 flex items-center justify-center mb-4 ring-4 ring-nepal-green-100 group-hover:ring-nepal-green-200 transition-all">
+                                <i class="fas fa-user text-nepal-green-600 text-2xl"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ guide.name }}</h3>
+                            
+                            <!-- Rating -->
+                            <div class="flex items-center mb-2">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= guide.rating %}
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-yellow-400"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ml-2 text-sm text-gray-600">({{ guide.total_ratings }} reviews)</span>
+                            </div>
+                            
+                            <!-- Agency -->
+                            <div class="text-sm text-gray-600 mb-4">
+                                <i class="fas fa-building mr-1"></i>{{ guide.agency.name }}
+                                {% if guide.agency.is_verified %}
+                                <i class="fas fa-check-circle text-nepal-green-500 ml-1" title="Verified Agency"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Guide Info -->
+                        <div class="space-y-3 mb-6">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-clock w-4 mr-2 text-nepal-green-600"></i>
+                                <span>{{ guide.experience_years }} years experience</span>
+                            </div>
+                            
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-language w-4 mr-2 text-nepal-green-600"></i>
+                                <span>{{ guide.get_languages_display|join:", " }}</span>
+                            </div>
+                            
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-tags w-4 mr-2 text-nepal-green-600"></i>
+                                <span>{{ guide.get_specialties_display|join:", " }}</span>
+                            </div>
+                            
+                            {% if guide.places_covered %}
+                            <div class="flex items-start text-sm text-gray-600">
+                                <i class="fas fa-map-marker-alt w-4 mr-2 text-nepal-green-600 mt-0.5"></i>
+                                <span>{{ guide.places_covered|truncatechars:50 }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Bio -->
+                        <p class="text-gray-600 text-sm mb-6 line-clamp-3">{{ guide.bio|truncatewords:20 }}</p>
+                        
+                        <!-- Price and Actions -->
+                        <div class="border-t pt-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-2xl font-bold text-nepal-green-600">${{ guide.daily_rate }}</div>
+                                    <div class="text-sm text-gray-500">per day</div>
+                                </div>
+                                
+                                <div class="flex flex-col gap-2">
+                                    <a href="{% url 'guides:guide_detail' guide.id %}" 
+                                       class="bg-nepal-green-600 text-white px-4 py-2 rounded-md hover:bg-nepal-green-700 transition-colors text-sm font-medium text-center">
+                                        View Profile
+                                    </a>
+                                    
+                                    {% if user.is_authenticated and user.user_type == 'tourist' %}
+                                        <a href="{% url 'bookings:book_guide' guide.id %}" 
+                                           class="bg-nepal-blue text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium text-center">
+                                            <i class="fas fa-calendar-check mr-1"></i>Book Guide
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'accounts:login' %}?next={% url 'bookings:book_guide' guide.id %}" 
+                                           class="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition-colors text-sm font-medium text-center">
+                                            <i class="fas fa-lock mr-1"></i>Login to Book
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if guides.has_other_pages %}
+            <div class="mt-12 flex justify-center">
+                <nav class="flex items-center space-x-2">
+                    {% if guides.has_previous %}
+                    <a href="?page={{ guides.previous_page_number }}&{{ request.GET.urlencode }}" 
+                       class="px-3 py-2 bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 rounded-md">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+
+                    {% for num in guides.paginator.page_range %}
+                        {% if guides.number == num %}
+                        <span class="px-3 py-2 bg-nepal-green-600 text-white rounded-md">{{ num }}</span>
+                        {% elif num > guides.number|add:'-3' and num < guides.number|add:'3' %}
+                        <a href="?page={{ num }}&{{ request.GET.urlencode }}" class="px-3 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if guides.has_next %}
+                    <a href="?page={{ guides.next_page_number }}&{{ request.GET.urlencode }}" 
+                       class="px-3 py-2 bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 rounded-md">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+            
+        {% else %}
+            <div class="text-center py-16">
+                <i class="fas fa-user-friends text-gray-400 text-6xl mb-6"></i>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-4">No guides found</h3>
+                <p class="text-gray-600 mb-8">Try adjusting your search criteria or filters.</p>
+                <a href="{% url 'guides:guide_list' %}" class="bg-nepal-green-600 text-white px-6 py-3 rounded-md hover:bg-nepal-green-700 transition-colors">
+                    Clear Filters
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- CTA Section -->
+<section class="py-16 bg-gradient-to-r from-nepal-green-600 to-nepal-green-700 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Can't Find the Right Guide?</h2>
+        <p class="text-xl mb-8 max-w-2xl mx-auto">Contact us and we'll help you find the perfect guide for your Nepal adventure</p>
+        
+        <a href="{% url 'core:contact' %}" 
+           class="bg-white text-nepal-green-600 px-8 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors">
+            Contact Us
+        </a>
+    </div>
+</section>
+{% endblock %}

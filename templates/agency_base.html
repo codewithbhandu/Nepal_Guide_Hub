@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agency Dashboard - Nepal Guide Hub{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        'nepal-green': {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        'nepal-blue': '#003893',
+                        'nepal-red': '#DC143C',
+                        'admin-purple': {
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .sidebar-transition { transition: all 0.3s ease; }
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-full font-poppins">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64">
+                <div class="flex flex-col flex-grow pt-5 overflow-y-auto bg-gradient-to-b from-nepal-green-800 to-nepal-green-900 sidebar-transition">
+                    <div class="flex items-center flex-shrink-0 px-6">
+                        <i class="fas fa-mountain text-white text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-white">Agency Portal</span>
+                    </div>
+                    
+                    <!-- Agency Info -->
+                    <div class="px-6 mt-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                {% if user.agency.logo %}
+                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ user.agency.logo.url }}" alt="Agency Logo">
+                                {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-nepal-green-600 flex items-center justify-center">
+                                        <i class="fas fa-building text-white"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-white">
+                                    {% if user.agency.name %}
+                                        {{ user.agency.name|truncatechars:20 }}
+                                    {% else %}
+                                        {{ user.username }}
+                                    {% endif %}
+                                </p>
+                                <p class="text-xs text-nepal-green-200">
+                                    {% if user.agency.is_verified %}
+                                        <i class="fas fa-check-circle mr-1"></i>Verified
+                                    {% else %}
+                                        <i class="fas fa-clock mr-1"></i>Pending
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <nav class="mt-8 flex-1 px-3">
+                        <div class="space-y-1">
+                            <a href="{% url 'agencies:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}bg-nepal-green-700 text-white{% else %}text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white{% endif %} group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                                <i class="fas fa-tachometer-alt mr-3 text-lg w-5"></i>
+                                Dashboard
+                            </a>
+                            
+                            <a href="{% url 'accounts:agency_profile' %}" class="{% if request.resolver_match.url_name == 'agency_profile' %}bg-nepal-green-700 text-white{% else %}text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white{% endif %} group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                                <i class="fas fa-user-edit mr-3 text-lg w-5"></i>
+                                Profile
+                            </a>
+                            
+                            <a href="{% url 'agencies:manage_packages' %}" class="{% if request.resolver_match.url_name == 'manage_packages' %}bg-nepal-green-700 text-white{% else %}text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white{% endif %} group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                                <i class="fas fa-box mr-3 text-lg w-5"></i>
+                                Packages
+                            </a>
+                            
+                            <a href="{% url 'agencies:manage_guides' %}" class="{% if request.resolver_match.url_name == 'manage_guides' %}bg-nepal-green-700 text-white{% else %}text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white{% endif %} group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                                <i class="fas fa-users mr-3 text-lg w-5"></i>
+                                Guides
+                            </a>
+                            
+                            <a href="{% url 'agencies:bookings' %}" class="{% if request.resolver_match.url_name == 'bookings' %}bg-nepal-green-700 text-white{% else %}text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white{% endif %} group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                                <i class="fas fa-calendar-check mr-3 text-lg w-5"></i>
+                                Bookings
+                                <span class="ml-auto">
+                                    <span id="new-bookings-badge" class="hidden bg-red-500 text-white text-xs rounded-full px-2 py-1 notification-badge">0</span>
+                                </span>
+                            </a>
+                            
+                            <a href="{% url 'agencies:analytics' %}" class="{% if request.resolver_match.url_name == 'analytics' %}bg-nepal-green-700 text-white{% else %}text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white{% endif %} group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                                <i class="fas fa-chart-bar mr-3 text-lg w-5"></i>
+                                Analytics
+                            </a>
+                        </div>
+                        
+                        <div class="mt-8 pt-4 border-t border-nepal-green-700">
+                            <a href="{% url 'core:home' %}" class="text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                                <i class="fas fa-external-link-alt mr-3 text-lg w-5"></i>
+                                Main Website
+                            </a>
+                            
+                            <a href="{% url 'accounts:logout' %}" class="text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                                <i class="fas fa-sign-out-alt mr-3 text-lg w-5"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile sidebar -->
+        <div class="md:hidden">
+            <div class="fixed inset-0 flex z-40 hidden" id="mobile-sidebar">
+                <div class="fixed inset-0 bg-gray-600 bg-opacity-75" id="sidebar-overlay"></div>
+                <div class="relative flex-1 flex flex-col max-w-xs w-full bg-gradient-to-b from-nepal-green-800 to-nepal-green-900">
+                    <div class="absolute top-0 right-0 -mr-12 pt-2">
+                        <button class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" id="close-sidebar">
+                            <i class="fas fa-times text-white"></i>
+                        </button>
+                    </div>
+                    <!-- Mobile menu content (same as desktop) -->
+                    <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+                        <div class="flex items-center flex-shrink-0 px-4">
+                            <i class="fas fa-mountain text-white text-2xl mr-2"></i>
+                            <span class="text-xl font-bold text-white">Agency Portal</span>
+                        </div>
+                        <!-- Same navigation as desktop -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="flex flex-col w-0 flex-1 overflow-hidden">
+            <!-- Top bar -->
+            <div class="relative z-10 flex-shrink-0 flex h-16 bg-white shadow-sm">
+                <button class="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-nepal-green-500 md:hidden" id="open-sidebar">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                
+                <div class="flex-1 px-4 flex justify-between items-center">
+                    <div class="flex-1 flex">
+                        <h1 class="text-2xl font-semibold text-gray-900">
+                            {% block page_title %}Dashboard{% endblock %}
+                        </h1>
+                    </div>
+                    
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <!-- Notifications -->
+                        <button class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-1 notification-badge hidden" id="notification-count">0</span>
+                        </button>
+                        
+                        <!-- Profile dropdown -->
+                        <div class="ml-3 relative">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-700 mr-2">{{ user.username }}</span>
+                                <div class="h-8 w-8 rounded-full bg-nepal-green-600 flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-sm"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                <div class="px-4 sm:px-6 lg:px-8 pt-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% elif message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800 border border-yellow-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    {% if message.tags == 'error' %}
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    {% elif message.tags == 'success' %}
+                                        <i class="fas fa-check-circle"></i>
+                                    {% elif message.tags == 'warning' %}
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    {% else %}
+                                        <i class="fas fa-info-circle"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-3">
+                                    {{ message }}
+                                </div>
+                                <div class="ml-auto pl-3">
+                                    <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Page content -->
+            <main class="flex-1 relative overflow-y-auto focus:outline-none">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        const openSidebar = document.getElementById('open-sidebar');
+        const closeSidebar = document.getElementById('close-sidebar');
+        const mobileSidebar = document.getElementById('mobile-sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        
+        function showMobileSidebar() {
+            mobileSidebar.classList.remove('hidden');
+        }
+        
+        function hideMobileSidebar() {
+            mobileSidebar.classList.add('hidden');
+        }
+        
+        if (openSidebar) {
+            openSidebar.addEventListener('click', showMobileSidebar);
+        }
+        
+        if (closeSidebar) {
+            closeSidebar.addEventListener('click', hideMobileSidebar);
+        }
+        
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', hideMobileSidebar);
+        }
+        
+        // Auto-hide messages after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+        
+        // Simulated real-time notifications (you can replace with WebSocket)
+        function checkNewBookings() {
+            // This would be replaced with actual AJAX call
+            fetch('/agencies/api/new-bookings-count/')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('new-bookings-badge');
+                    const notificationCount = document.getElementById('notification-count');
+                    
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.classList.remove('hidden');
+                        notificationCount.textContent = data.count;
+                        notificationCount.classList.remove('hidden');
+                    }
+                })
+                .catch(error => console.log('Notification check failed:', error));
+        }
+        
+        // Check for new bookings every 30 seconds
+        setInterval(checkNewBookings, 30000);
+        
+        // Initial check
+        checkNewBookings();
+    </script>
+</body>
+</html>

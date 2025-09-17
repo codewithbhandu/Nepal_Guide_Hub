@@ -1,0 +1,139 @@
+<!-- accounts/register.html -->
+{% extends 'base.html' %}
+
+{% block title %}Register - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-white via-nepal-green-50 to-nepal-green-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="text-center">
+            <div class="bg-gradient-to-br from-nepal-green-500 to-nepal-green-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <i class="fas fa-mountain text-white text-3xl"></i>
+            </div>
+            <h2 class="text-4xl font-bold text-gray-900 mb-2">Create your account</h2>
+            <p class="text-lg text-gray-600">
+                Join Nepal Guide Hub community
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <form class="space-y-6" method="post">
+                {% csrf_token %}
+                
+                <!-- User Type Selection -->
+                <div>
+                    <label for="{{ form.user_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        I am a
+                    </label>
+                    <div class="mt-1">
+                        {{ form.user_type }}
+                    </div>
+                    {% if form.user_type.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.user_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Username -->
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Username
+                    </label>
+                    <div class="mt-1">
+                        {{ form.username }}
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Email Address
+                    </label>
+                    <div class="mt-1">
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Phone Number (Optional)
+                    </label>
+                    <div class="mt-1">
+                        {{ form.phone }}
+                    </div>
+                    {% if form.phone.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Password
+                    </label>
+                    <div class="mt-1">
+                        {{ form.password1 }}
+                    </div>
+                    {% if form.password1.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+                    <div class="mt-2 text-xs text-gray-600">
+                        <p class="mb-1">Password must contain:</p>
+                        <ul class="space-y-1 text-gray-500">
+                            <li>• At least 8 characters</li>
+                            <li>• At least 1 capital letter</li>
+                            <li>• At least 1 number</li>
+                            <li>• At least 1 letter (character)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Confirm Password
+                    </label>
+                    <div class="mt-1">
+                        {{ form.password2 }}
+                    </div>
+                    {% if form.password2.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-nepal-green-600 hover:bg-nepal-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500 transition-colors">
+                        Create Account
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600">
+                    Already have an account?
+                    <a href="{% url 'accounts:login' %}" class="font-medium text-nepal-green-600 hover:text-nepal-green-500">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <a href="{% url 'core:home' %}" class="text-sm text-gray-500 hover:text-gray-700">
+                    ← Back to home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+

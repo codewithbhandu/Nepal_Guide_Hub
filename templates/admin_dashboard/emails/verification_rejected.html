@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Update - {{ agency.name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .warning-badge { background: #dc2626; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; margin: 10px 0; }
+        .button { background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; }
+        .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
+        .notes { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626; }
+        .requirements { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .requirement-item { display: flex; align-items: center; margin: 10px 0; }
+        .bullet-icon { color: #dc2626; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ Verification Update</h1>
+            <h2>Your Agency Verification Requires Additional Information</h2>
+        </div>
+        
+        <div class="content">
+            <p><strong>Dear {{ agency.contact_person }},</strong></p>
+            
+            <p>Thank you for submitting your agency verification request for <strong>{{ agency.name }}</strong>. After reviewing your application, we need additional information or corrections before we can approve your agency.</p>
+            
+            <div class="warning-badge">
+                ⚠ VERIFICATION PENDING
+            </div>
+            
+            {% if notes %}
+            <div class="notes">
+                <h3>Review Notes:</h3>
+                <p>{{ notes }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="requirements">
+                <h3>Common Requirements for Verification:</h3>
+                <div class="requirement-item">
+                    <span class="bullet-icon">•</span>
+                    <span>Valid tourism license or registration certificate</span>
+                </div>
+                <div class="requirement-item">
+                    <span class="bullet-icon">•</span>
+                    <span>Complete business address and contact information</span>
+                </div>
+                <div class="requirement-item">
+                    <span class="bullet-icon">•</span>
+                    <span>Detailed agency description and services offered</span>
+                </div>
+                <div class="requirement-item">
+                    <span class="bullet-icon">•</span>
+                    <span>Professional contact person details</span>
+                </div>
+                <div class="requirement-item">
+                    <span class="bullet-icon">•</span>
+                    <span>Clear agency logo or branding (optional but recommended)</span>
+                </div>
+            </div>
+            
+            <p><strong>What to do next:</strong></p>
+            <ol>
+                <li>Review the notes above carefully</li>
+                <li>Update your agency profile with the required information</li>
+                <li>Resubmit your verification request</li>
+                <li>Our team will review your updated application within 2-3 business days</li>
+            </ol>
+            
+            <a href="#" class="button">Update Your Profile</a>
+            
+            <p>If you have any questions about the verification process or need clarification on the requirements, please don't hesitate to contact our support team at <a href="mailto:support@nepalguidehub.com">support@nepalguidehub.com</a></p>
+            
+            <p>We appreciate your interest in joining the Nepal Guide Hub platform and look forward to welcoming you once all requirements are met.</p>
+            
+            <p><strong>Best regards,</strong><br>
+            The Nepal Guide Hub Team</p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 Nepal Guide Hub. All rights reserved.</p>
+            <p>This email was sent to {{ agency.user.email }}</p>
+        </div>
+    </div>
+</body>
+</html>

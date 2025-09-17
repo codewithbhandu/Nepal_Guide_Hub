@@ -1,0 +1,32 @@
+CONGRATULATIONS! Your Agency Has Been Verified
+
+Dear {{ agency.contact_person }},
+
+We are thrilled to inform you that {{ agency.name }} has been successfully verified and approved to operate on the Nepal Guide Hub platform!
+
+✓ VERIFIED AGENCY
+
+What this means for your agency:
+✓ Your agency is now live and visible to tourists
+✓ You can create and publish travel packages
+✓ You can add and manage tour guides
+✓ You can start receiving bookings from tourists
+✓ Access to your complete agency dashboard
+✓ Analytics and performance tracking
+
+Next Steps:
+1. Login to your agency dashboard
+2. Add your first travel packages
+3. Register your tour guides
+4. Start receiving bookings!
+
+If you have any questions or need assistance getting started, our support team is here to help. You can reach us at support@nepalguidehub.com
+
+Welcome to the Nepal Guide Hub family! We're excited to help you grow your tourism business.
+
+Best regards,
+The Nepal Guide Hub Team
+
+---
+© 2024 Nepal Guide Hub. All rights reserved.
+This email was sent to {{ agency.user.email }}
