@@ -1,0 +1,147 @@
+<!-- agencies/manage_guides.html -->
+{% extends 'agency_base.html' %}
+
+{% block title %}Manage Guides - {{ agency.name|default:"Nepal Guide Hub" }}{% endblock %}
+
+{% block page_title %}Manage Guides{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Manage Guides</h1>
+                    <p class="mt-2 text-sm text-gray-600">Manage your guide team</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'agencies:add_guide' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-nepal-green-600 hover:bg-nepal-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Guide
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guides List -->
+        <div class="bg-white shadow rounded-lg">
+            {% if guides %}
+                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-300">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guide</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Languages</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Daily Rate</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for guide in guides %}
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                {% if guide.profile_picture %}
+                                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ guide.profile_picture.url }}" alt="{{ guide.name }}">
+                                                {% else %}
+                                                    <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                        <i class="fas fa-user text-gray-400"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ guide.name }}</div>
+                                                <div class="text-sm text-gray-500">{{ guide.bio|truncatechars:50 }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ guide.experience_years }} years
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {% for lang in guide.get_languages_display %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1">
+                                                {{ lang }}
+                                            </span>
+                                        {% endfor %}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        NPR {{ guide.daily_rate|floatformat:0 }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                            {% if guide.is_available %}bg-green-100 text-green-800
+                                            {% else %}bg-red-100 text-red-800{% endif %}">
+                                            {% if guide.is_available %}Available{% else %}Unavailable{% endif %}
+                                        </span>
+                                        {% if guide.rating > 0 %}
+                                            <div class="mt-1 flex text-yellow-400 text-xs">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= guide.rating %}
+                                                        <i class="fas fa-star"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <span class="ml-1 text-gray-500">({{ guide.total_ratings }})</span>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{% url 'agencies:edit_guide' guide.id %}" class="text-nepal-green-600 hover:text-nepal-green-900">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="#" class="text-red-600 hover:text-red-900" onclick="confirmDelete('{{ guide.name }}', '{% url "agencies:delete_guide" guide.id %}')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-users text-gray-300 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No guides yet</h3>
+                    <p class="text-gray-500 mb-6">Get started by adding your first guide to your team.</p>
+                    <a href="{% url 'agencies:add_guide' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-nepal-green-600 hover:bg-nepal-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Your First Guide
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(guideName, deleteUrl) {
+    if (confirm(`Are you sure you want to delete "${guideName}"? This action cannot be undone.`)) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = deleteUrl;
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

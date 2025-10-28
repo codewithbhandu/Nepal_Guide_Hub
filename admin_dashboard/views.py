@@ -18,18 +18,21 @@ def is_admin(user):
     return user.is_authenticated and (user.is_superuser or user.user_type == 'admin')
 
 def admin_login(request):
-    """Custom admin login view"""
+    """Custom admin login view - only for admin users"""
+    if request.user.is_authenticated and (request.user.is_superuser or request.user.user_type == 'admin'):
+        return redirect('admin_dashboard:dashboard')
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         
         user = authenticate(request, username=username, password=password)
-        if user is not None and user.is_superuser:
+        if user is not None and (user.is_superuser or user.user_type == 'admin'):
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
             return redirect('admin_dashboard:dashboard')
         else:
-            messages.error(request, 'Invalid admin credentials.')
+            messages.error(request, 'Invalid admin credentials. Only admin users can access this page.')
     
     return render(request, 'admin_dashboard/login.html')
 

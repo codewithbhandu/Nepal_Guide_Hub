@@ -1,0 +1,293 @@
+<!-- agencies/edit_guide.html -->
+{% extends 'agency_base.html' %}
+
+{% block title %}Edit Guide - {{ guide.name|default:"Nepal Guide Hub" }}{% endblock %}
+
+{% block page_title %}Edit Guide{% endblock %}
+
+{% block content %}
+<style>
+/* Custom checkbox styling */
+input[type="checkbox"] {
+    accent-color: #16a34a;
+}
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+}
+.checkbox-container input[type="checkbox"] {
+    margin-right: 8px;
+}
+</style>
+<div class="py-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Edit Guide</h1>
+                    <p class="mt-2 text-sm text-gray-600">Update guide information</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'agencies:manage_guides' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Guides
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white shadow rounded-lg">
+            <form method="post" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-user text-nepal-green-600 mr-2"></i>
+                        Basic Information
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Full Name <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.experience_years.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Years of Experience <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.experience_years }}
+                            {% if form.experience_years.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.experience_years.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Biography <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.bio }}
+                        <p class="mt-1 text-sm text-gray-500">Tell us about the guide's background and expertise</p>
+                        {% if form.bio.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.bio.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Profile Picture -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-camera text-nepal-green-600 mr-2"></i>
+                        Profile Picture
+                    </h3>
+                    <div class="flex items-center space-x-6">
+                        <div class="flex-shrink-0">
+                            {% if guide.profile_picture %}
+                                <img class="h-20 w-20 rounded-full object-cover" src="{{ guide.profile_picture.url }}" alt="Current Profile Picture">
+                            {% else %}
+                                <div class="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-400 text-2xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <label for="{{ form.profile_picture.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Upload New Profile Picture
+                            </label>
+                            {{ form.profile_picture }}
+                            <p class="mt-1 text-sm text-gray-500">PNG, JPG, JPEG up to 5MB</p>
+                            {% if form.profile_picture.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.profile_picture.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Languages -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-language text-nepal-green-600 mr-2"></i>
+                        Languages <span class="text-red-500">*</span>
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {% for choice in form.languages %}
+                            <div class="checkbox-container">
+                                {{ choice.tag }}
+                                <label for="{{ choice.id_for_label }}" class="text-sm text-gray-700">
+                                    {{ choice.choice_label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.languages.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.languages.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Specialties -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-star text-nepal-green-600 mr-2"></i>
+                        Specialties <span class="text-red-500">*</span>
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {% for choice in form.specialties %}
+                            <div class="checkbox-container">
+                                {{ choice.tag }}
+                                <label for="{{ choice.id_for_label }}" class="text-sm text-gray-700">
+                                    {{ choice.choice_label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.specialties.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.specialties.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Professional Details -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-briefcase text-nepal-green-600 mr-2"></i>
+                        Professional Details
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.daily_rate.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Daily Rate (NPR) <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">NPR</span>
+                                </div>
+                                {{ form.daily_rate }}
+                            </div>
+                            {% if form.daily_rate.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.daily_rate.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.places_covered.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Places Covered <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.places_covered }}
+                            <p class="mt-1 text-sm text-gray-500">Enter places separated by commas</p>
+                            {% if form.places_covered.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.places_covered.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="{{ form.certifications.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Certifications & Training
+                        </label>
+                        {{ form.certifications }}
+                        <p class="mt-1 text-sm text-gray-500">List any certifications, training, or qualifications</p>
+                        {% if form.certifications.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.certifications.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Availability -->
+                <div class="px-6 py-5">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-calendar-check text-nepal-green-600 mr-2"></i>
+                        Availability
+                    </h3>
+                    <div class="flex items-center">
+                        {{ form.is_available }}
+                        <label for="{{ form.is_available.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700">
+                            Guide is currently available for bookings
+                        </label>
+                    </div>
+                    {% if form.is_available.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.is_available.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Form Actions -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                    <a href="{% url 'agencies:manage_guides' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500">
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-nepal-green-600 hover:bg-nepal-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500">
+                        <i class="fas fa-save mr-2"></i>
+                        Update Guide
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add some interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    field.classList.remove('border-red-500');
+                }
+            });
+            
+            // Check if at least one language is selected
+            const languageCheckboxes = form.querySelectorAll('input[name="languages"]:checked');
+            if (languageCheckboxes.length === 0) {
+                alert('Please select at least one language.');
+                isValid = false;
+            }
+            
+            // Check if at least one specialty is selected
+            const specialtyCheckboxes = form.querySelectorAll('input[name="specialties"]:checked');
+            if (specialtyCheckboxes.length === 0) {
+                alert('Please select at least one specialty.');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    // Profile picture preview
+    const profilePictureInput = document.getElementById('{{ form.profile_picture.id_for_label }}');
+    if (profilePictureInput) {
+        profilePictureInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.querySelector('.flex-shrink-0 .h-20');
+                    if (preview) {
+                        preview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="h-20 w-20 rounded-full object-cover">`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

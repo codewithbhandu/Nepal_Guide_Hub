@@ -27,5 +27,13 @@ class GuideForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             if field_name not in ['languages', 'specialties', 'is_available', 'profile_picture']:
                 field.widget.attrs.update({
-                    'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+                    'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500'
+                })
+            elif field_name == 'is_available':
+                field.widget.attrs.update({
+                    'class': 'h-4 w-4 text-nepal-green-600 focus:ring-nepal-green-500 border-gray-300 rounded'
+                })
+            elif field_name == 'profile_picture':
+                field.widget.attrs.update({
+                    'class': 'block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-nepal-green-50 file:text-nepal-green-700 hover:file:bg-nepal-green-100'
                 })

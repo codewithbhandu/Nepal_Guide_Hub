@@ -18,9 +18,9 @@
 
         <!-- Status Filters -->
         <div class="mb-6 flex items-center space-x-2">
-            <a href="?status=pending" class="px-3 py-1.5 text-sm rounded-md border {{ 'bg-admin-purple-600 text-white border-admin-purple-600' if current_status == 'pending' else 'bg-white text-gray-700' }}">Pending ({{ pending_count }})</a>
-            <a href="?status=approved" class="px-3 py-1.5 text-sm rounded-md border {{ 'bg-green-600 text-white border-green-600' if current_status == 'approved' else 'bg-white text-gray-700' }}">Approved ({{ approved_count }})</a>
-            <a href="?status=rejected" class="px-3 py-1.5 text-sm rounded-md border {{ 'bg-red-600 text-white border-red-600' if current_status == 'rejected' else 'bg-white text-gray-700' }}">Rejected ({{ rejected_count }})</a>
+            <a href="?status=pending" class="px-3 py-1.5 text-sm rounded-md border {% if current_status == 'pending' %}bg-admin-purple-600 text-white border-admin-purple-600{% else %}bg-white text-gray-700{% endif %}">Pending ({{ pending_count }})</a>
+            <a href="?status=approved" class="px-3 py-1.5 text-sm rounded-md border {% if current_status == 'approved' %}bg-green-600 text-white border-green-600{% else %}bg-white text-gray-700{% endif %}">Approved ({{ approved_count }})</a>
+            <a href="?status=rejected" class="px-3 py-1.5 text-sm rounded-md border {% if current_status == 'rejected' %}bg-red-600 text-white border-red-600{% else %}bg-white text-gray-700{% endif %}">Rejected ({{ rejected_count }})</a>
         </div>
 
         <div class="bg-white shadow rounded-lg overflow-hidden">

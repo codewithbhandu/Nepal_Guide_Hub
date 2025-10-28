@@ -133,10 +133,13 @@
                                 Main Website
                             </a>
                             
-                            <a href="{% url 'accounts:logout' %}" class="text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
-                                <i class="fas fa-sign-out-alt mr-3 text-lg w-5"></i>
-                                Logout
-                            </a>
+                            <form method="post" action="{% url 'accounts:logout' %}" class="group">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full text-left text-nepal-green-100 hover:bg-nepal-green-700 hover:text-white flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-3 text-lg w-5"></i>
+                                    Logout
+                                </button>
+                            </form>
                         </div>
                     </nav>
                 </div>

@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db.models import Q, Count
 from apps.accounts.models import Agency
 from apps.guides.forms import GuideForm
 from apps.packages.forms import PackageForm, PackageImageFormSet
@@ -10,24 +11,67 @@ from apps.packages.models import Package, PackageImage
 
 def agency_list(request):
     agencies = Agency.objects.filter(is_verified=True)
-    
+
+    # Search
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        agencies = agencies.filter(
+            Q(name__icontains=search_query)
+            | Q(description__icontains=search_query)
+            | Q(address__icontains=search_query)
+            | Q(license_number__icontains=search_query)
+        )
+
+    # Filtering
+    min_rating = request.GET.get('rating')
+    established = request.GET.get('established')  # recent, experienced, veteran
+    team_size = request.GET.get('team_size')  # small, medium, large
+    verified = request.GET.get('verified')
+
+    if min_rating:
+        agencies = agencies.filter(rating__gte=min_rating)
+    if established:
+        from django.utils import timezone
+        current_year = timezone.now().year
+        if established == 'recent':  # last 5 years
+            agencies = agencies.filter(established_year__gte=current_year - 5)
+        elif established == 'experienced':  # 5-10 years
+            agencies = agencies.filter(established_year__gte=current_year - 10, established_year__lte=current_year - 5)
+        elif established == 'veteran':  # 10+ years
+            agencies = agencies.filter(established_year__lte=current_year - 10)
+    if team_size:
+        agencies = agencies.annotate(num_guides=Count('guides'))
+        if team_size == 'small':
+            agencies = agencies.filter(num_guides__gte=1, num_guides__lte=5)
+        elif team_size == 'medium':
+            agencies = agencies.filter(num_guides__gte=6, num_guides__lte=15)
+        elif team_size == 'large':
+            agencies = agencies.filter(num_guides__gte=16)
+    if verified == 'true':
+        agencies = agencies.filter(is_verified=True)
+
     # Sorting
     sort_by = request.GET.get('sort', 'rating')
-    if sort_by == 'name':
+    if sort_by == 'guides_count':
+        agencies = agencies.annotate(num_guides=Count('guides')).order_by('-num_guides', '-rating')
+    elif sort_by == 'packages_count':
+        agencies = agencies.annotate(num_packages=Count('packages')).order_by('-num_packages', '-rating')
+    elif sort_by == 'established':
+        agencies = agencies.order_by('established_year')  # older first
+    elif sort_by == 'name':
         agencies = agencies.order_by('name')
     elif sort_by == 'newest':
         agencies = agencies.order_by('-created_at')
     else:
-        agencies = agencies.order_by('-rating', '-total_ratings')
-    
+        agencies = agencies.order_by('-rating', '-total_ratings', 'name')
+
     # Pagination
     paginator = Paginator(agencies, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     context = {
-        'page_obj': page_obj,
-        'current_sort': sort_by,
+        'agencies': page_obj,
     }
     return render(request, 'agencies/agency_list.html', context)
 
@@ -425,3 +469,35 @@ def new_bookings_count(request):
     ).count()
     
     return JsonResponse({'count': new_bookings_count})
+
+@login_required
+def delete_guide(request, guide_id):
+    if request.user.user_type != 'agency':
+        messages.error(request, 'Access denied.')
+        return redirect('core:home')
+    
+    guide = get_object_or_404(Guide, id=guide_id, agency=request.user.agency)
+    
+    if request.method == 'POST':
+        guide_name = guide.name
+        guide.delete()
+        messages.success(request, f'Guide "{guide_name}" has been deleted successfully.')
+        return redirect('agencies:manage_guides')
+    
+    return redirect('agencies:manage_guides')
+
+@login_required
+def delete_package(request, package_id):
+    if request.user.user_type != 'agency':
+        messages.error(request, 'Access denied.')
+        return redirect('core:home')
+    
+    package = get_object_or_404(Package, id=package_id, agency=request.user.agency)
+    
+    if request.method == 'POST':
+        package_name = package.title
+        package.delete()
+        messages.success(request, f'Package "{package_name}" has been deleted successfully.')
+        return redirect('agencies:manage_packages')
+    
+    return redirect('agencies:manage_packages')

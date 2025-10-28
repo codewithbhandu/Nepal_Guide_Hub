@@ -1,0 +1,342 @@
+<!-- agencies/add_package.html -->
+{% extends 'agency_base.html' %}
+
+{% block title %}Add Package - {{ agency.name|default:"Nepal Guide Hub" }}{% endblock %}
+
+{% block page_title %}Add New Package{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Add New Package</h1>
+                    <p class="mt-2 text-sm text-gray-600">Create a new travel package for your agency</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'agencies:manage_packages' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Packages
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white shadow rounded-lg">
+            <form method="post" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-info-circle text-nepal-green-600 mr-2"></i>
+                        Basic Information
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Package Title <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.package_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Package Type <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.package_type }}
+                            {% if form.package_type.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.package_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Description <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Package Details -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-cogs text-nepal-green-600 mr-2"></i>
+                        Package Details
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="{{ form.duration_days.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Duration (Days) <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.duration_days }}
+                            {% if form.duration_days.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.duration_days.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.min_people.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Min People <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.min_people }}
+                            {% if form.min_people.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.min_people.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.max_people.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Max People <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.max_people }}
+                            {% if form.max_people.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.max_people.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <label for="{{ form.price_per_person.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Price per Person (NPR) <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">NPR</span>
+                                </div>
+                                {{ form.price_per_person }}
+                            </div>
+                            {% if form.price_per_person.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.price_per_person.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.difficulty_level.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Difficulty Level <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.difficulty_level }}
+                            {% if form.difficulty_level.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.difficulty_level.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-mountain text-nepal-green-600 mr-2"></i>
+                        Additional Information
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.best_season.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Best Season <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.best_season }}
+                            {% if form.best_season.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.best_season.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.altitude.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Maximum Altitude (meters)
+                            </label>
+                            {{ form.altitude }}
+                            {% if form.altitude.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.altitude.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-list text-nepal-green-600 mr-2"></i>
+                        Services
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.included_services.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Included Services <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.included_services }}
+                            <p class="mt-1 text-sm text-gray-500">List all services included in the package</p>
+                            {% if form.included_services.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.included_services.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.excluded_services.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Excluded Services <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.excluded_services }}
+                            <p class="mt-1 text-sm text-gray-500">List services not included in the package</p>
+                            {% if form.excluded_services.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.excluded_services.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="{{ form.equipment_provided.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Equipment Provided
+                        </label>
+                        {{ form.equipment_provided }}
+                        <p class="mt-1 text-sm text-gray-500">List any equipment that will be provided</p>
+                        {% if form.equipment_provided.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.equipment_provided.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Package Images -->
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-images text-nepal-green-600 mr-2"></i>
+                        Package Images
+                    </h3>
+                    <div class="space-y-4">
+                        <p class="text-sm text-gray-600 mb-4">Upload up to 3 images for your package. You can mark one as the main image.</p>
+                        
+                        {{ image_formset.management_form }}
+                        {% for form in image_formset %}
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Image {{ forloop.counter }}
+                                        </label>
+                                        {{ form.image }}
+                                        {% if form.image.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ form.image.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Caption
+                                        </label>
+                                        {{ form.caption }}
+                                        {% if form.caption.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ form.caption.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex items-center">
+                                    {{ form.is_main }}
+                                    <label for="{{ form.is_main.id_for_label }}" class="ml-2 text-sm text-gray-700">
+                                        Set as main image
+                                    </label>
+                                    {{ form.DELETE }}
+                                    <label for="{{ form.DELETE.id_for_label }}" class="ml-2 text-sm text-red-600">
+                                        Delete this image
+                                    </label>
+                                </div>
+                                {% if form.non_field_errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.non_field_errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="text-sm text-gray-500">
+                            <p><i class="fas fa-info-circle mr-1"></i> Supported formats: PNG, JPG, JPEG. Max size: 10MB per image.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Package Settings -->
+                <div class="px-6 py-5">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-settings text-nepal-green-600 mr-2"></i>
+                        Package Settings
+                    </h3>
+                    <div class="flex items-center space-x-6">
+                        <div class="flex items-center">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700">
+                                Active Package
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            {{ form.featured }}
+                            <label for="{{ form.featured.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700">
+                                Featured Package
+                            </label>
+                        </div>
+                    </div>
+                    {% if form.is_active.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.featured.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.featured.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Form Actions -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                    <a href="{% url 'agencies:manage_packages' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500">
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-nepal-green-600 hover:bg-nepal-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500">
+                        <i class="fas fa-save mr-2"></i>
+                        Create Package
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add some interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generate slug from title
+    const titleField = document.getElementById('{{ form.title.id_for_label }}');
+    if (titleField) {
+        titleField.addEventListener('input', function() {
+            // This would typically be handled by JavaScript to create a slug
+            // For now, we'll just ensure the field is properly styled
+        });
+    }
+    
+    // Form validation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    field.classList.remove('border-red-500');
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -28,8 +28,8 @@ def register(request):
 
 def custom_login(request):
     """
-    Custom login view that redirects agencies to their profile page after successful login
-    if they haven't completed their profile yet.
+    Custom login view for tourists and agencies only.
+    Admin users must use the admin-dashboard login page.
     """
     if request.user.is_authenticated:
         # If user is already logged in, redirect appropriately
@@ -55,6 +55,11 @@ def custom_login(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
+                # Check if user is admin - restrict admin login to admin dashboard only
+                if user.user_type == 'admin' or user.is_superuser:
+                    messages.error(request, 'Admin users must login through the admin dashboard. Please use the admin login page.')
+                    return render(request, 'accounts/login.html', {'form': form})
+                
                 login(request, user)
                 
                 # Redirect based on user type after successful login

@@ -5,13 +5,25 @@ from .models import Package
 
 def package_list(request):
     packages = Package.objects.filter(is_active=True, agency__is_verified=True)
-    
+
+    # Search
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        search_filter = (
+            Q(title__icontains=search_query)
+            | Q(description__icontains=search_query)
+            | Q(package_type__icontains=search_query)
+            | Q(best_season__icontains=search_query)
+            | Q(agency__name__icontains=search_query)
+        )
+        packages = packages.filter(search_filter)
+
     # Filtering
     package_type = request.GET.get('type')
     difficulty = request.GET.get('difficulty')
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
-    
+
     if package_type:
         packages = packages.filter(package_type=package_type)
     if difficulty:
@@ -20,7 +32,7 @@ def package_list(request):
         packages = packages.filter(price_per_person__gte=min_price)
     if max_price:
         packages = packages.filter(price_per_person__lte=max_price)
-    
+
     # Sorting
     sort_by = request.GET.get('sort', 'created_at')
     if sort_by == 'price_low':
@@ -28,15 +40,15 @@ def package_list(request):
     elif sort_by == 'price_high':
         packages = packages.order_by('-price_per_person')
     elif sort_by == 'rating':
-        packages = packages.order_by('-agency__rating')
+        packages = packages.order_by('-agency__rating', '-agency__total_ratings', '-created_at')
     else:
         packages = packages.order_by('-created_at')
-    
+
     # Pagination
     paginator = Paginator(packages, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     context = {
         'page_obj': page_obj,
         'package_types': Package.PACKAGE_TYPES,
