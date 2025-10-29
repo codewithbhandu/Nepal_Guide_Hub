@@ -11,7 +11,6 @@ class Booking(models.Model):
         ('cancelled', 'Cancelled'),
         ('completed', 'Completed'),
     )
-    
     tourist = models.ForeignKey(Tourist, on_delete=models.CASCADE, related_name='bookings')
     package = models.ForeignKey(Package, on_delete=models.CASCADE, null=True, blank=True)
     guide = models.ForeignKey(Guide, on_delete=models.CASCADE, null=True, blank=True)
@@ -74,3 +73,17 @@ class Rating(models.Model):
             self.guide.update_rating()
         elif self.rating_type == 'agency' and self.agency:
             self.agency.update_rating()
+
+class Payment(models.Model):
+    status_choices = (
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    )
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    product_code = models.CharField(max_length=100, default='EPAYTEST')
+    payment_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=status_choices, default='pending')
+    transaction_id = models.CharField(max_length=100, unique=True)
+    service_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
