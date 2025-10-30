@@ -1,0 +1,1205 @@
+{% extends 'tourist/base.html' %}
+{% load static %}
+
+{% block title %}{{ guide.name }} - Nepal Guide Hub{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" rel="stylesheet">
+<style>
+    :root {
+        --guide-primary: linear-gradient(135deg, #6f42c1, #007bff);
+        --guide-secondary: linear-gradient(135deg, #17a2b8, #20c997);
+        --guide-accent: linear-gradient(135deg, #fd7e14, #ffc107);
+        --shadow-dramatic: 0 15px 50px rgba(0,0,0,0.15);
+        --shadow-float: 0 25px 80px rgba(0,0,0,0.12);
+    }
+
+    .guide-hero {
+        background: linear-gradient(135deg, rgba(111, 66, 193, 0.95), rgba(0, 123, 255, 0.95)),
+                    url('https://images.unsplash.com/photo-1464822759844-d150ad6d1f6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .guide-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: pulse 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 0.7; transform: scale(1); }
+        100% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .guide-name {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+        background: linear-gradient(45deg, #fff, #e3f2fd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.2;
+    }
+
+    .guide-subtitle {
+        font-size: 1.5rem;
+        opacity: 0.95;
+        margin-bottom: 2rem;
+        font-weight: 300;
+        letter-spacing: 1px;
+    }
+
+    .expertise-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .expertise-badge {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(15px);
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .expertise-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.8s;
+    }
+
+    .expertise-badge:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.3);
+    }
+
+    .expertise-badge:hover::before {
+        left: 100%;
+    }
+
+    .guide-profile-section {
+        margin-top: -120px;
+        position: relative;
+        z-index: 3;
+    }
+
+    .profile-card {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 30px;
+        padding: 3rem;
+        box-shadow: var(--shadow-dramatic);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 4px;
+        background: var(--guide-primary);
+        transition: left 0.6s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-float);
+    }
+
+    .profile-card:hover::before {
+        left: 0;
+    }
+
+    .guide-avatar {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .guide-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 6px solid white;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+    }
+
+    .guide-image:hover {
+        transform: scale(1.05) rotate(3deg);
+    }
+
+    .avatar-ring {
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        width: 220px;
+        height: 220px;
+        border: 3px solid transparent;
+        border-radius: 50%;
+        background: var(--guide-primary);
+        background-clip: padding-box;
+        animation: rotate 10s linear infinite;
+        opacity: 0.7;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .rating-display {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        padding: 1rem 1.5rem;
+        border-radius: 20px;
+        display: inline-block;
+        margin-top: 1rem;
+        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+    }
+
+    .rating-stars {
+        color: #ffc107;
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .skills-section {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        margin: 2rem 0;
+        box-shadow: var(--shadow-dramatic);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .section-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: var(--guide-accent);
+        border-radius: 2px;
+    }
+
+    .skill-badge {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0.5rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .skill-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.6s;
+    }
+
+    .skill-badge:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .skill-badge:hover::before {
+        left: 100%;
+    }
+
+    .language-badge {
+        background: linear-gradient(135deg, #a8edea, #fed6e3);
+        color: #2c3e50;
+        border: 2px solid rgba(255,255,255,0.8);
+    }
+
+    .language-badge:hover {
+        box-shadow: 0 8px 25px rgba(168, 237, 234, 0.4);
+    }
+
+    .experience-highlight {
+        background: linear-gradient(135deg, #ffecd2, #fcb69f);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .experience-highlight::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .experience-number {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: #e17055;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .experience-label {
+        font-size: 1.2rem;
+        color: #2d3436;
+        font-weight: 600;
+        position: relative;
+        z-index: 2;
+    }
+
+    .booking-sidebar {
+        position: sticky;
+        top: 100px;
+    }
+
+    .booking-card {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 30px;
+        padding: 3rem;
+        box-shadow: var(--shadow-dramatic);
+        border: 1px solid rgba(111, 66, 193, 0.1);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .booking-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: var(--guide-primary);
+        transform: scaleX(0);
+        transition: transform 0.6s ease;
+    }
+
+    .booking-card:hover {
+        box-shadow: var(--shadow-float);
+        border-color: rgba(111, 66, 193, 0.3);
+    }
+
+    .booking-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .rate-display {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+
+    .rate-badge {
+        background: var(--guide-primary);
+        color: white;
+        padding: 1.5rem 2.5rem;
+        border-radius: 50px;
+        font-size: 1.6rem;
+        font-weight: bold;
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(111, 66, 193, 0.3);
+    }
+
+    .rate-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.8s;
+    }
+
+    .rate-badge:hover::before {
+        left: 100%;
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        display: block;
+        font-size: 1.1rem;
+    }
+
+    .form-control {
+        border: 3px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: white;
+    }
+
+    .form-control:focus {
+        border-color: #6f42c1;
+        box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.1);
+        outline: none;
+        transform: translateY(-2px);
+    }
+
+    .btn-book {
+        background: var(--guide-primary);
+        border: none;
+        padding: 1.25rem 2.5rem;
+        border-radius: 50px;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-book::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.8s;
+    }
+
+    .btn-book:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(111, 66, 193, 0.4);
+        color: white;
+    }
+
+    .btn-book:hover::before {
+        left: 100%;
+    }
+
+    .agency-info {
+        background: linear-gradient(135deg, #e8f4fd, #f0f8ff);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-top: 2rem;
+        border-left: 5px solid #007bff;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .agency-info::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(0,123,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(30px, -30px);
+    }
+
+    .trust-indicators {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .trust-item {
+        text-align: center;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .trust-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .trust-item i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .flatpickr-day.blocked {
+        background: linear-gradient(135deg, #dc3545, #c82333) !important;
+        color: white !important;
+        cursor: not-allowed !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .flatpickr-day.blocked::after {
+        content: '✗';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    /* Centering helpers */
+    .center-container { max-width: 1200px; margin-left: auto; margin-right: auto; }
+    .center-row { display: flex; justify-content: center; }
+    .main-col { width: 100%; max-width: 920px; }
+    .booking-col { width: 100%; max-width: 520px; }
+
+    @media (max-width: 768px) {
+        .guide-name {
+            font-size: 2.5rem;
+        }
+        
+        .expertise-badges {
+            justify-content: center;
+        }
+        
+        .guide-profile-section {
+            margin-top: -80px;
+        }
+        
+        .guide-image {
+            width: 150px;
+            height: 150px;
+        }
+        
+        .avatar-ring {
+            width: 170px;
+            height: 170px;
+            top: -10px;
+            left: -10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Spectacular Hero Section -->
+<div class="guide-hero">
+    <div class="container">
+        <div class="hero-content" data-aos="fade-up">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="guide-name">{{ guide.name }}</h1>
+                    <p class="guide-subtitle">Expert Nepal Guide • {{ guide.agency.name }}</p>
+                    
+                    <div class="expertise-badges">
+                        {% for specialty in guide.get_specialties_display|slice:":3" %}
+                        <div class="expertise-badge" data-aos="zoom-in" data-aos-delay="{{ forloop.counter|add:1 }}00">
+                            {{ specialty }} Expert
+                        </div>
+                        {% endfor %}
+                        <div class="expertise-badge" data-aos="zoom-in" data-aos-delay="400">
+                            {{ guide.experience_years }}+ Years Experience
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container center-container">
+    <div class="row center-row">
+        <div class="col-lg-8 main-col">
+            <!-- Guide Profile Section -->
+            <div class="guide-profile-section" data-aos="fade-up">
+                <div class="profile-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center">
+                            <div class="guide-avatar">
+                                <div class="avatar-ring"></div>
+                                {% if guide.profile_picture %}
+                                <img src="{{ guide.profile_picture.url }}" class="guide-image" alt="{{ guide.name }}">
+                                {% else %}
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" class="guide-image" alt="{{ guide.name }}">
+                                {% endif %}
+                            </div>
+                            
+                            {% if guide.rating > 0 %}
+                            <div class="rating-display">
+                                <div class="rating-stars">
+                                    {% with guide.rating|floatformat:0 as rating %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= rating|add:0 %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                </div>
+                                <div>{{ guide.rating }} ({{ guide.total_ratings }} reviews)</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <h3 class="section-title">Meet Your Guide</h3>
+                            <p class="lead mb-4">{{ guide.bio }}</p>
+                            
+                            <div class="experience-highlight">
+                                <div class="experience-number">{{ guide.experience_years }}</div>
+                                <div class="experience-label">Years of Professional Guiding</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills & Expertise Section -->
+            <div class="skills-section" data-aos="fade-up" data-aos-delay="100">
+                <h2 class="section-title">Specialties & Expertise</h2>
+                <div class="mb-4">
+                    {% for specialty in guide.get_specialties_display %}
+                        <span class="skill-badge" data-aos="flip-left" data-aos-delay="{{ forloop.counter|add:1 }}00">
+                            <i class="fas fa-mountain mr-2"></i>{{ specialty }}
+                        </span>
+                    {% endfor %}
+                </div>
+                
+                <h3 class="mt-4 mb-3">Languages Spoken</h3>
+                <div class="mb-4">
+                    {% for language in guide.get_languages_display %}
+                        <span class="skill-badge language-badge" data-aos="flip-right" data-aos-delay="{{ forloop.counter|add:2 }}00">
+                            <i class="fas fa-globe mr-2"></i>{{ language }}
+                        </span>
+                    {% endfor %}
+                </div>
+                
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <h3>Areas of Operation</h3>
+                        <p class="text-muted">{{ guide.places_covered }}</p>
+                    </div>
+                    
+                    {% if guide.certifications %}
+                    <div class="col-md-6">
+                        <h3>Certifications & Training</h3>
+                        <p class="text-muted">{{ guide.certifications }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- Centered booking card below main content -->
+    <div class="row center-row mt-5">
+        <div class="col-lg-6 mx-auto">
+            <div class="d-flex justify-content-center">
+            <div class="booking-sidebar">
+                <div class="booking-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="rate-display">
+                        <div class="rate-badge">
+                            ${{ guide.daily_rate }}
+                            <small style="font-size: 0.6em; display: block; margin-top: 0.5rem;">per day</small>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <button type="button" id="startGuideBookingBtn" class="btn btn-book" style="width:auto;">
+                            <i class="fas fa-user-plus mr-2"></i> Book This Guide
+                        </button>
+                    </div>
+
+                    <div id="guideBookingFormContainer" style="display:none;">
+                        <form method="POST" action="{% url 'accounts:book_guide' guide.id %}" id="bookingForm">
+                            {% csrf_token %}
+                            
+                            <div class="form-group">
+                                <label for="start_date" class="form-label">
+                                    <i class="fas fa-play-circle"></i> Adventure Start Date
+                                </label>
+                                <input type="text" class="form-control" id="start_date" name="start_date" 
+                                       placeholder="When does your adventure begin?" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="end_date" class="form-label">
+                                    <i class="fas fa-stop-circle"></i> Adventure End Date
+                                </label>
+                                <input type="text" class="form-control" id="end_date" name="end_date" 
+                                       placeholder="When do you return?" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="number_of_people" class="form-label">
+                                    <i class="fas fa-users"></i> Group Size
+                                </label>
+                                <select class="form-control" id="number_of_people" name="number_of_people" required>
+                                    {% for i in "12345678910"|make_list %}
+                                        <option value="{{ i }}">{{ i }} {{ i|pluralize:"Explorer,Explorers" }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="special_requirements" class="form-label">
+                                    <i class="fas fa-route"></i> Your Adventure Plan
+                                </label>
+                                <textarea class="form-control" id="special_requirements" name="special_requirements" 
+                                        rows="5" placeholder="Tell {{ guide.name }} about your dream adventure, destinations you want to explore, special requirements, dietary needs, experience level, and what makes this trip special to you..." required></textarea>
+                            </div>
+
+                            <div class="info-card mb-3" id="durationInfo" style="display: none;">
+                                <div class="text-center">
+                                    <h6 style="color: #6f42c1;"><i class="fas fa-calculator mr-2"></i>Trip Summary</h6>
+                                    <div class="row text-center mt-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Duration</small>
+                                            <div class="font-weight-bold"><span id="durationDays">-</span> Days</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Total Cost</small>
+                                            <div class="font-weight-bold" style="color: #6f42c1;">$<span id="totalCost">{{ guide.daily_rate }}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-book">
+                                <i class="fas fa-handshake mr-2"></i> Book {{ guide.name }}
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Enhanced Agency Info -->
+                    <div class="agency-info">
+                        <h6><i class="fas fa-certificate mr-2"></i>Verified Guide From</h6>
+                        <div class="d-flex align-items-center mt-2">
+                            {% if guide.agency.logo %}
+                            <img src="{{ guide.agency.logo.url }}" class="rounded-circle mr-3" 
+                                 width="60" height="60" alt="{{ guide.agency.name }}">
+                            {% else %}
+                            <div class="rounded-circle mr-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background: var(--guide-primary); color: white; font-size: 1.5rem;">
+                                <i class="fas fa-mountain"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <strong class="d-block" style="font-size: 1.1rem;">{{ guide.agency.name }}</strong>
+                                <small class="text-success d-block">
+                                    <i class="fas fa-shield-check mr-1"></i>Verified Partner
+                                    {% if guide.agency.rating > 0 %}
+                                        • {{ guide.agency.rating }}★ ({{ guide.agency.total_ratings }} reviews)
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trust Indicators -->
+                    <div class="trust-indicators">
+                        <div class="row">
+                            <div class="col-4 trust-item">
+                                <i class="fas fa-shield-alt text-success"></i>
+                                <small class="d-block mt-1">Insured</small>
+                            </div>
+                            <div class="col-4 trust-item">
+                                <i class="fas fa-first-aid text-danger"></i>
+                                <small class="d-block mt-1">First Aid</small>
+                            </div>
+                            <div class="col-4 trust-item">
+                                <i class="fas fa-phone-alt text-primary"></i>
+                                <small class="d-block mt-1">24/7 Support</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-2">
+                            <div class="col-6 trust-item">
+                                <i class="fas fa-medal text-warning"></i>
+                                <small class="d-block mt-1">Licensed Guide</small>
+                            </div>
+                            <div class="col-6 trust-item">
+                                <i class="fas fa-leaf text-success"></i>
+                                <small class="d-block mt-1">Eco-Friendly</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize AOS (Animate On Scroll)
+    AOS.init({
+        duration: 1000,
+        easing: 'ease-out-cubic',
+        once: true,
+        offset: 120
+    });
+    
+    const blockedDates = {{ blocked_dates_json|safe }};
+    const minDate = "{{ min_date }}";
+    const dailyRate = {{ guide.daily_rate }};
+    const guideName = "{{ guide.name|escapejs }}";
+    
+    // Reveal booking form on button click
+    const guideBookingBtn = document.getElementById('startGuideBookingBtn');
+    const guideBookingContainer = document.getElementById('guideBookingFormContainer');
+    if (guideBookingBtn && guideBookingContainer) {
+        guideBookingBtn.addEventListener('click', function() {
+            guideBookingContainer.style.display = 'block';
+            guideBookingContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+    // Enhanced Flatpickr with stunning styling
+    const startDatePicker = flatpickr("#start_date", {
+        minDate: minDate,
+        dateFormat: "Y-m-d",
+        disable: blockedDates,
+        theme: "material_blue",
+        allowInput: false,
+        clickOpens: true,
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+            const dateStr = fp.formatDate(dayElem.dateObj, "Y-m-d");
+            if (blockedDates.includes(dateStr)) {
+                dayElem.classList.add("blocked");
+                dayElem.title = `${guideName} is not available on this date`;
+                dayElem.innerHTML += '<span class="blocked-indicator">✗</span>';
+            }
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+                endDatePicker.set('minDate', selectedDates[0]);
+                updateTripCalculation();
+                showDateFeedback('start', selectedDates[0]);
+            }
+        },
+        onOpen: function() {
+            const calendar = document.querySelector('.flatpickr-calendar');
+            if (calendar) {
+                calendar.style.animation = 'slideInUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
+            }
+        }
+    });
+    
+    const endDatePicker = flatpickr("#end_date", {
+        minDate: minDate,
+        dateFormat: "Y-m-d",
+        disable: blockedDates,
+        theme: "material_blue",
+        allowInput: false,
+        clickOpens: true,
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+            const dateStr = fp.formatDate(dayElem.dateObj, "Y-m-d");
+            if (blockedDates.includes(dateStr)) {
+                dayElem.classList.add("blocked");
+                dayElem.title = `${guideName} is not available on this date`;
+                dayElem.innerHTML += '<span class="blocked-indicator">✗</span>';
+            }
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+            updateTripCalculation();
+            if (selectedDates.length > 0) {
+                showDateFeedback('end', selectedDates[0]);
+            }
+        },
+        onOpen: function() {
+            const calendar = document.querySelector('.flatpickr-calendar');
+            if (calendar) {
+                calendar.style.animation = 'slideInUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
+            }
+        }
+    });
+    
+    function updateTripCalculation() {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            if (end >= start) {
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                const totalCost = dailyRate * diffDays;
+                
+                // Animate the calculation update
+                animateNumberChange('durationDays', diffDays);
+                animateNumberChange('totalCost', totalCost.toFixed(2));
+                
+                const durationInfo = document.getElementById('durationInfo');
+                if (durationInfo.style.display === 'none') {
+                    durationInfo.style.opacity = '0';
+                    durationInfo.style.display = 'block';
+                    durationInfo.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        durationInfo.style.transition = 'all 0.4s ease';
+                        durationInfo.style.opacity = '1';
+                        durationInfo.style.transform = 'translateY(0)';
+                    }, 50);
+                }
+                
+                // Update rate badge to show total
+                updateRateBadge(totalCost, diffDays);
+            } else {
+                document.getElementById('durationInfo').style.display = 'none';
+            }
+        } else {
+            document.getElementById('durationInfo').style.display = 'none';
+            resetRateBadge();
+        }
+    }
+    
+    function animateNumberChange(elementId, newValue) {
+        const element = document.getElementById(elementId);
+        const currentValue = parseFloat(element.textContent) || 0;
+        
+        if (currentValue === newValue) return;
+        
+        const increment = (newValue - currentValue) / 20;
+        let current = currentValue;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            
+            if ((increment > 0 && current >= newValue) || (increment < 0 && current <= newValue)) {
+                current = newValue;
+                clearInterval(timer);
+            }
+            
+            element.textContent = Math.round(current * 100) / 100;
+        }, 30);
+    }
+    
+    function updateRateBadge(totalCost, days) {
+        const rateBadge = document.querySelector('.rate-badge');
+        if (rateBadge && totalCost > dailyRate) {
+            rateBadge.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                rateBadge.innerHTML = `
+                    $${totalCost}
+                    <small style="font-size: 0.6em; display: block; margin-top: 0.5rem;">for ${days} days with ${guideName}</small>
+                `;
+                rateBadge.style.transform = 'scale(1)';
+            }, 150);
+        }
+    }
+    
+    function resetRateBadge() {
+        const rateBadge = document.querySelector('.rate-badge');
+        if (rateBadge) {
+            rateBadge.innerHTML = `
+                $${dailyRate}
+                <small style="font-size: 0.6em; display: block; margin-top: 0.5rem;">per day</small>
+            `;
+        }
+    }
+    
+    function showDateFeedback(type, date) {
+        const formattedDate = date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+        
+        const bookButton = document.querySelector('.btn-book');
+        const originalText = bookButton.innerHTML;
+        
+        if (type === 'start') {
+            bookButton.innerHTML = `<i class="fas fa-calendar-plus mr-2"></i>Adventure starts ${formattedDate}`;
+            bookButton.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+        } else {
+            bookButton.innerHTML = `<i class="fas fa-calendar-check mr-2"></i>Ready to book with ${guideName}!`;
+            bookButton.style.background = 'linear-gradient(135deg, #fd7e14, #ffc107)';
+        }
+        
+        setTimeout(() => {
+            bookButton.innerHTML = originalText;
+            bookButton.style.background = 'var(--guide-primary)';
+        }, 3000);
+    }
+    
+    // Enhanced form validation with beautiful feedback
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        const requirements = document.getElementById('special_requirements').value.trim();
+        const submitBtn = this.querySelector('.btn-book');
+        
+        // Clear previous error styles
+        clearErrorStyles();
+        
+        if (!startDate) {
+            e.preventDefault();
+            showFieldError('start_date', 'Please select when your adventure begins');
+            return;
+        }
+        
+        if (!endDate) {
+            e.preventDefault();
+            showFieldError('end_date', 'Please select when your adventure ends');
+            return;
+        }
+        
+        if (new Date(endDate) < new Date(startDate)) {
+            e.preventDefault();
+            showFieldError('end_date', 'End date must be after start date');
+            return;
+        }
+        
+        if (!requirements) {
+            e.preventDefault();
+            showFieldError('special_requirements', 'Please tell us about your adventure plans');
+            return;
+        }
+        
+        if (requirements.length < 20) {
+            e.preventDefault();
+            showFieldError('special_requirements', 'Please provide more details about your trip (at least 20 characters)');
+            return;
+        }
+        
+        // Show loading state with adventure theme
+        submitBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>Launching Your Adventure...';
+        submitBtn.disabled = true;
+        submitBtn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+        
+        // Add success confetti
+        createSuccessConfetti();
+    });
+    
+    function showFieldError(fieldId, message) {
+        const field = document.getElementById(fieldId);
+        field.style.borderColor = '#dc3545';
+        field.style.boxShadow = '0 0 0 4px rgba(220, 53, 69, 0.1)';
+        
+        // Create error tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'error-tooltip';
+        tooltip.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>${message}`;
+        tooltip.style.cssText = `
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            z-index: 1000;
+            animation: shake 0.5s ease-in-out;
+        `;
+        
+        field.parentElement.style.position = 'relative';
+        field.parentElement.appendChild(tooltip);
+        
+        // Remove tooltip after 4 seconds
+        setTimeout(() => {
+            if (tooltip.parentElement) {
+                tooltip.remove();
+            }
+        }, 4000);
+        
+        // Focus the field
+        field.focus();
+    }
+    
+    function clearErrorStyles() {
+        const fields = ['start_date', 'end_date', 'special_requirements'];
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            field.style.borderColor = '';
+            field.style.boxShadow = '';
+        });
+        
+        // Remove any existing error tooltips
+        document.querySelectorAll('.error-tooltip').forEach(tooltip => tooltip.remove());
+    }
+    
+    function createSuccessConfetti() {
+        const colors = ['#6f42c1', '#007bff', '#28a745', '#ffc107', '#dc3545'];
+        
+        for (let i = 0; i < 75; i++) {
+            const confetti = document.createElement('div');
+            confetti.style.cssText = `
+                position: fixed;
+                width: ${Math.random() * 8 + 4}px;
+                height: ${Math.random() * 8 + 4}px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                left: ${Math.random() * window.innerWidth}px;
+                top: -20px;
+                border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+                pointer-events: none;
+                z-index: 10000;
+                animation: confetti-celebration ${3 + Math.random() * 2}s linear forwards;
+                transform: rotate(${Math.random() * 360}deg);
+            `;
+            
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => {
+                if (confetti.parentElement) {
+                    confetti.remove();
+                }
+            }, 6000);
+        }
+    }
+    
+    // Add enhanced CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 100%, 0);
+            }
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        @keyframes confetti-celebration {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .blocked-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+        
+        .flatpickr-calendar {
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2) !important;
+            border-radius: 20px !important;
+            border: none !important;
+            overflow: hidden;
+        }
+        
+        .flatpickr-day.blocked {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .flatpickr-day.blocked::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer-block 3s infinite;
+        }
+        
+        @keyframes shimmer-block {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .flatpickr-day:hover:not(.blocked) {
+            background: linear-gradient(135deg, #6f42c1, #007bff) !important;
+            color: white !important;
+            transform: scale(1.1);
+            z-index: 10;
+            border-radius: 50%;
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+{% endblock %}

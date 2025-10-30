@@ -1,0 +1,739 @@
+{% extends 'tourist/base.html' %}
+{% load static %}
+
+{% block title %}{{ guide.name }} - Nepal Guide Hub{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" rel="stylesheet">
+<style>
+    :root {
+        --guide-primary: linear-gradient(135deg, #6f42c1, #9561e2);
+        --guide-secondary: linear-gradient(135deg, #7c3aed, #a855f7);
+        --shadow-soft: 0 10px 40px rgba(0,0,0,0.1);
+        --shadow-hover: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .guide-hero {
+        background: linear-gradient(135deg, rgba(111, 66, 193, 0.9), rgba(149, 97, 226, 0.9)),
+                    url('https://images.unsplash.com/photo-1464822759844-d150ad6d1f6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover;
+        min-height: 65vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .guide-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        50% { transform: translate(-30px, -20px) rotate(1deg); }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        color: white;
+    }
+
+    .guide-name {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        background: linear-gradient(45deg, #fff, #f0f0f8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .guide-subtitle {
+        font-size: 1.3rem;
+        opacity: 0.95;
+        margin-bottom: 2rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    .stat-item {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(15px);
+        padding: 1.5rem 2rem;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.25);
+        text-align: center;
+        transition: all 0.4s ease;
+        min-width: 120px;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-8px) scale(1.05);
+        background: rgba(255,255,255,0.25);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        margin-bottom: 3rem;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .content-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 4px;
+        background: var(--guide-primary);
+        transition: left 0.6s ease;
+    }
+
+    .content-card:hover::before {
+        left: 0;
+    }
+
+    .content-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d1b69;
+        margin-bottom: 2rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -8px;
+        width: 80px;
+        height: 4px;
+        background: var(--guide-secondary);
+        border-radius: 2px;
+    }
+
+    .profile-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 6px solid rgba(111, 66, 193, 0.2);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        transition: all 0.4s ease;
+    }
+
+    .profile-image:hover {
+        transform: scale(1.05);
+        border-color: rgba(111, 66, 193, 0.5);
+    }
+
+    .rating-display {
+        background: rgba(255, 193, 7, 0.1);
+        border-radius: 15px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .rating-stars {
+        color: #ffc107;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .skill-badge {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        color: #2d1b69;
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        display: inline-block;
+        margin: 0.5rem;
+        font-weight: 600;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .skill-badge:hover {
+        transform: translateY(-3px);
+        border-color: #6f42c1;
+        box-shadow: 0 8px 25px rgba(111, 66, 193, 0.2);
+    }
+
+    .language-badge {
+        background: linear-gradient(135deg, #e8f4f8, #d4e9f2);
+        color: #1e5a96;
+    }
+
+    .experience-highlight {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .experience-number {
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: var(--guide-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    .experience-label {
+        color: #666;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .booking-card {
+        background: white;
+        border-radius: 25px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.4s ease;
+        border: 3px solid transparent;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .booking-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover);
+        border-color: #6f42c1;
+    }
+
+    .rate-display {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .rate-badge {
+        background: var(--guide-primary);
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 900;
+        padding: 1.5rem 2rem;
+        border-radius: 25px;
+        display: inline-block;
+        box-shadow: 0 10px 30px rgba(111, 66, 193, 0.4);
+        animation: priceGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes priceGlow {
+        0%, 100% { box-shadow: 0 10px 30px rgba(111, 66, 193, 0.4); }
+        50% { box-shadow: 0 15px 45px rgba(111, 66, 193, 0.6); }
+    }
+
+    .btn-book {
+        background: var(--guide-primary);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        width: 100%;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+    }
+
+    .btn-book:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(111, 66, 193, 0.4);
+        color: white;
+    }
+
+    .form-control {
+        border-radius: 15px;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #6f42c1;
+        box-shadow: 0 0 20px rgba(111, 66, 193, 0.2);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2d1b69;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        border: 2px solid #6f42c1;
+        border-radius: 15px;
+        padding: 1.5rem;
+    }
+
+    .contact-info {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .contact-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        margin: 0.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .contact-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .contact-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--guide-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.1rem;
+    }
+
+    /* Centering helpers */
+    .center-container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+
+    @media (max-width: 768px) {
+        .guide-name { font-size: 2.5rem; }
+        .hero-stats { flex-direction: column; gap: 1rem; align-items: center; }
+        .stat-item { min-width: 200px; }
+        .content-card { padding: 2rem 1.5rem; }
+        .center-container { padding: 0 1rem; }
+        .booking-card { padding: 2rem 1.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Stunning Guide Hero -->
+<div class="guide-hero">
+    <div class="container">
+        <div class="hero-content text-center" data-aos="fade-up">
+            <h1 class="guide-name">{{ guide.name }}</h1>
+            <p class="guide-subtitle">
+                <i class="fas fa-certificate mr-2"></i>Professional Mountain Guide
+                {% if guide.experience_years %} • {{ guide.experience_years }} Years Experience{% endif %}
+                {% if guide.rating > 0 %} • {{ guide.rating }}★ ({{ guide.total_ratings }} reviews){% else %} • Expert Guide{% endif %}
+            </p>
+            
+            <div class="hero-stats">
+                <div class="stat-item" data-aos="zoom-in" data-aos-delay="100">
+                    <span class="stat-number">{{ guide.experience_years|default:"5+" }}</span>
+                    <span class="stat-label">Years Experience</span>
+                </div>
+                <div class="stat-item" data-aos="zoom-in" data-aos-delay="200">
+                    <span class="stat-number">${{ guide.daily_rate }}</span>
+                    <span class="stat-label">Per Day</span>
+                </div>
+                <div class="stat-item" data-aos="zoom-in" data-aos-delay="300">
+                    <span class="stat-number">{% if guide.rating > 0 %}{{ guide.rating }}{% else %}5.0{% endif %}</span>
+                    <span class="stat-label">Rating</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="center-container">
+    <!-- About Guide Section -->
+    <div class="content-card" data-aos="fade-up">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+            <div class="lg:col-span-1 text-center">
+                {% if guide.profile_picture %}
+                <img src="{{ guide.profile_picture.url }}" class="profile-image mx-auto" alt="{{ guide.name }}">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" class="profile-image mx-auto" alt="{{ guide.name }}">
+                {% endif %}
+                
+                {% if guide.rating > 0 %}
+                <div class="rating-display">
+                    <div class="rating-stars text-center">
+                        {% with guide.rating|floatformat:0 as rating %}
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= rating|add:0 %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                    <div class="text-center font-weight-bold">{{ guide.rating }} ({{ guide.total_ratings }} reviews)</div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="lg:col-span-2">
+                <h2 class="section-title">Meet Your Expert Guide</h2>
+                <p class="text-muted lead mb-4">{{ guide.bio|default:"An experienced and certified mountain guide dedicated to providing safe, memorable adventures in Nepal's stunning landscapes. With extensive knowledge of local culture, terrain, and safety protocols." }}</p>
+                
+                <div class="experience-highlight">
+                    <div class="experience-number">{{ guide.experience_years|default:"5+" }}</div>
+                    <div class="experience-label">Years of Professional Mountain Guiding</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Specialties & Skills Section -->
+    <div class="content-card" data-aos="fade-up" data-aos-delay="100">
+        <h2 class="section-title">Specialties & Expertise</h2>
+        <div class="mb-4">
+            {% for specialty in guide.get_specialties_display %}
+                <span class="skill-badge" data-aos="flip-left" data-aos-delay="{{ forloop.counter|add:1 }}00">
+                    <i class="fas fa-mountain mr-2"></i>{{ specialty }}
+                </span>
+            {% empty %}
+                <span class="skill-badge"><i class="fas fa-mountain mr-2"></i>Trekking</span>
+                <span class="skill-badge"><i class="fas fa-hiking mr-2"></i>Mountaineering</span>
+                <span class="skill-badge"><i class="fas fa-camera mr-2"></i>Photography Tours</span>
+            {% endfor %}
+        </div>
+        
+        <h3 class="mt-5 mb-3" style="color: #2d1b69;">Languages Spoken</h3>
+        <div class="mb-4">
+            {% for language in guide.get_languages_display %}
+                <span class="skill-badge language-badge" data-aos="flip-right" data-aos-delay="{{ forloop.counter|add:2 }}00">
+                    <i class="fas fa-globe mr-2"></i>{{ language }}
+                </span>
+            {% empty %}
+                <span class="skill-badge language-badge"><i class="fas fa-globe mr-2"></i>English</span>
+                <span class="skill-badge language-badge"><i class="fas fa-globe mr-2"></i>Nepali</span>
+                <span class="skill-badge language-badge"><i class="fas fa-globe mr-2"></i>Hindi</span>
+            {% endfor %}
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+                <h4 class="font-bold text-lg mb-3" style="color: #2d1b69;">
+                    <i class="fas fa-map-marked-alt mr-2"></i>Areas of Operation
+                </h4>
+                <p class="text-muted">{{ guide.places_covered|default:"Everest Base Camp, Annapurna Circuit, Langtang Valley, Manaslu Circuit, and other major trekking regions of Nepal" }}</p>
+            </div>
+            
+            <div>
+                <h4 class="font-bold text-lg mb-3" style="color: #2d1b69;">
+                    <i class="fas fa-certificate mr-2"></i>Certifications & Training
+                </h4>
+                <p class="text-muted">{{ guide.certifications|default:"Nepal Mountaineering Association (NMA) certified guide, Wilderness First Aid certified, High Altitude Rescue Training completed" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agency Information -->
+    <div class="content-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title mb-0">Verified by {{ guide.agency.name }}</h2>
+            <a href="{% url 'accounts:agency_detail' guide.agency.id %}" 
+               class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-2 px-6 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                <i class="fas fa-building mr-2"></i>View Agency
+            </a>
+        </div>
+        
+        <div class="contact-info">
+            <div class="flex flex-wrap justify-center items-center gap-4">
+                {% if guide.agency.logo %}
+                <img src="{{ guide.agency.logo.url }}" class="w-20 h-20 rounded-full border-4 border-purple-200" alt="{{ guide.agency.name }}">
+                {% else %}
+                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-2xl">
+                    <i class="fas fa-mountain"></i>
+                </div>
+                {% endif %}
+                
+                <div class="text-center lg:text-left">
+                    <h3 class="text-xl font-bold text-purple-800">{{ guide.agency.name }}</h3>
+                    <div class="flex justify-center lg:justify-start items-center gap-2 mt-1">
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-shield-check mr-1"></i>Verified Agency
+                        </span>
+                        {% if guide.agency.rating > 0 %}
+                        <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-star mr-1"></i>{{ guide.agency.rating }} ({{ guide.agency.total_ratings }})
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Section -->
+    <div class="content-card text-center" data-aos="fade-up" data-aos-delay="300">
+        <div class="row center-row mt-5">
+            <div class="col-lg-6 mx-auto">
+                <div class="d-flex justify-content-center">
+                    <div class="booking-card">
+                        <div class="rate-display">
+                            <div class="rate-badge">
+                                ${{ guide.daily_rate }}
+                                <small style="font-size: 0.4em; display: block; margin-top: 0.5rem;">per day</small>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-3">
+                            <button type="button" id="startGuideBookingBtn" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
+                                <i class="fas fa-user-plus mr-2"></i> Book This Guide
+                            </button>
+                        </div>
+
+                        <div id="guideBookingFormContainer" style="display:none;">
+                            <form method="POST" action="{% url 'accounts:book_guide' guide.id %}" id="bookingForm">
+                                {% csrf_token %}
+                                
+                                <div class="form-group">
+                                    <label for="start_date" class="form-label">
+                                        <i class="fas fa-play-circle"></i> Adventure Start Date
+                                    </label>
+                                    <input type="text" class="form-control" id="start_date" name="start_date" 
+                                           placeholder="When does your adventure begin?" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="end_date" class="form-label">
+                                        <i class="fas fa-stop-circle"></i> Adventure End Date
+                                    </label>
+                                    <input type="text" class="form-control" id="end_date" name="end_date" 
+                                           placeholder="When do you return?" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="number_of_people" class="form-label">
+                                        <i class="fas fa-users"></i> Group Size
+                                    </label>
+                                    <select class="form-control" id="number_of_people" name="number_of_people" required>
+                                        {% for i in "12345678910"|make_list %}
+                                            <option value="{{ i }}">{{ i }} {{ i|pluralize:"Explorer,Explorers" }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="special_requirements" class="form-label">
+                                        <i class="fas fa-route"></i> Your Adventure Plan
+                                    </label>
+                                    <textarea class="form-control" id="special_requirements" name="special_requirements" 
+                                            rows="5" placeholder="Tell {{ guide.name }} about your dream adventure, destinations you want to explore, special requirements, dietary needs, experience level, and what makes this trip special to you..." required></textarea>
+                                </div>
+
+                                <div class="info-card mb-3" id="durationInfo" style="display: none;">
+                                    <div class="text-center">
+                                        <h6 style="color: #6f42c1;"><i class="fas fa-calculator mr-2"></i>Trip Summary</h6>
+                                        <div class="row text-center mt-2">
+                                            <div class="col-6">
+                                                <small class="text-muted">Duration</small>
+                                                <div class="font-weight-bold"><span id="durationDays">-</span> Days</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Total Cost</small>
+                                                <div class="font-weight-bold" style="color: #6f42c1;">$<span id="totalCost">{{ guide.daily_rate }}</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-book">
+                                    <i class="fas fa-handshake mr-2"></i> Book {{ guide.name }}
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Trust Indicators -->
+                        <div class="mt-4 text-center">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <i class="fas fa-shield-alt text-success" style="font-size: 1.5rem;"></i>
+                                    <small class="d-block mt-1">Insured</small>
+                                </div>
+                                <div class="col-4">
+                                    <i class="fas fa-medal text-warning" style="font-size: 1.5rem;"></i>
+                                    <small class="d-block mt-1">Certified</small>
+                                </div>
+                                <div class="col-4">
+                                    <i class="fas fa-headset text-info" style="font-size: 1.5rem;"></i>
+                                    <small class="d-block mt-1">24/7 Support</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="content-card text-center" data-aos="fade-up" data-aos-delay="400">
+        <div class="max-w-2xl mx-auto">
+            <h2 class="section-title text-center mb-4">Ready for Your Nepal Adventure?</h2>
+            <p class="text-gray-600 text-lg mb-6">
+                Experience the magic of Nepal with {{ guide.name }}, your trusted local guide. 
+                From the towering peaks of the Himalayas to hidden cultural treasures, your personalized adventure awaits.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="#booking" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
+                    <i class="fas fa-user-plus mr-2"></i>Book {{ guide.name }}
+                </a>
+                
+                <a href="{% url 'accounts:agency_detail' guide.agency.id %}" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
+                    <i class="fas fa-building mr-2"></i>View Agency
+                </a>
+                
+                {% if guide.agency.phone %}
+                <a href="tel:{{ guide.agency.phone }}" class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
+                    <i class="fas fa-phone mr-2"></i>Call Now
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true,
+        offset: 100
+    });
+    
+    const dailyRate = {{ guide.daily_rate }};
+    
+    // Show booking form on button click
+    const bookingBtn = document.getElementById('startGuideBookingBtn');
+    const bookingContainer = document.getElementById('guideBookingFormContainer');
+    if (bookingBtn && bookingContainer) {
+        bookingBtn.addEventListener('click', function() {
+            bookingContainer.style.display = 'block';
+            bookingContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+    
+    // Initialize Flatpickr for dates
+    flatpickr("#start_date", {
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        theme: "material_blue",
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+                updateDurationAndCost();
+            }
+        }
+    });
+    
+    flatpickr("#end_date", {
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        theme: "material_blue",
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+                updateDurationAndCost();
+            }
+        }
+    });
+    
+    function updateDurationAndCost() {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        const numPeople = parseInt(document.getElementById('number_of_people').value) || 1;
+        
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            
+            if (diffDays > 0) {
+                const totalCost = diffDays * dailyRate;
+                
+                document.getElementById('durationDays').textContent = diffDays;
+                document.getElementById('totalCost').textContent = totalCost;
+                document.getElementById('durationInfo').style.display = 'block';
+            }
+        }
+    }
+    
+    document.getElementById('number_of_people').addEventListener('change', updateDurationAndCost);
+    
+    // Form validation
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        const numPeople = document.getElementById('number_of_people').value;
+        const requirements = document.getElementById('special_requirements').value;
+        
+        if (!startDate || !endDate || !numPeople || !requirements.trim()) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('.btn-book');
+        submitBtn.innerHTML = '<i class="fas fa-compass mr-2"></i>Planning Your Adventure...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}

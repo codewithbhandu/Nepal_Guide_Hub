@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .oauth_views import GoogleOAuthCallbackView, GoogleOAuthStatusView, GoogleDisconnectView
 from .forms import CustomAuthenticationForm
 
 app_name = 'accounts'
@@ -8,9 +9,33 @@ app_name = 'accounts'
 urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.custom_login, name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('profile/tourist/', views.tourist_profile, name='tourist_profile'),
-    path('profile/agency/', views.agency_profile, name='agency_profile'),
+    path('logout/', views.custom_logout, name='logout'),
+    path('tourist-profile/', views.tourist_profile, name='tourist_profile'),
+    path('agency-profile/', views.agency_profile, name='agency_profile'),
+    
+    # Tourist-specific URLs
+    path('tourist/home/', views.tourist_home_view, name='tourist_home'),
+    path('tourist/packages/', views.tourist_packages_view, name='tourist_packages'),
+    path('tourist/guides/', views.tourist_guides_view, name='tourist_guides'),
+    path('tourist/agencies/', views.tourist_agencies_view, name='tourist_agencies'),
+    path('tourist/bookings/', views.tourist_bookings_view, name='tourist_bookings'),
+    
+    # Package, Guide and Agency Detail URLs
+    path('package/<int:package_id>/', views.package_detail_view, name='package_detail'),
+    path('guide/<int:guide_id>/', views.guide_detail_view, name='guide_detail'),
+    path('agency/<int:agency_id>/', views.agency_detail_view, name='agency_detail'),
+    
+    # Booking URLs
+    path('book/package/<int:package_id>/', views.book_package_view, name='book_package'),
+    path('book/guide/<int:guide_id>/', views.book_guide_view, name='book_guide'),
+    
+    # Payment URL
+    path('payment/<str:booking_type>/<int:booking_id>/', views.payment_view, name='payment_view'),
+    
+    # Google OAuth URLs
+    path('oauth/callback/', GoogleOAuthCallbackView.as_view(), name='oauth_callback'),
+    path('oauth/status/', GoogleOAuthStatusView.as_view(), name='oauth_status'),
+    path('oauth/disconnect/', GoogleDisconnectView.as_view(), name='oauth_disconnect'),
     
     # Password reset URLs
     path('password_reset/', auth_views.PasswordResetView.as_view(

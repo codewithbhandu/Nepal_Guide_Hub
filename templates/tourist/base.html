@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Tourist Dashboard - Nepal Guide Hub{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'nepal-green': {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <!-- Navigation -->
+        <nav class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <!-- Logo -->
+                        <div class="flex-shrink-0 flex items-center">
+                            <a href="{% url 'accounts:tourist_home' %}" class="text-2xl font-bold text-nepal-green-600">
+                                Nepal Guide Hub
+                            </a>
+                        </div>
+                        <!-- Navigation Links -->
+                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                            <a href="{% url 'accounts:tourist_home' %}" 
+                               class="{% if request.resolver_match.url_name == 'tourist_home' %}border-nepal-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-home mr-2"></i>Home
+                            </a>
+                            <a href="{% url 'accounts:tourist_packages' %}" 
+                               class="{% if request.resolver_match.url_name == 'tourist_packages' %}border-nepal-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-box mr-2"></i>Packages
+                            </a>
+                            <a href="{% url 'accounts:tourist_guides' %}" 
+                               class="{% if request.resolver_match.url_name == 'tourist_guides' %}border-nepal-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-user-tie mr-2"></i>Guides
+                            </a>
+                            <a href="{% url 'accounts:tourist_agencies' %}" 
+                               class="{% if request.resolver_match.url_name == 'tourist_agencies' %}border-nepal-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-building mr-2"></i>Agencies
+                            </a>
+                            <a href="{% url 'accounts:tourist_bookings' %}" 
+                               class="{% if request.resolver_match.url_name == 'tourist_bookings' %}border-nepal-green-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-calendar-check mr-2"></i>My Bookings
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile dropdown -->
+                    <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                        <div class="ml-3 relative">
+                            <div class="relative inline-block text-left" id="user-menu">
+                                <div>
+                                    <button type="button" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nepal-green-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                        <span class="sr-only">Open user menu</span>
+                                        {% if user.tourist.profile_picture %}
+                                            <img class="h-8 w-8 rounded-full object-cover" src="{{ user.tourist.profile_picture.url }}" alt="">
+                                        {% else %}
+                                            <div class="h-8 w-8 rounded-full bg-nepal-green-500 flex items-center justify-center">
+                                                <i class="fas fa-user text-white text-sm"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="ml-2 text-sm font-medium text-gray-700">{{ user.tourist.full_name|default:user.username }}</span>
+                                        <i class="fas fa-chevron-down ml-2 text-gray-400"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" id="user-menu-dropdown" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                                    <div class="py-1" role="none">
+                                        <a href="{% url 'accounts:tourist_profile' %}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                                            <i class="fas fa-user mr-2"></i>Profile Settings
+                                        </a>
+                                        <a href="{% url 'accounts:logout' %}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                                            <i class="fas fa-sign-out-alt mr-2"></i>Sign out
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile menu button -->
+                    <div class="sm:hidden flex items-center">
+                        <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100" id="mobile-menu-button">
+                            <span class="sr-only">Open main menu</span>
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile menu -->
+            <div class="sm:hidden hidden" id="mobile-menu">
+                <div class="pt-2 pb-3 space-y-1">
+                    <a href="{% url 'accounts:tourist_home' %}" class="{% if request.resolver_match.url_name == 'tourist_home' %}bg-nepal-green-50 border-nepal-green-500 text-nepal-green-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                    <a href="{% url 'accounts:tourist_packages' %}" class="{% if request.resolver_match.url_name == 'tourist_packages' %}bg-nepal-green-50 border-nepal-green-500 text-nepal-green-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        <i class="fas fa-box mr-2"></i>Packages
+                    </a>
+                    <a href="{% url 'accounts:tourist_guides' %}" class="{% if request.resolver_match.url_name == 'tourist_guides' %}bg-nepal-green-50 border-nepal-green-500 text-nepal-green-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        <i class="fas fa-user-tie mr-2"></i>Guides
+                    </a>
+                    <a href="{% url 'accounts:tourist_agencies' %}" class="{% if request.resolver_match.url_name == 'tourist_agencies' %}bg-nepal-green-50 border-nepal-green-500 text-nepal-green-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        <i class="fas fa-building mr-2"></i>Agencies
+                    </a>
+                    <a href="{% url 'accounts:tourist_bookings' %}" class="{% if request.resolver_match.url_name == 'tourist_bookings' %}bg-nepal-green-50 border-nepal-green-500 text-nepal-green-700{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        <i class="fas fa-calendar-check mr-2"></i>My Bookings
+                    </a>
+                </div>
+                <div class="pt-4 pb-3 border-t border-gray-200">
+                    <div class="flex items-center px-4">
+                        {% if user.tourist.profile_picture %}
+                            <img class="h-10 w-10 rounded-full object-cover" src="{{ user.tourist.profile_picture.url }}" alt="">
+                        {% else %}
+                            <div class="h-10 w-10 rounded-full bg-nepal-green-500 flex items-center justify-center">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        {% endif %}
+                        <div class="ml-3">
+                            <div class="text-base font-medium text-gray-800">{{ user.tourist.full_name|default:user.username }}</div>
+                            <div class="text-sm font-medium text-gray-500">{{ user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 space-y-1">
+                        <a href="{% url 'accounts:tourist_profile' %}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-user mr-2"></i>Profile Settings
+                        </a>
+                        <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Sign out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main content -->
+        <main>
+            <!-- Messages -->
+            {% if messages %}
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% elif message.tags == 'success' %}bg-green-50 text-green-700 border border-green-200{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-700 border border-yellow-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Page content -->
+            {% block content %}
+            {% endblock %}
+        </main>
+        
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white mt-12">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div class="col-span-1 md:col-span-2">
+                        <h3 class="text-2xl font-bold mb-4">Nepal Guide Hub</h3>
+                        <p class="text-gray-300 mb-4">
+                            Your trusted platform for discovering authentic Nepal experiences through verified local guides and agencies.
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-youtube"></i></a>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                        <ul class="space-y-2">
+                            <li><a href="{% url 'accounts:tourist_packages' %}" class="text-gray-300 hover:text-white">Packages</a></li>
+                            <li><a href="{% url 'accounts:tourist_guides' %}" class="text-gray-300 hover:text-white">Guides</a></li>
+                            <li><a href="{% url 'accounts:tourist_agencies' %}" class="text-gray-300 hover:text-white">Agencies</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">Support</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-300 hover:text-white">Help Center</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white">Contact Us</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white">Privacy Policy</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                    <p class="text-gray-300">&copy; 2024 Nepal Guide Hub. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // User menu toggle
+        document.getElementById('user-menu-button').addEventListener('click', function() {
+            const dropdown = document.getElementById('user-menu-dropdown');
+            dropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('user-menu');
+            const dropdown = document.getElementById('user-menu-dropdown');
+            
+            if (!userMenu.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
