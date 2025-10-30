@@ -3,18 +3,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Booking, Rating,Payment
+from .models import Booking, Rating
 from .forms import BookingForm, RatingForm
 from apps.packages.models import Package
 from apps.guides.models import Guide
 from apps.accounts.models import Agency
-import uuid
-from django_esewa import EsewaPayment
+
 @login_required
 def book_package(request, package_id):
     if request.user.user_type != 'tourist':
         messages.error(request, 'Only tourists can make bookings.')
         return redirect('core:home')
+    
     package = get_object_or_404(Package, id=package_id, is_active=True, agency__is_verified=True)
     
     if request.method == 'POST':
@@ -38,19 +38,9 @@ def book_package(request, package_id):
                 )
             except:
                 pass
-            # create payment object 
-            id = str(uuid.uuid4())[:10]
-            payment = Payment.objects.create(
-                booking=booking,
-                amount=booking.total_amount,
-                transaction_id=id,
-                status='pending',
-                service_charge=0.0
-            )
-            messages.success(request, 'Booking submitted successfully! Proceed to payment.')
-            return redirect('bookings:process_payment', payment_id=id)
-            # messages.success(request, 'Booking submitted successfully! You will be contacted soon.')
-            # return redirect('bookings:booking_detail', booking_id=booking.id)
+            
+            messages.success(request, 'Booking submitted successfully! You will be contacted soon.')
+            return redirect('bookings:booking_detail', booking_id=booking.id)
     else:
         form = BookingForm()
     
@@ -160,61 +150,3 @@ def add_rating(request, booking_id):
         'booking': booking,
     }
     return render(request, 'bookings/add_rating.html', context)
-
-@login_required
-def process_payment(request, payment_id):
-    payment = get_object_or_404(Payment, transaction_id=payment_id, booking__tourist__user=request.user)
-    
-    epayment = EsewaPayment(
-        amount=payment.amount,
-        tax_amount=0,
-        total_amount=payment.amount,
-        product_service_charge=payment.service_charge,
-        transaction_uuid=payment_id,
-        product_delivery_charge=0,
-        success_url=f'http://localhost:8000/bookings/payment/success/{payment.transaction_id}/',
-        failure_url=f'http://localhost:8000/bookings/payment/failure/{payment.transaction_id}/',
-    )
-    epayment.create_signature(transaction_uuid=payment_id)
-    context = {
-        'payment': payment,
-        'form': epayment.generate_form(),
-        'package': payment.booking.package,
-    }
-    return render(request, 'bookings/process_payment.html', context)
-
-
-
-def payment_success(request, transaction_id):
-    payment = get_object_or_404(Payment, transaction_id=transaction_id, status='pending')
-    epayment = EsewaPayment(
-        amount=payment.amount,
-        tax_amount=0,
-        total_amount=payment.amount,
-        product_service_charge=payment.service_charge,
-        product_delivery_charge=0,
-        success_url=f'{'http://localhost:8000/bookings/payment/success/{payment.transaction_id}/'}',
-        failure_url=f'{'http://localhost:8000/bookings/payment/failure/{payment.transaction_id}/'}',
-    )
-    epayment.create_signature(transaction_uuid=transaction_id)
-
-    if epayment.is_completed(True):
-        payment.status = 'completed'
-        payment.booking.status = 'confirmed'
-        payment.booking.save()
-        payment.save()
-    else:
-        messages.error(request, 'Payment verification failed. Please contact support.')
-        return redirect('bookings:payment_failure', transaction_id=payment.transaction_id)
-    
-    messages.success(request, 'Payment completed successfully!')
-    return redirect('bookings:booking_detail', booking_id=payment.booking.id)
-
-def payment_failure(request, transaction_id):
-    payment = get_object_or_404(Payment, transaction_id=transaction_id, status='pending')
-    payment.status = 'failed'
-    payment.booking.status = 'failed'
-    payment.save()
-    
-    messages.error(request, 'Payment failed. Please try again.')
-    return redirect('bookings:booking_detail', booking_id=payment.booking.id)
