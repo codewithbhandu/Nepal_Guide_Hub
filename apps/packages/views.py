@@ -1,22 +1,27 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from .models import Package
 
 def package_list(request):
     packages = Package.objects.filter(is_active=True, agency__is_verified=True)
 
-    # Search
+    # Search with PostgreSQL full-text search
     search_query = request.GET.get('search', '').strip()
     if search_query:
-        search_filter = (
-            Q(title__icontains=search_query)
-            | Q(description__icontains=search_query)
-            | Q(package_type__icontains=search_query)
-            | Q(best_season__icontains=search_query)
-            | Q(agency__name__icontains=search_query)
-        )
-        packages = packages.filter(search_filter)
+        # Use PostgreSQL full-text search with ranking for better relevance
+        search_vector = SearchVector('title', weight='A') + \
+                        SearchVector('description', weight='B') + \
+                        SearchVector('package_type', weight='C') + \
+                        SearchVector('best_season', weight='C') + \
+                        SearchVector('agency__name', weight='D')
+        search_q = SearchQuery(search_query)
+        
+        packages = packages.annotate(
+            search=search_vector,
+            rank=SearchRank(search_vector, search_q)
+        ).filter(search=search_q)
 
     # Filtering
     package_type = request.GET.get('type')
@@ -41,8 +46,15 @@ def package_list(request):
         packages = packages.order_by('-price_per_person')
     elif sort_by == 'rating':
         packages = packages.order_by('-agency__rating', '-agency__total_ratings', '-created_at')
+    elif sort_by == 'relevance' and search_query:
+        # Sort by search relevance if search query is present
+        packages = packages.order_by('-rank', '-created_at')
     else:
-        packages = packages.order_by('-created_at')
+        # If search query exists but no explicit sort, order by relevance
+        if search_query:
+            packages = packages.order_by('-rank', '-created_at')
+        else:
+            packages = packages.order_by('-created_at')
 
     # Pagination
     paginator = Paginator(packages, 12)

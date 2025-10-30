@@ -56,202 +56,26 @@
                     Search Results for "{{ query }}"
                 </h2>
                 <p class="text-gray-600 mt-1">
-                    Found {{ results.packages|length }} packages, {{ results.guides|length }} guides, and {{ results.agencies|length }} agencies
+                    Search functionality will be available once the system is fully set up.
                 </p>
             </div>
 
-            <!-- Results Tabs -->
-            <div class="mb-6">
-                <div class="border-b border-gray-200">
-                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                        <button class="tab-btn active border-nepal-green-500 text-nepal-green-600" data-tab="packages">
-                            <i class="fas fa-box mr-2"></i>
-                            Packages ({{ results.packages|length }})
-                        </button>
-                        <button class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="guides">
-                            <i class="fas fa-user-tie mr-2"></i>
-                            Guides ({{ results.guides|length }})
-                        </button>
-                        <button class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="agencies">
-                            <i class="fas fa-building mr-2"></i>
-                            Agencies ({{ results.agencies|length }})
-                        </button>
-                    </nav>
+            <!-- Placeholder Message -->
+            <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                <div class="mb-6">
+                    <i class="fas fa-search text-gray-300 text-6xl"></i>
                 </div>
-            </div>
-
-            <!-- Packages Results -->
-            <div id="packages-tab" class="tab-content">
-                {% if results.packages %}
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {% for package in results.packages %}
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                                <div class="relative">
-                                    {% if package.images.first %}
-                                        <img src="{{ package.images.first.image.url }}" alt="{{ package.title }}" class="w-full h-48 object-cover">
-                                    {% else %}
-                                        <div class="w-full h-48 bg-gray-300 flex items-center justify-center">
-                                            <i class="fas fa-mountain text-gray-500 text-4xl"></i>
-                                        </div>
-                                    {% endif %}
-                                    <div class="absolute top-2 right-2">
-                                        <span class="bg-nepal-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                                            {{ package.duration }} days
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="p-4">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-sm text-gray-500">{{ package.agency.name }}</span>
-                                        <div class="flex text-yellow-400 text-sm">
-                                            {% for i in "12345" %}
-                                                {% if forloop.counter <= package.rating %}
-                                                    <i class="fas fa-star"></i>
-                                                {% else %}
-                                                    <i class="far fa-star"></i>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    <h3 class="font-semibold text-lg text-gray-900 mb-2">{{ package.title }}</h3>
-                                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ package.description|truncatewords:15 }}</p>
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-nepal-green-600 font-bold">
-                                            NPR {{ package.price_per_person|floatformat:0 }}
-                                            <span class="text-sm text-gray-500 font-normal">/person</span>
-                                        </div>
-                                        <a href="{% url 'packages:package_detail' package.slug %}" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
-                                            View Details
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-12">
-                        <i class="fas fa-box text-gray-300 text-6xl mb-4"></i>
-                        <p class="text-gray-500 text-lg">No packages found matching your search.</p>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- Guides Results -->
-            <div id="guides-tab" class="tab-content hidden">
-                {% if results.guides %}
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {% for guide in results.guides %}
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                                <div class="p-6">
-                                    <div class="flex items-center mb-4">
-                                        {% if guide.profile_picture %}
-                                            <img src="{{ guide.profile_picture.url }}" alt="{{ guide.full_name }}" class="w-16 h-16 rounded-full object-cover">
-                                        {% else %}
-                                            <div class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center">
-                                                <i class="fas fa-user text-gray-500 text-2xl"></i>
-                                            </div>
-                                        {% endif %}
-                                        <div class="ml-4">
-                                            <h3 class="font-semibold text-lg text-gray-900">{{ guide.full_name }}</h3>
-                                            <p class="text-sm text-gray-500">{{ guide.agency.name }}</p>
-                                            <div class="flex text-yellow-400 text-sm mt-1">
-                                                {% for i in "12345" %}
-                                                    {% if forloop.counter <= guide.rating %}
-                                                        <i class="fas fa-star"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                                <span class="ml-1 text-gray-500">({{ guide.total_ratings }})</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-600 text-sm mb-4">{{ guide.bio|truncatewords:20 }}</p>
-                                    <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
-                                        <span><i class="fas fa-calendar mr-1"></i>{{ guide.experience_years }} years exp.</span>
-                                        <span><i class="fas fa-map-marker-alt mr-1"></i>{{ guide.places_covered|truncatewords:3 }}</span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-nepal-green-600 font-bold">
-                                            NPR {{ guide.daily_rate|floatformat:0 }}
-                                            <span class="text-sm text-gray-500 font-normal">/day</span>
-                                        </div>
-                                        <a href="{% url 'guides:guide_detail' guide.id %}" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
-                                            View Profile
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-12">
-                        <i class="fas fa-user-tie text-gray-300 text-6xl mb-4"></i>
-                        <p class="text-gray-500 text-lg">No guides found matching your search.</p>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- Agencies Results -->
-            <div id="agencies-tab" class="tab-content hidden">
-                {% if results.agencies %}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        {% for agency in results.agencies %}
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                                <div class="p-6">
-                                    <div class="flex items-start mb-4">
-                                        {% if agency.logo %}
-                                            <img src="{{ agency.logo.url }}" alt="{{ agency.name }}" class="w-16 h-16 rounded object-cover">
-                                        {% else %}
-                                            <div class="w-16 h-16 rounded bg-gray-300 flex items-center justify-center">
-                                                <i class="fas fa-building text-gray-500 text-2xl"></i>
-                                            </div>
-                                        {% endif %}
-                                        <div class="ml-4 flex-1">
-                                            <div class="flex items-center justify-between">
-                                                <h3 class="font-semibold text-lg text-gray-900">{{ agency.name }}</h3>
-                                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                                    <i class="fas fa-check-circle mr-1"></i>Verified
-                                                </span>
-                                            </div>
-                                            <div class="flex text-yellow-400 text-sm mt-1 mb-2">
-                                                {% for i in "12345" %}
-                                                    {% if forloop.counter <= agency.rating %}
-                                                        <i class="fas fa-star"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                                <span class="ml-1 text-gray-500">({{ agency.total_ratings }} reviews)</span>
-                                            </div>
-                                            <p class="text-sm text-gray-500">{{ agency.contact_person }}</p>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-600 text-sm mb-4">{{ agency.description|truncatewords:25 }}</p>
-                                    <div class="flex items-center text-sm text-gray-500 mb-4">
-                                        <i class="fas fa-map-marker-alt mr-2"></i>
-                                        <span>{{ agency.address|truncatewords:8 }}</span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-sm text-gray-500">
-                                            {% if agency.established_year %}
-                                                <i class="fas fa-calendar mr-1"></i>Est. {{ agency.established_year }}
-                                            {% endif %}
-                                        </div>
-                                        <a href="{% url 'agencies:agency_detail' agency.id %}" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
-                                            View Agency
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-12">
-                        <i class="fas fa-building text-gray-300 text-6xl mb-4"></i>
-                        <p class="text-gray-500 text-lg">No agencies found matching your search.</p>
-                    </div>
-                {% endif %}
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Search Coming Soon!</h3>
+                <p class="text-gray-600 mb-6">
+                    We're working on bringing you comprehensive search functionality for packages, guides, and agencies.
+                    Once our database is populated with amazing Nepal travel options, you'll be able to search and filter through them here.
+                </p>
+                <div class="text-sm text-gray-500">
+                    <p>Your search query: <strong>"{{ query }}"</strong></p>
+                    {% if is_tourist %}
+                        <p class="mt-2">As a registered tourist, you'll get personalized recommendations when search becomes available.</p>
+                    {% endif %}
+                </div>
             </div>
         {% else %}
             <!-- No Search Query - Show Popular Content -->

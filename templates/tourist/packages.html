@@ -1,0 +1,215 @@
+{% extends 'tourist/base.html' %}
+
+{% block title %}Packages - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Travel Packages</h1>
+        <p class="text-xl text-gray-600">Discover curated Nepal experiences from verified agencies</p>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form method="GET" class="space-y-6">
+            <!-- Main Search Bar -->
+            <div class="flex flex-col lg:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text" name="search" placeholder="Search packages..." 
+                           value="{{ request.GET.search }}" 
+                           class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                </div>
+                <button type="submit" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-8 py-2 rounded-lg font-medium transition-colors flex items-center justify-center">
+                    <i class="fas fa-search mr-2"></i>Search
+                </button>
+            </div>
+
+            <!-- Advanced Filters -->
+            <div class="border-t pt-4">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Package Type</label>
+                        <select name="package_type" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                            <option value="">All Types</option>
+                            <option value="trekking" {% if current_filters.package_type == 'trekking' %}selected{% endif %}>Trekking</option>
+                            <option value="cultural" {% if current_filters.package_type == 'cultural' %}selected{% endif %}>Cultural</option>
+                            <option value="adventure" {% if current_filters.package_type == 'adventure' %}selected{% endif %}>Adventure</option>
+                            <option value="wildlife" {% if current_filters.package_type == 'wildlife' %}selected{% endif %}>Wildlife</option>
+                            <option value="pilgrimage" {% if current_filters.package_type == 'pilgrimage' %}selected{% endif %}>Pilgrimage</option>
+                            <option value="luxury" {% if current_filters.package_type == 'luxury' %}selected{% endif %}>Luxury</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                        <select name="duration" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                            <option value="">Any Duration</option>
+                            <option value="1-3" {% if current_filters.duration == '1-3' %}selected{% endif %}>1-3 Days</option>
+                            <option value="4-7" {% if current_filters.duration == '4-7' %}selected{% endif %}>4-7 Days</option>
+                            <option value="8-14" {% if current_filters.duration == '8-14' %}selected{% endif %}>8-14 Days</option>
+                            <option value="15+" {% if current_filters.duration == '15+' %}selected{% endif %}>15+ Days</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
+                        <select name="difficulty" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                            <option value="">Any Difficulty</option>
+                            <option value="easy" {% if current_filters.difficulty == 'easy' %}selected{% endif %}>Easy</option>
+                            <option value="moderate" {% if current_filters.difficulty == 'moderate' %}selected{% endif %}>Moderate</option>
+                            <option value="difficult" {% if current_filters.difficulty == 'difficult' %}selected{% endif %}>Difficult</option>
+                            <option value="extreme" {% if current_filters.difficulty == 'extreme' %}selected{% endif %}>Extreme</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Min Price (NPR)</label>
+                        <input type="number" name="min_price" placeholder="Min Price" 
+                               value="{{ current_filters.min_price }}" 
+                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Max Price (NPR)</label>
+                        <input type="number" name="max_price" placeholder="Max Price" 
+                               value="{{ current_filters.max_price }}" 
+                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    {% if packages %}
+        <!-- Sort Options -->
+        <div class="flex justify-between items-center mb-6">
+            <p class="text-gray-600">{{ packages|length }} package{{ packages|length|pluralize }} found</p>
+            <div class="flex items-center space-x-4">
+                <label class="text-sm font-medium text-gray-700">Sort by:</label>
+                <select name="sort" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                    <option value="newest" {% if current_filters.sort == 'newest' %}selected{% endif %}>Newest First</option>
+                    <option value="price_low" {% if current_filters.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_high" {% if current_filters.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="duration_short" {% if current_filters.sort == 'duration_short' %}selected{% endif %}>Duration: Short to Long</option>
+                    <option value="duration_long" {% if current_filters.sort == 'duration_long' %}selected{% endif %}>Duration: Long to Short</option>
+                    <option value="rating" {% if current_filters.sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+                    {% if search_query %}<option value="relevance" {% if current_filters.sort == 'relevance' %}selected{% endif %}>Most Relevant</option>{% endif %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Packages Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for package in packages %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        {% if package.get_main_image %}
+                            <img src="{{ package.get_main_image.image.url }}" alt="{{ package.title }}" class="w-full h-48 object-cover">
+                        {% else %}
+                            <div class="w-full h-48 bg-gradient-to-r from-nepal-green-400 to-nepal-green-600 flex items-center justify-center">
+                                <i class="fas fa-mountain text-white text-4xl"></i>
+                            </div>
+                        {% endif %}
+                        <div class="absolute top-2 right-2">
+                            <span class="bg-nepal-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                {{ package.duration_days }} days
+                            </span>
+                        </div>
+                        <div class="absolute top-2 left-2">
+                            <span class="bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                {{ package.get_package_type_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-500">{{ package.agency.name }}</span>
+                            <div class="flex text-yellow-400 text-sm">
+                                {% if package.agency.rating > 0 %}
+                                    {% with package.agency.rating|floatformat:0 as rating %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= rating|add:0 %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                    <span class="ml-1 text-gray-500">({{ package.agency.total_ratings }})</span>
+                                {% else %}
+                                    <span class="text-gray-500 text-xs">New</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-lg text-gray-900 mb-2">{{ package.title }}</h3>
+                        <p class="text-gray-600 text-sm mb-4">{{ package.description|truncatewords:15 }}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="text-nepal-green-600 font-bold">
+                                NPR {{ package.price_per_person|floatformat:0 }}
+                                <span class="text-sm text-gray-500 font-normal">/person</span>
+                            </div>
+                            <a href="{% url 'accounts:package_detail' package.id %}" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors inline-block">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination (placeholder) -->
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    Previous
+                </button>
+                <button class="px-3 py-2 text-sm font-medium text-white bg-nepal-green-600 border border-nepal-green-600 rounded-md">
+                    1
+                </button>
+                <button class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    2
+                </button>
+                <button class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    3
+                </button>
+                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    Next
+                </button>
+            </nav>
+        </div>
+
+    {% else %}
+        <!-- No Results -->
+        <div class="bg-white rounded-lg shadow-md p-12 text-center">
+            <div class="mb-6">
+                <i class="fas fa-box text-gray-300 text-6xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">No Packages Available Yet</h3>
+            <p class="text-gray-600 mb-6">
+                We're working with verified agencies to bring you amazing Nepal travel packages. 
+                Check back soon for exciting adventures!
+            </p>
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <i class="fas fa-mountain text-nepal-green-600 text-2xl mb-2"></i>
+                        <h4 class="font-medium text-gray-900">Trekking Adventures</h4>
+                        <p class="text-sm text-gray-600">Coming Soon</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <i class="fas fa-temple text-nepal-green-600 text-2xl mb-2"></i>
+                        <h4 class="font-medium text-gray-900">Cultural Tours</h4>
+                        <p class="text-sm text-gray-600">Coming Soon</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <i class="fas fa-paw text-nepal-green-600 text-2xl mb-2"></i>
+                        <h4 class="font-medium text-gray-900">Wildlife Safari</h4>
+                        <p class="text-sm text-gray-600">Coming Soon</p>
+                    </div>
+                </div>
+                <a href="{% url 'accounts:tourist_home' %}" class="inline-flex items-center text-nepal-green-600 hover:text-nepal-green-700 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

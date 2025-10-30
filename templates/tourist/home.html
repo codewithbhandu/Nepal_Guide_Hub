@@ -1,0 +1,232 @@
+{% extends 'tourist/base.html' %}
+
+{% block title %}Home - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Welcome Banner -->
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+        <div class="max-w-4xl">
+            <h1 class="text-4xl font-bold mb-4 text-nepal-green-700">Welcome to Nepal Guide Hub, {{ tourist.full_name|default:user.username }}!</h1>
+            <p class="text-xl mb-6 text-nepal-green-600">Discover authentic Nepal experiences through our verified guides, packages, and agencies.</p>
+            <div class="flex flex-wrap gap-4">
+                <a href="{% url 'accounts:tourist_packages' %}" class="bg-nepal-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-nepal-green-700 transition-colors shadow-md">
+                    <i class="fas fa-box mr-2"></i>Browse Packages
+                </a>
+                <a href="{% url 'accounts:tourist_guides' %}" class="bg-nepal-green-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-nepal-green-600 transition-colors shadow-md">
+                    <i class="fas fa-user-tie mr-2"></i>Find Guides
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Featured Packages Section -->
+    <section class="mb-12">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-900">Featured Packages</h2>
+            <a href="{% url 'accounts:tourist_packages' %}" class="text-nepal-green-600 hover:text-nepal-green-700 font-medium">
+                View All Packages <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        {% if packages %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for package in packages|slice:":6" %}
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                        <div class="relative">
+                            {% if package.get_main_image %}
+                                <img src="{{ package.get_main_image.image.url }}" alt="{{ package.title }}" class="w-full h-48 object-cover">
+                            {% else %}
+                                <div class="w-full h-48 bg-gradient-to-r from-nepal-green-400 to-nepal-green-600 flex items-center justify-center">
+                                    <i class="fas fa-mountain text-white text-4xl"></i>
+                                </div>
+                            {% endif %}
+                            <div class="absolute top-2 right-2">
+                                <span class="bg-nepal-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                    {{ package.duration_days }} days
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-lg text-gray-900 mb-2">{{ package.title }}</h3>
+                            <p class="text-gray-600 text-sm mb-4">{{ package.description|truncatewords:15 }}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="text-nepal-green-600 font-bold">
+                                    NPR {{ package.price_per_person|floatformat:0 }}
+                                    <span class="text-sm text-gray-500 font-normal">/person</span>
+                                </div>
+                                <a href="{% url 'accounts:package_detail' package.id %}" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors inline-block">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                <div class="mb-4">
+                    <i class="fas fa-box text-gray-300 text-6xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Packages Coming Soon!</h3>
+                <p class="text-gray-600 mb-4">We're working with local agencies to bring you the best Nepal packages.</p>
+                <a href="{% url 'accounts:tourist_packages' %}" class="inline-flex items-center text-nepal-green-600 hover:text-nepal-green-700 font-medium">
+                    Stay tuned for updates <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Expert Guides Section -->
+    <section class="mb-12">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-900">Expert Guides</h2>
+            <a href="{% url 'accounts:tourist_guides' %}" class="text-nepal-green-600 hover:text-nepal-green-700 font-medium">
+                View All Guides <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        {% if guides %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for guide in guides|slice:":6" %}
+                    <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center mb-4">
+                            {% if guide.profile_picture %}
+                                <img src="{{ guide.profile_picture.url }}" alt="{{ guide.full_name }}" class="w-16 h-16 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-16 h-16 rounded-full bg-nepal-green-500 flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-2xl"></i>
+                                </div>
+                            {% endif %}
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-lg text-gray-900">{{ guide.name }}</h3>
+                                <p class="text-sm text-gray-500">{{ guide.get_specialties_display|join:", "|default:"Professional Guide" }}</p>
+                                <div class="flex text-yellow-400 text-sm mt-1">
+                                    {% with guide.rating|floatformat:0 as rating %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= rating|add:0 %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                    <span class="ml-1 text-gray-500">({{ guide.total_ratings }})</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">{{ guide.bio|truncatewords:20 }}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="text-nepal-green-600 font-bold">
+                                NPR {{ guide.daily_rate|floatformat:0 }}
+                                <span class="text-sm text-gray-500 font-normal">/day</span>
+                            </div>
+                            <a href="{% url 'accounts:guide_detail' guide.id %}" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors inline-block">
+                                View Profile
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                <div class="mb-4">
+                    <i class="fas fa-user-tie text-gray-300 text-6xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Guides Coming Soon!</h3>
+                <p class="text-gray-600 mb-4">We're onboarding experienced local guides to enhance your Nepal experience.</p>
+                <a href="{% url 'accounts:tourist_guides' %}" class="inline-flex items-center text-nepal-green-600 hover:text-nepal-green-700 font-medium">
+                    Check back soon <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Verified Agencies Section -->
+    <section class="mb-12">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-900">Verified Agencies</h2>
+            <a href="{% url 'accounts:tourist_agencies' %}" class="text-nepal-green-600 hover:text-nepal-green-700 font-medium">
+                View All Agencies <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        {% if agencies %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for agency in agencies|slice:":4" %}
+                    <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-start mb-4">
+                            {% if agency.logo %}
+                                <img src="{{ agency.logo.url }}" alt="{{ agency.name }}" class="w-16 h-16 rounded object-cover">
+                            {% else %}
+                                <div class="w-16 h-16 rounded bg-nepal-green-500 flex items-center justify-center">
+                                    <i class="fas fa-building text-white text-2xl"></i>
+                                </div>
+                            {% endif %}
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-semibold text-lg text-gray-900">{{ agency.name }}</h3>
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                        <i class="fas fa-check-circle mr-1"></i>Verified
+                                    </span>
+                                </div>
+                                <div class="flex text-yellow-400 text-sm mt-1 mb-2">
+                                    {% with agency.rating|floatformat:0 as rating %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= rating|add:0 %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                    <span class="ml-1 text-gray-500">({{ agency.total_ratings }} reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">{{ agency.description|truncatewords:25 }}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                {% if agency.established_year %}
+                                    <i class="fas fa-calendar mr-1"></i>Est. {{ agency.established_year }}
+                                {% else %}
+                                    <i class="fas fa-building mr-1"></i>Verified Agency
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'accounts:agency_detail' agency.id %}" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors inline-block">
+                                View Agency
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                <div class="mb-4">
+                    <i class="fas fa-building text-gray-300 text-6xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Agencies Coming Soon!</h3>
+                <p class="text-gray-600 mb-4">We're verifying quality travel agencies to provide you with the best services.</p>
+                <a href="{% url 'accounts:tourist_agencies' %}" class="inline-flex items-center text-nepal-green-600 hover:text-nepal-green-700 font-medium">
+                    Learn more <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Call to Action -->
+    <div class="bg-gray-100 rounded-xl p-8 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Ready to Start Your Nepal Adventure?</h2>
+        <p class="text-gray-600 mb-6">Browse our growing collection of packages, guides, and agencies to plan your perfect trip.</p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="{% url 'accounts:tourist_packages' %}" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                Explore Packages
+            </a>
+            <a href="{% url 'accounts:tourist_profile' %}" class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium border border-gray-300 transition-colors">
+                Update Profile
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
