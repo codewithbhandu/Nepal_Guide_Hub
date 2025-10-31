@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.core.mail import send_mail
+from django.conf import settings
 from .forms import UserRegistrationForm, CustomAuthenticationForm, TouristProfileForm, AgencyProfileForm
 from .models import User, Tourist, Agency, VerificationRequest
 from apps.packages.models import Package
@@ -405,6 +407,19 @@ def register(request):
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
+            # Send welcome email
+            if user.email:
+                subject = 'Welcome to Nepal Guide Hub'
+                message = (
+                    f"Hi {username},\n\n"
+                    f"Your account has been created successfully.\n"
+                    f"You can now log in and complete your profile.\n\n"
+                    f"Thanks for joining Nepal Guide Hub!"
+                )
+                try:
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=True)
+                except Exception:
+                    pass
             messages.success(request, f'Account successfully created for {username}! Please log in to continue.')
             # Don't auto-login, redirect to login page instead
             return redirect('accounts:login')
@@ -689,16 +704,15 @@ def tourist_bookings_view(request):
         all_bookings = Booking.objects.filter(tourist=tourist).order_by('-created_at')
         
         # Filter bookings by status and payment
-        # Active bookings: Confirmed bookings with payment (advance or full) that haven't been completed
+        # Active bookings: Confirmed bookings with successful payment
         active_bookings = all_bookings.filter(
-            status='confirmed',
-            advance_amount__gt=0  # Must have some payment to be considered active
-        ).exclude(status='completed')
+            status='confirmed'
+        )
         
-        # Pending bookings: Bookings waiting for payment
+        # Pending bookings: Bookings waiting for payment (pending status) 
+        # or those with failed payments that are still pending
         pending_bookings = all_bookings.filter(
-            status='pending',
-            advance_amount=0  # No payment made yet
+            status='pending'
         )
         
         # Completed bookings: Finished trips
@@ -822,6 +836,7 @@ def book_package_view(request, package_id):
         number_of_people = int(request.POST.get('number_of_people', 1))
         special_requirements = request.POST.get('special_requirements', '')
         
+        
         try:
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
             end_date = start_date + timedelta(days=package.duration_days - 1)
@@ -829,16 +844,20 @@ def book_package_view(request, package_id):
             messages.error(request, 'Invalid date format.')
             return redirect('accounts:package_detail', package_id=package_id)
         
-        # Check if date is available
+        # Check if date is available (proper conflict checking)
+        # Simple overlap detection - if travel_date of existing booking falls within our date range
         conflicting_booking = Booking.objects.filter(
             package=package,
-            travel_date__lte=end_date,
-            end_date__gte=start_date,
             status__in=['pending', 'confirmed']
+        ).filter(
+            Q(travel_date__range=[start_date, end_date]) |
+            Q(end_date__range=[start_date, end_date]) |
+            Q(travel_date__lte=start_date, end_date__gte=end_date)
         ).exists()
         
+        
         if conflicting_booking:
-            messages.error(request, 'Selected dates are not available.')
+            messages.error(request, 'Selected dates are not available. Please choose different dates.')
             return redirect('accounts:package_detail', package_id=package_id)
         
         if start_date < date.today():
@@ -908,12 +927,15 @@ def book_guide_view(request, guide_id):
             messages.error(request, 'End date must be after start date.')
             return redirect('accounts:guide_detail', guide_id=guide_id)
         
-        # Check if dates are available
+        # Check if dates are available (proper conflict checking)
+        # Check for any overlap between requested dates and existing bookings
         conflicting_booking = Booking.objects.filter(
             guide=guide,
-            travel_date__lte=end_date,
-            end_date__gte=start_date,
             status__in=['pending', 'confirmed']
+        ).filter(
+            Q(travel_date__range=[start_date, end_date]) |
+            Q(end_date__range=[start_date, end_date]) |
+            Q(travel_date__lte=start_date, end_date__gte=end_date)
         ).exists()
         
         if conflicting_booking:
@@ -943,7 +965,7 @@ def book_guide_view(request, guide_id):
 
 @login_required
 def payment_view(request, booking_type, booking_id):
-    """Payment page for bookings"""
+    """Payment page for bookings with eSewa integration"""
     if request.user.user_type != 'tourist':
         messages.error(request, 'Access denied.')
         return redirect('core:home')
@@ -959,30 +981,38 @@ def payment_view(request, booking_type, booking_id):
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
         
+        # Calculate payment amount based on method
         if payment_method == 'advance':
-            # Set advance payment (50% of total)
-            advance_amount = booking.total_amount * 0.5
-            booking.advance_amount = advance_amount
-            booking.status = 'confirmed'
-            booking.save()
-            
-            messages.success(request, 'Advance payment confirmed! Your booking is now confirmed.')
-            return redirect('accounts:tourist_bookings')
-        
+            payment_amount = booking.total_amount * 0.5
         elif payment_method == 'full':
-            # Set full payment
-            booking.advance_amount = booking.total_amount
-            booking.status = 'confirmed'
-            booking.save()
-            
-            messages.success(request, 'Full payment confirmed! Your booking is now confirmed.')
-            return redirect('accounts:tourist_bookings')
+            payment_amount = booking.total_amount * 0.95  # 5% discount for full payment
+        else:
+            messages.error(request, 'Invalid payment method selected.')
+            return redirect('accounts:payment_view', booking_type=booking_type, booking_id=booking_id)
+        
+        # Create or get existing payment record
+        from apps.bookings.models import Payment
+        import uuid
+        
+        payment, created = Payment.objects.get_or_create(
+            booking=booking,
+            defaults={
+                'amount': payment_amount,
+                'transaction_id': str(uuid.uuid4())[:10],
+                'status': 'pending',
+                'service_charge': 0.0
+            }
+        )
+        
+        # Redirect to payment processing
+        return redirect('bookings:process_payment', payment_id=payment.transaction_id)
     
     context = {
         'booking': booking,
         'booking_type': booking_type,
         'is_tourist': True,
         'advance_amount': booking.total_amount * 0.5,
+        'full_discounted': booking.total_amount * 0.95,
     }
     
     return render(request, 'tourist/payment.html', context)

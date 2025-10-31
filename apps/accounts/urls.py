@@ -19,6 +19,7 @@ urlpatterns = [
     path('tourist/guides/', views.tourist_guides_view, name='tourist_guides'),
     path('tourist/agencies/', views.tourist_agencies_view, name='tourist_agencies'),
     path('tourist/bookings/', views.tourist_bookings_view, name='tourist_bookings'),
+    path('my-bookings/', views.tourist_bookings_view, name='my_bookings'),
     
     # Package, Guide and Agency Detail URLs
     path('package/<int:package_id>/', views.package_detail_view, name='package_detail'),

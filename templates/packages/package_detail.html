@@ -192,7 +192,7 @@
                     </div>
                 </div>
                 <p class="text-gray-600">{{ package.agency.description|truncatewords:30 }}</p>
-                <a href="{% url 'agencies:agency_detail' package.agency.id %}" 
+                <a href="{% url 'core:agency_detail' package.agency.id %}" 
                    class="inline-block mt-4 text-nepal-blue hover:text-blue-600">
                     View Agency Profile <i class="fas fa-arrow-right ml-1"></i>
                 </a>
@@ -204,12 +204,12 @@
             <!-- Booking Card -->
             <div class="bg-white rounded-lg shadow p-6 sticky top-4">
                 <div class="text-center mb-6">
-                    <div class="text-3xl font-bold text-nepal-blue">${{ package.price_per_person }}</div>
+                    <div class="text-3xl font-bold text-nepal-blue">NPR {{ package.price_per_person }}</div>
                     <div class="text-gray-600">per person</div>
                 </div>
                 
                 {% if user.is_authenticated and user.user_type == 'tourist' %}
-                <a href="{% url 'bookings:book_package' package.id %}" 
+                <a href="{% url 'accounts:book_package' package.id %}"
                    class="block w-full bg-nepal-blue text-white text-center py-3 rounded-md hover:bg-blue-700 transition-colors mb-4">
                     <i class="fas fa-calendar-check mr-2"></i>Book Now
                 </a>
@@ -243,7 +243,7 @@
                         <div class="flex-1">
                             <h4 class="font-semibold text-sm">{{ related.title|truncatechars:40 }}</h4>
                             <div class="text-sm text-gray-600">{{ related.duration_days }} days</div>
-                            <div class="text-nepal-blue font-bold">${{ related.price_per_person }}</div>
+                            <div class="text-nepal-blue font-bold">NPR {{ related.price_per_person }}</div>
                         </div>
                     </div>
                     {% endfor %}

@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
+from django.core.mail import send_mail
+from apps.bookings.models import Booking
 from apps.accounts.models import Agency
 from apps.guides.forms import GuideForm
 from apps.packages.forms import PackageForm, PackageImageFormSet
@@ -76,18 +78,9 @@ def agency_list(request):
     return render(request, 'agencies/agency_list.html', context)
 
 def agency_detail(request, id):
-    agency = get_object_or_404(Agency, id=id, is_verified=True)
-    
-    # Get agency's guides and packages
-    guides = agency.guides.filter(is_available=True)
-    packages = agency.packages.filter(is_active=True)
-    
-    context = {
-        'agency': agency,
-        'guides': guides,
-        'packages': packages,
-    }
-    return render(request, 'agencies/agency_detail.html', context)
+    # Redirect to the core public detail view
+    from django.shortcuts import redirect
+    return redirect('core:agency_detail', agency_id=id)
 
 @login_required
 def agency_dashboard(request):
@@ -334,7 +327,11 @@ def agency_bookings(request):
         messages.error(request, 'Access denied.')
         return redirect('core:home')
     
-    agency = request.user.agency
+    try:
+        agency = request.user.agency
+    except Agency.DoesNotExist:
+        messages.error(request, 'Please complete your agency profile first.')
+        return redirect('accounts:agency_profile')
     bookings = agency.booking_set.order_by('-created_at')
     
     # Filter by status if provided
@@ -347,12 +344,99 @@ def agency_bookings(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    # Status counts for summary cards
+    pending_count = agency.booking_set.filter(status='pending').count()
+    confirmed_count = agency.booking_set.filter(status='confirmed').count()
+    completed_count = agency.booking_set.filter(status='completed').count()
+
     context = {
         'agency': agency,
         'page_obj': page_obj,
         'current_status': status_filter,
+        'pending_count': pending_count,
+        'confirmed_count': confirmed_count,
+        'completed_count': completed_count,
     }
     return render(request, 'agencies/bookings.html', context)
+
+@login_required
+def confirm_booking(request, booking_id):
+    if request.method != 'POST':
+        return redirect('agencies:bookings')
+    if request.user.user_type != 'agency':
+        messages.error(request, 'Access denied.')
+        return redirect('core:home')
+    try:
+        agency = request.user.agency
+    except Agency.DoesNotExist:
+        messages.error(request, 'Please complete your agency profile first.')
+        return redirect('accounts:agency_profile')
+
+    booking = get_object_or_404(Booking, id=booking_id, agency=agency)
+    if booking.status != 'pending':
+        messages.info(request, 'Only pending bookings can be confirmed.')
+        return redirect('agencies:bookings')
+
+    booking.status = 'confirmed'
+    booking.save(update_fields=['status', 'updated_at'])
+
+    # Send confirmation email
+    tourist_email = getattr(getattr(booking.tourist, 'user', None), 'email', None)
+    if tourist_email:
+        subject = 'Your booking has been confirmed - Nepal Guide Hub'
+        message = (
+            f"Hello {booking.tourist.user.get_full_name() or booking.tourist.user.username},\n\n"
+            f"Your booking #{booking.id} has been confirmed by {agency.name}.\n"
+            f"Travel date: {booking.travel_date}\n"
+            f"Total amount: {booking.total_amount}\n\n"
+            f"Thank you for booking with Nepal Guide Hub."
+        )
+        try:
+            send_mail(subject, message, None, [tourist_email], fail_silently=True)
+        except Exception:
+            pass
+
+    messages.success(request, f'Booking #{booking.id} confirmed and email sent.')
+    return redirect('agencies:bookings')
+
+@login_required
+def reject_booking(request, booking_id):
+    if request.method != 'POST':
+        return redirect('agencies:bookings')
+    if request.user.user_type != 'agency':
+        messages.error(request, 'Access denied.')
+        return redirect('core:home')
+    try:
+        agency = request.user.agency
+    except Agency.DoesNotExist:
+        messages.error(request, 'Please complete your agency profile first.')
+        return redirect('accounts:agency_profile')
+
+    booking = get_object_or_404(Booking, id=booking_id, agency=agency)
+    if booking.status != 'pending':
+        messages.info(request, 'Only pending bookings can be rejected.')
+        return redirect('agencies:bookings')
+
+    booking.status = 'cancelled'
+    booking.save(update_fields=['status', 'updated_at'])
+
+    # Send rejection email
+    tourist_email = getattr(getattr(booking.tourist, 'user', None), 'email', None)
+    if tourist_email:
+        subject = 'Your booking request was declined - Nepal Guide Hub'
+        message = (
+            f"Hello {booking.tourist.user.get_full_name() or booking.tourist.user.username},\n\n"
+            f"Unfortunately, your booking #{booking.id} with {agency.name} was declined.\n"
+            f"Travel date: {booking.travel_date}\n\n"
+            f"You can try different dates or choose another package/guide."
+        )
+        try:
+            send_mail(subject, message, None, [tourist_email], fail_silently=True)
+        except Exception:
+            pass
+
+    messages.success(request, f'Booking #{booking.id} has been rejected.')
+    return redirect('agencies:bookings')
 
 @login_required
 def agency_analytics(request):

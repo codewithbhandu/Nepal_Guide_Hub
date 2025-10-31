@@ -102,11 +102,11 @@
     {% if page_obj %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for package in page_obj %}
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
                 <!-- Package Image -->
                 {% if package.get_main_image %}
                 <img src="{{ package.get_main_image.image.url }}" alt="{{ package.title }}" 
-                     class="w-full h-48 object-cover">
+                     class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
                 {% else %}
                 <div class="w-full h-48 bg-gradient-to-r from-nepal-blue to-blue-600 flex items-center justify-center">
                     <i class="fas fa-mountain text-white text-4xl"></i>
@@ -116,8 +116,8 @@
                 <div class="p-6">
                     <!-- Package Type & Duration -->
                     <div class="flex items-center justify-between mb-3">
-                        <span class="inline-block bg-nepal-blue text-white text-xs px-2 py-1 rounded-full uppercase tracking-wide">
-                            {{ package.get_package_type_display }}
+                        <span class="inline-flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-3 py-1 rounded-full uppercase tracking-wide font-semibold">
+                            <i class="fas fa-mountain mr-1"></i>{{ package.get_package_type_display }}
                         </span>
                         <div class="flex items-center text-gray-500 text-sm">
                             <i class="fas fa-calendar-alt mr-1"></i>
@@ -126,7 +126,11 @@
                     </div>
                     
                     <!-- Title -->
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ package.title }}</h3>
+                    <h3 class="text-xl font-bold mb-2">
+                        <a href="{% url 'core:package_detail' package.slug %}" class="text-gray-900 hover:text-green-600 transition-colors duration-300">
+                            {{ package.title }}
+                        </a>
+                    </h3>
                     
                     <!-- Description -->
                     <p class="text-gray-600 text-sm mb-4">{{ package.description|truncatewords:20 }}</p>
@@ -150,12 +154,12 @@
                     <!-- Price & Action -->
                     <div class="flex items-center justify-between pt-4 border-t">
                         <div>
-                            <div class="text-2xl font-bold text-nepal-blue">${{ package.price_per_person }}</div>
+                            <div class="text-2xl font-bold text-nepal-blue">NPR {{ package.price_per_person }}</div>
                             <div class="text-sm text-gray-500">per person</div>
                         </div>
-                        <a href="{% url 'packages:package_detail' package.slug %}" 
-                           class="bg-nepal-green text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-                            View Details
+                        <a href="{% url 'core:package_detail' package.slug %}" 
+                           class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center font-semibold">
+                            <i class="fas fa-eye mr-2"></i>View Details
                         </a>
                     </div>
                 </div>

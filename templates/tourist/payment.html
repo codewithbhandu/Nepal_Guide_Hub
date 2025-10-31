@@ -113,7 +113,7 @@
                                     </p>
                                 </div>
                                 <div class="text-right">
-                                    <strong class="amount-badge">${{ advance_amount }}</strong>
+                                    <strong class="amount-badge">NPR {{ advance_amount }}</strong>
                                 </div>
                             </div>
                         </label>
@@ -132,9 +132,9 @@
                                     </p>
                                 </div>
                                 <div class="text-right">
-                                    <strong class="amount-badge">${{ booking.total_amount }}</strong>
+                                    <strong class="amount-badge">NPR {{ full_discounted|floatformat:2 }}</strong>
                                     <small class="d-block text-success">
-                                        <del class="text-muted">${{ booking.total_amount|floatformat:2 }}</del>
+                                        <del class="text-muted">NPR {{ booking.total_amount|floatformat:2 }}</del>
                                         Save 5%
                                     </small>
                                 </div>
@@ -246,30 +246,30 @@
                     <h6>Price Breakdown</h6>
                     {% if booking.package %}
                     <div class="d-flex justify-content-between">
-                        <span>${{ booking.package.price_per_person }} × {{ booking.number_of_people }} person{{ booking.number_of_people|pluralize }}</span>
-                        <span>${{ booking.total_amount }}</span>
+                        <span>NPR {{ booking.package.price_per_person }} × {{ booking.number_of_people }} person{{ booking.number_of_people|pluralize }}</span>
+                        <span>NPR {{ booking.total_amount }}</span>
                     </div>
                     {% else %}
                     <div class="d-flex justify-content-between">
-                        <span>${{ booking.guide.daily_rate }} × {{ booking.duration_days }} day{{ booking.duration_days|pluralize }}</span>
-                        <span>${{ booking.total_amount }}</span>
+                        <span>NPR {{ booking.guide.daily_rate }} × {{ booking.duration_days }} day{{ booking.duration_days|pluralize }}</span>
+                        <span>NPR {{ booking.total_amount }}</span>
                     </div>
                     {% endif %}
                     
                     <hr>
                     <div class="d-flex justify-content-between">
                         <strong>Total Amount</strong>
-                        <strong>${{ booking.total_amount }}</strong>
+                        <strong>NPR {{ booking.total_amount }}</strong>
                     </div>
                     
                     <div class="d-flex justify-content-between text-success mt-2" id="advanceAmount">
                         <span>Advance Payment (50%)</span>
-                        <strong>${{ advance_amount }}</strong>
+                        <strong>NPR {{ advance_amount }}</strong>
                     </div>
                     
                     <div class="d-flex justify-content-between text-info mt-1" id="remainingAmount">
                         <small>Remaining Amount</small>
-                        <small>${{ booking.remaining_amount }}</small>
+                        <small>NPR {{ booking.remaining_amount }}</small>
                     </div>
                 </div>
 
@@ -348,13 +348,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (radioBtn.value === 'full') {
                     advanceAmountDisplay.innerHTML = `
                         <span>Full Payment</span>
-                        <strong>$${totalAmount}</strong>
+                        <strong>NPR ${totalAmount}</strong>
                     `;
                     remainingAmountDisplay.style.display = 'none';
                 } else {
                     advanceAmountDisplay.innerHTML = `
                         <span>Advance Payment (50%)</span>
-                        <strong>$${advanceAmount}</strong>
+                        <strong>NPR ${advanceAmount}</strong>
                     `;
                     remainingAmountDisplay.style.display = 'flex';
                 }

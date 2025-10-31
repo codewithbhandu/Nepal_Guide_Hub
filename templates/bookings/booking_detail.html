@@ -1,0 +1,265 @@
+{% extends 'tourist/base.html' %}
+
+{% block title %}Booking #{{ booking.id }} - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-8">
+        <ol class="flex items-center space-x-2 text-sm text-gray-500">
+            <li><a href="{% url 'accounts:tourist_home' %}" class="hover:text-nepal-green-600 transition-colors">Home</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'accounts:my_bookings' %}" class="hover:text-nepal-green-600 transition-colors">My Bookings</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Booking #{{ booking.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Booking Details -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Status Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-3xl font-bold text-gray-900">Booking #{{ booking.id }}</h1>
+                    <div class="flex items-center">
+                        {% if booking.status == 'confirmed' %}
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-check-circle mr-1"></i>Confirmed
+                            </span>
+                        {% elif booking.status == 'pending' %}
+                            <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-clock mr-1"></i>Pending Payment
+                            </span>
+                        {% elif booking.status == 'completed' %}
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-flag-checkered mr-1"></i>Completed
+                            </span>
+                        {% elif booking.status == 'cancelled' %}
+                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-times-circle mr-1"></i>Cancelled
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Booking Date</p>
+                        <p class="font-semibold">{{ booking.booking_date|date:"M d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Travel Date</p>
+                        <p class="font-semibold">
+                            {{ booking.travel_date|date:"M d, Y" }}
+                            {% if booking.end_date %}
+                                - {{ booking.end_date|date:"M d, Y" }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Number of People</p>
+                        <p class="font-semibold">{{ booking.number_of_people }} person{{ booking.number_of_people|pluralize }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Total Amount</p>
+                        <p class="font-semibold text-nepal-green-600 text-lg">NPR {{ booking.total_amount }}</p>
+                    </div>
+                </div>
+
+                {% if booking.special_requirements %}
+                <div class="mt-6">
+                    <p class="text-sm text-gray-500 mb-2">Special Requirements</p>
+                    <p class="bg-gray-50 p-3 rounded-md">{{ booking.special_requirements }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Package/Guide Details -->
+            {% if booking.package %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Package Details</h3>
+                <div class="flex items-start space-x-4">
+                    {% if booking.package.get_main_image %}
+                        <img src="{{ booking.package.get_main_image.image.url }}" alt="{{ booking.package.title }}" class="w-20 h-20 object-cover rounded-lg">
+                    {% else %}
+                        <div class="w-20 h-20 bg-gradient-to-r from-nepal-green-500 to-nepal-green-700 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mountain text-white text-xl"></i>
+                        </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-lg text-gray-900">{{ booking.package.title }}</h4>
+                        <p class="text-gray-600 mt-1">{{ booking.package.description|truncatewords:20 }}</p>
+                        <div class="flex items-center text-sm text-gray-500 mt-2">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            <span>{{ booking.package.duration_days }} Days</span>
+                            <i class="fas fa-chart-line ml-4 mr-2"></i>
+                            <span>{{ booking.package.get_difficulty_level_display }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% elif booking.guide %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Guide Details</h3>
+                <div class="flex items-start space-x-4">
+                    {% if booking.guide.profile_picture %}
+                        <img src="{{ booking.guide.profile_picture.url }}" alt="{{ booking.guide.name }}" class="w-20 h-20 rounded-full object-cover">
+                    {% else %}
+                        <div class="w-20 h-20 bg-gradient-to-r from-nepal-green-500 to-nepal-green-700 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-xl"></i>
+                        </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-lg text-gray-900">{{ booking.guide.name }}</h4>
+                        <p class="text-gray-600 mt-1">{{ booking.guide.bio|truncatewords:20 }}</p>
+                        <div class="flex items-center text-sm text-gray-500 mt-2">
+                            <i class="fas fa-language mr-2"></i>
+                            <span>{{ booking.guide.languages|default:"English, Nepali" }}</span>
+                            <i class="fas fa-star ml-4 mr-1 text-yellow-400"></i>
+                            <span>{{ booking.guide.rating|default:"5.0" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Agency Details -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Agency Information</h3>
+                <div class="flex items-start space-x-4">
+                    {% if booking.agency.logo %}
+                        <img src="{{ booking.agency.logo.url }}" alt="{{ booking.agency.name }}" class="w-16 h-16 rounded-lg object-cover">
+                    {% else %}
+                        <div class="w-16 h-16 bg-nepal-green-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-building text-white text-xl"></i>
+                        </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-lg text-gray-900">{{ booking.agency.name }}</h4>
+                        <p class="text-gray-600 mt-1">{{ booking.agency.description|truncatewords:15 }}</p>
+                        <div class="flex items-center text-sm text-gray-500 mt-2">
+                            <i class="fas fa-check-circle mr-2 text-green-500"></i>
+                            <span>Verified Agency</span>
+                            <i class="fas fa-star ml-4 mr-1 text-yellow-400"></i>
+                            <span>{{ booking.agency.rating|default:"5.0" }} ({{ booking.agency.total_ratings|default:"0" }} reviews)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                <h3 class="text-lg font-bold text-gray-900 mb-6">Actions</h3>
+                
+                <!-- Payment Actions -->
+                {% if booking.status == 'pending' %}
+                    {% for payment in booking.payments.all %}
+                        {% if payment.status == 'pending' %}
+                            <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>
+                                    <span class="font-medium text-yellow-800">Payment Required</span>
+                                </div>
+                                <p class="text-sm text-yellow-700 mb-3">Complete your payment to confirm the booking.</p>
+                                <a href="{% url 'bookings:process_payment' payment.transaction_id %}" 
+                                   class="block w-full bg-yellow-600 hover:bg-yellow-700 text-white text-center py-2 px-4 rounded-md font-medium transition-colors">
+                                    <i class="fas fa-credit-card mr-2"></i>Complete Payment
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Contact Agency -->
+                <div class="mb-4">
+                    <a href="{% url 'accounts:agency_detail' booking.agency.id %}" 
+                       class="block w-full bg-nepal-green-600 hover:bg-nepal-green-700 text-white text-center py-2 px-4 rounded-md font-medium transition-colors">
+                        <i class="fas fa-building mr-2"></i>Contact Agency
+                    </a>
+                </div>
+
+                <!-- View Package/Guide -->
+                {% if booking.package %}
+                <div class="mb-4">
+                    <a href="{% url 'core:package_detail' booking.package.slug %}" 
+                       class="block w-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-center py-2 px-4 rounded-md font-medium transition-colors">
+                        <i class="fas fa-eye mr-2"></i>View Package
+                    </a>
+                </div>
+                {% elif booking.guide %}
+                <div class="mb-4">
+                    <a href="{% url 'core:guide_detail' booking.guide.id %}" 
+                       class="block w-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-center py-2 px-4 rounded-md font-medium transition-colors">
+                        <i class="fas fa-eye mr-2"></i>View Guide
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Add Review (for completed bookings) -->
+                {% if booking.status == 'completed' %}
+                <div class="mb-4">
+                    <a href="{% url 'bookings:add_rating' booking.id %}" 
+                       class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded-md font-medium transition-colors">
+                        <i class="fas fa-star mr-2"></i>Add Review
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Booking Information -->
+                <div class="bg-gray-50 rounded-lg p-4 mt-6">
+                    <h4 class="font-medium text-gray-900 mb-3">Booking Information</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Booking ID:</span>
+                            <span class="font-medium text-gray-900">#{{ booking.id }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Status:</span>
+                            <span class="font-medium text-gray-900">{{ booking.get_status_display }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Last Updated:</span>
+                            <span class="font-medium text-gray-900">{{ booking.updated_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Information -->
+                {% if booking.payments.exists %}
+                <div class="bg-gray-50 rounded-lg p-4 mt-4">
+                    <h4 class="font-medium text-gray-900 mb-3">Payment History</h4>
+                    <div class="space-y-2 text-sm">
+                        {% for payment in booking.payments.all %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">NPR {{ payment.amount }}</span>
+                            {% if payment.status == 'completed' %}
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Paid</span>
+                            {% elif payment.status == 'failed' %}
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Failed</span>
+                            {% else %}
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">Pending</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Support -->
+                <div class="bg-nepal-green-50 border border-nepal-green-200 rounded-lg p-4 mt-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-headset text-nepal-green-600 mr-2"></i>
+                        <div>
+                            <h5 class="font-medium text-nepal-green-900">Need Help?</h5>
+                            <p class="text-sm text-nepal-green-700 mt-1">Contact support for assistance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -177,12 +177,12 @@
                         <div class="border-t pt-4">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <div class="text-2xl font-bold text-nepal-green-600">${{ guide.daily_rate }}</div>
+                                    <div class="text-2xl font-bold text-nepal-green-600">NPR {{ guide.daily_rate }}</div>
                                     <div class="text-sm text-gray-500">per day</div>
                                 </div>
                                 
                                 <div class="flex flex-col gap-2">
-                                    <a href="{% url 'guides:guide_detail' guide.id %}" 
+                                    <a href="{% url 'core:guide_detail' guide.id %}" 
                                        class="bg-nepal-green-600 text-white px-4 py-2 rounded-md hover:bg-nepal-green-700 transition-colors text-sm font-medium text-center">
                                         View Profile
                                     </a>

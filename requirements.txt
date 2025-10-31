@@ -11,3 +11,4 @@ django-allauth>=63.0
 requests>=2.32.0
 PyJWT>=2.10.0
 cryptography>=46.0.0
+django-esewa>=1.0.0

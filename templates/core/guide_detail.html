@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load core_filters %}
+
+{% block title %}{{ guide.name }} - Guide Profile - Nepal Guide Hub{% endblock %}
+
+{% block extra_css %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    .login-prompt-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: scale(0.98); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .login-prompt-card {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .hero-pattern {
+        background-image: 
+            radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(5, 150, 105, 0.2) 0%, transparent 50%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Guide Hero Section -->
+<div class="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 overflow-hidden">
+    <div class="hero-pattern absolute inset-0"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="text-center">
+            <!-- Breadcrumb -->
+            <nav class="flex justify-center mb-8" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-2 text-sm text-gray-600">
+                    <li><a href="{% url 'core:home' %}" class="hover:text-green-600 transition-colors">Home</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><span class="text-gray-400">{{ guide.name }}</span></li>
+                </ol>
+            </nav>
+            
+            <!-- Guide Badge -->
+            <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 mb-4">
+                <i class="fas fa-user-tie mr-2"></i>
+                Professional Guide
+            </div>
+            
+            <!-- Profile Image -->
+            <div class="mb-6">
+                {% if guide.profile_picture %}
+                    <img src="{{ guide.profile_picture.url }}" alt="{{ guide.name }}" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-xl mx-auto">
+                {% else %}
+                    <div class="w-32 h-32 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center border-4 border-white shadow-xl mx-auto">
+                        <i class="fas fa-user text-green-600 text-4xl"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Title -->
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">{{ guide.name }}</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-6">{{ guide.bio|truncatewords:25 }}</p>
+            
+            <!-- Rating -->
+            <div class="flex items-center justify-center mb-8">
+                <div class="flex items-center">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= guide.rating %}
+                            <i class="fas fa-star text-yellow-400 text-xl"></i>
+                        {% else %}
+                            <i class="far fa-star text-yellow-400 text-xl"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="ml-2 text-lg font-medium text-gray-700">{{ guide.rating }}/5 ({{ guide.total_ratings }} reviews)</span>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/20">
+                    <div class="text-2xl font-bold text-green-600 mb-1">{{ guide.experience_years }}</div>
+                    <div class="text-sm text-gray-600">Years Experience</div>
+                </div>
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/20">
+                    <div class="text-2xl font-bold text-green-600 mb-1">NPR {{ guide.daily_rate }}</div>
+                    <div class="text-sm text-gray-600">Daily Rate</div>
+                </div>
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/20">
+                    <div class="text-2xl font-bold text-green-600 mb-1">{{ guide.languages|length }}</div>
+                    <div class="text-sm text-gray-600">Languages</div>
+                </div>
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/20">
+                    <div class="text-2xl font-bold text-green-600 mb-1">{{ guide.specialties|length }}</div>
+                    <div class="text-sm text-gray-600">Specialties</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 py-8">
+        
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- About -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-user text-green-600 mr-3"></i>
+                        About {{ guide.name }}
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 leading-relaxed text-lg">{{ guide.bio }}</p>
+                </div>
+            </div>
+            
+            <!-- Languages -->
+            {% if guide.languages %}
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="200">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-language text-green-600 mr-3"></i>
+                        Languages Spoken
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="flex flex-wrap gap-3">
+                        {% for language in guide.get_languages_display %}
+                            <span class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded-full text-sm font-semibold border border-green-200">
+                                <i class="fas fa-language mr-2"></i>{{ language }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Specialties -->
+            {% if guide.specialties %}
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="300">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-mountain text-green-600 mr-3"></i>
+                        Specialties
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="flex flex-wrap gap-3">
+                        {% for specialty in guide.get_specialties_display %}
+                            <span class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full text-sm font-semibold border border-blue-200">
+                                <i class="fas fa-star mr-2"></i>{{ specialty }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Places Covered -->
+            {% if guide.places_covered %}
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="400">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-map-marker-alt text-green-600 mr-3"></i>
+                        Places Covered
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for place in guide.places_covered|split:"," %}
+                            <div class="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200 text-center hover:shadow-md transition-shadow duration-300">
+                                <i class="fas fa-map-marker-alt text-orange-600 text-xl mb-2"></i>
+                                <div class="font-semibold text-gray-900">{{ place|strip }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Certifications -->
+            {% if guide.certifications %}
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="500">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-certificate text-green-600 mr-3"></i>
+                        Certifications & Training
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                        <p class="text-gray-700 leading-relaxed text-lg">{{ guide.certifications }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Agency Information -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden content-card" data-aos="fade-up" data-aos-delay="600">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-building text-emerald-600 mr-3"></i>
+                        Associated Agency
+                    </h2>
+                </div>
+                <div class="p-6">
+                <div class="flex items-start space-x-6">
+                    {% if guide.agency.logo %}
+                    <img src="{{ guide.agency.logo.url }}" alt="{{ guide.agency.name }}" 
+                         class="w-20 h-20 rounded-full object-cover">
+                    {% else %}
+                    <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-building text-green-600 text-2xl"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ guide.agency.name }}</h3>
+                        <div class="flex items-center mb-3">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= guide.agency.rating %}
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                {% else %}
+                                    <i class="far fa-star text-yellow-400"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ml-2 text-gray-600">({{ guide.agency.total_ratings }} reviews)</span>
+                        </div>
+                        <p class="text-gray-700 mb-4">{{ guide.agency.description|truncatewords:30 }}</p>
+                        <a href="{% url 'core:agency_detail' guide.agency.id %}" 
+                           class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-eye mr-2"></i>View Agency Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-8">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-left" data-aos-delay="200">
+                    <!-- Price Header -->
+                    <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold mb-1">NPR {{ guide.daily_rate }}</div>
+                            <div class="text-green-100">per day</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <!-- Guide Features -->
+                        <div class="space-y-4 mb-6">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                <span class="text-gray-700 flex items-center">
+                                    <i class="fas fa-clock text-green-600 mr-3"></i>Experience
+                                </span>
+                                <span class="font-semibold text-gray-900">{{ guide.experience_years }} years</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                <span class="text-gray-700 flex items-center">
+                                    <i class="fas fa-star text-green-600 mr-3"></i>Rating
+                                </span>
+                                <span class="font-semibold text-gray-900">{{ guide.rating }}/5</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                <span class="text-gray-700 flex items-center">
+                                    <i class="fas fa-language text-green-600 mr-3"></i>Languages
+                                </span>
+                                <span class="font-semibold text-gray-900">{{ guide.languages|length }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Book Button -->
+                        {% if is_authenticated and user_type == 'tourist' %}
+                            <a href="{% url 'accounts:book_guide' guide.id %}" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center no-underline">
+                                <i class="fas fa-user-plus mr-2"></i>Book Guide
+                            </a>
+                        {% else %}
+                            <button onclick="showLoginPrompt()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center">
+                                <i class="fas fa-user-plus mr-2"></i>Book Guide
+                            </button>
+                        {% endif %}
+                        
+                        <div class="text-center text-gray-500 text-sm mt-4 flex items-center justify-center">
+                            <i class="fas fa-shield-alt mr-2"></i>Licensed & Verified Guide
+                        </div>
+                        
+                        <!-- Quick Info -->
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <h4 class="font-bold text-gray-900 mb-4 text-lg">Quick Info</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center p-2">
+                                    <i class="fas fa-map-marker-alt text-green-600 mr-3 w-5"></i>
+                                    <span class="text-gray-700">Nepal Based</span>
+                                </div>
+                                <div class="flex items-center p-2">
+                                    <i class="fas fa-phone text-green-600 mr-3 w-5"></i>
+                                    <span class="text-gray-700">Available for Contact</span>
+                                </div>
+                                <div class="flex items-center p-2">
+                                    <i class="fas fa-certificate text-green-600 mr-3 w-5"></i>
+                                    <span class="text-gray-700">Professionally Certified</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Login Prompt Modal -->
+<div id="loginPromptModal" class="login-prompt-modal fixed inset-0 flex items-center justify-center p-4" style="display:none; z-index:99999;">
+    <div class="login-prompt-card bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center relative">
+        <!-- Close Button -->
+        <button onclick="hideLoginPrompt()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <!-- Icon -->
+        <div class="w-20 h-20 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-user-circle text-4xl text-green-600"></i>
+        </div>
+        
+        <!-- Content -->
+        <h3 class="text-2xl font-bold text-gray-900 mb-3">Login Required</h3>
+        <p class="text-gray-600 mb-8 leading-relaxed">You need to login as a tourist to book this professional guide!</p>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'account_login' %}" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center no-underline">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login
+            </a>
+            <button onclick="hideLoginPrompt()" class="bg-gray-100 text-gray-700 px-8 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-300 border border-gray-200">
+                Cancel
+            </button>
+        </div>
+        
+        <!-- Sign up link -->
+        <p class="text-sm text-gray-500 mt-6">
+            Don't have an account? <a href="{% url 'account_signup' %}" class="text-green-600 hover:text-green-700 font-medium hover:underline">Sign up here</a>
+        </p>
+    </div>
+</div>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+    
+    function showLoginPrompt() {
+        var m = document.getElementById('loginPromptModal');
+        if (m) {
+            m.style.display = 'flex';
+        }
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function hideLoginPrompt() {
+        document.getElementById('loginPromptModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('loginPromptModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideLoginPrompt();
+        }
+    });
+    
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideLoginPrompt();
+        }
+    });
+</script>
+{% endblock %}

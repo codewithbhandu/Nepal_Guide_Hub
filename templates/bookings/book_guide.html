@@ -1,0 +1,263 @@
+{% extends 'tourist/base.html' %}
+
+{% block title %}Book {{ guide.name }} - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-8">
+        <ol class="flex items-center space-x-2 text-sm text-gray-500">
+            <li><a href="{% url 'accounts:tourist_home' %}" class="hover:text-nepal-green-600 transition-colors">Home</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'guides:guide_list' %}" class="hover:text-nepal-green-600 transition-colors">Guides</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'core:guide_detail' guide.id %}" class="hover:text-nepal-green-600 transition-colors">{{ guide.name|truncatechars:30 }}</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Book Guide</li>
+        </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Booking Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Book Your Guide</h1>
+                <p class="text-gray-600 mb-8">Complete the form below to book {{ guide.name }}</p>
+
+                <form method="POST" class="space-y-6" id="guideBookingForm">
+                    {% csrf_token %}
+                    
+                    <!-- Travel Date -->
+                    <div>
+                        <label for="{{ form.travel_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt mr-2 text-nepal-green-600"></i>Start Date *
+                        </label>
+                        {{ form.travel_date }}
+                        {% if form.travel_date.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ form.travel_date.help_text }}</p>
+                        {% endif %}
+                        {% if form.travel_date.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.travel_date.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- End Date -->
+                    <div>
+                        <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-check mr-2 text-nepal-green-600"></i>End Date *
+                        </label>
+                        {{ form.end_date }}
+                        <p class="mt-1 text-sm text-gray-500">Select when you want the guide service to end</p>
+                        {% if form.end_date.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.end_date.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Number of People -->
+                    <div>
+                        <label for="{{ form.number_of_people.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-users mr-2 text-nepal-green-600"></i>Number of People *
+                        </label>
+                        {{ form.number_of_people }}
+                        <p class="mt-1 text-sm text-gray-500">How many people will need guide services?</p>
+                        {% if form.number_of_people.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.number_of_people.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Special Requirements -->
+                    <div>
+                        <label for="{{ form.special_requirements.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-clipboard-list mr-2 text-nepal-green-600"></i>Special Requirements
+                        </label>
+                        {{ form.special_requirements }}
+                        <p class="mt-1 text-sm text-gray-500">Any specific needs, language preferences, or special requests</p>
+                        {% if form.special_requirements.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.special_requirements.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Form Errors -->
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-red-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    {% for error in form.non_field_errors %}
+                                        <p class="text-sm text-red-800">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Duration Display -->
+                    <div class="bg-nepal-green-50 border border-nepal-green-200 rounded-md p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-nepal-green-600 mr-2"></i>
+                            <div>
+                                <p class="text-sm text-nepal-green-800">
+                                    <span class="font-medium">Duration:</span> <span id="durationText">Select dates to calculate</span>
+                                </p>
+                                <p class="text-sm text-nepal-green-700 mt-1">
+                                    Guide rate: NPR {{ guide.daily_rate }} per day
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex space-x-4 pt-6">
+                        <button type="submit" class="flex-1 bg-nepal-green-600 hover:bg-nepal-green-700 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center">
+                            <i class="fas fa-handshake mr-2"></i>Book Guide
+                        </button>
+                        <a href="{% url 'core:guide_detail' guide.id %}" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-lg font-medium transition-colors text-center">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to Guide
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Guide Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Guide Summary</h3>
+                
+                <!-- Guide Photo -->
+                <div class="mb-4 text-center">
+                    {% if guide.profile_picture %}
+                        <img src="{{ guide.profile_picture.url }}" alt="{{ guide.name }}" class="w-24 h-24 rounded-full object-cover mx-auto">
+                    {% else %}
+                        <div class="w-24 h-24 bg-gradient-to-r from-nepal-green-500 to-nepal-green-700 rounded-full flex items-center justify-center mx-auto">
+                            <i class="fas fa-user text-white text-2xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Guide Details -->
+                <div class="space-y-3 mb-6 text-center">
+                    <h4 class="font-semibold text-gray-900">{{ guide.name }}</h4>
+                    
+                    <div class="flex items-center justify-center text-sm text-gray-600">
+                        <i class="fas fa-star mr-1 text-yellow-400"></i>
+                        <span>{{ guide.rating|default:"5.0" }} ({{ guide.total_ratings|default:"0" }} reviews)</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-center text-sm text-gray-600">
+                        <i class="fas fa-language mr-2 text-nepal-green-600"></i>
+                        <span>{{ guide.languages|default:"English, Nepali" }}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-center text-sm text-gray-600">
+                        <i class="fas fa-medal mr-2 text-nepal-green-600"></i>
+                        <span>{{ guide.experience_years|default:"5" }} years experience</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-center text-sm text-gray-600">
+                        <i class="fas fa-building mr-2 text-nepal-green-600"></i>
+                        <span>{{ guide.agency.name }}</span>
+                    </div>
+                </div>
+
+                <!-- Pricing -->
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-600">Daily rate:</span>
+                        <span class="font-semibold">NPR {{ guide.daily_rate }}</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-600">Duration:</span>
+                        <span class="font-semibold" id="durationDays">0 days</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center text-lg font-bold text-nepal-green-600 border-t pt-2">
+                        <span>Total Amount:</span>
+                        <span id="totalAmount">NPR 0</span>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="bg-gray-50 rounded-lg p-4 mt-6">
+                    <h5 class="font-medium text-gray-900 mb-2">Need Help?</h5>
+                    <p class="text-sm text-gray-600">Contact the agency directly for any questions about this guide.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const travelDate = document.getElementById('{{ form.travel_date.id_for_label }}');
+    const endDate = document.getElementById('{{ form.end_date.id_for_label }}');
+    const durationText = document.getElementById('durationText');
+    const durationDays = document.getElementById('durationDays');
+    const totalAmount = document.getElementById('totalAmount');
+    const dailyRate = {{ guide.daily_rate }};
+    
+    function calculateDuration() {
+        if (travelDate.value && endDate.value) {
+            const start = new Date(travelDate.value);
+            const end = new Date(endDate.value);
+            
+            if (end > start) {
+                const timeDiff = end.getTime() - start.getTime();
+                const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // Include both start and end days
+                
+                durationText.textContent = daysDiff + ' days';
+                durationDays.textContent = daysDiff + ' days';
+                totalAmount.textContent = '$' + (dailyRate * daysDiff).toFixed(2);
+            } else {
+                durationText.textContent = 'Invalid dates';
+                durationDays.textContent = '0 days';
+                totalAmount.textContent = 'NPR 0';
+            }
+        } else {
+            durationText.textContent = 'Select dates to calculate';
+            durationDays.textContent = '0 days';
+            totalAmount.textContent = 'NPR 0';
+        }
+    }
+    
+    // Update duration when dates change
+    if (travelDate && endDate) {
+        travelDate.addEventListener('change', function() {
+            if (this.value) {
+                endDate.setAttribute('min', this.value);
+                
+                // Clear end date if it's before or equal to travel date
+                if (endDate.value && endDate.value <= this.value) {
+                    endDate.value = '';
+                }
+            }
+            calculateDuration();
+        });
+        
+        endDate.addEventListener('change', calculateDuration);
+        
+        // Initial calculation
+        calculateDuration();
+    }
+});
+</script>
+{% endblock %}

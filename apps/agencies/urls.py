@@ -16,6 +16,8 @@ urlpatterns = [
     path('packages/<int:package_id>/edit/', views.edit_package, name='edit_package'),
     path('packages/<int:package_id>/delete/', views.delete_package, name='delete_package'),
     path('bookings/', views.agency_bookings, name='bookings'),
+    path('bookings/<int:booking_id>/confirm/', views.confirm_booking, name='confirm_booking'),
+    path('bookings/<int:booking_id>/reject/', views.reject_booking, name='reject_booking'),
     path('analytics/', views.agency_analytics, name='analytics'),
     path('api/new-bookings-count/', views.new_bookings_count, name='new_bookings_count'),
 ]

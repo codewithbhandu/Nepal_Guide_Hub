@@ -1,0 +1,559 @@
+{% extends 'agency_base.html' %}
+{% load static %}
+
+{% block title %}Analytics Dashboard - {{ agency.name }} - Nepal Guide Hub{% endblock %}
+
+{% block page_title %}Analytics Dashboard{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Time Period Filter -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Analytics Overview</h1>
+            <p class="text-gray-600">Track your business performance and insights</p>
+        </div>
+        <div class="flex items-center space-x-4">
+            <label for="time-period" class="text-sm font-medium text-gray-700">Time Period:</label>
+            <select id="time-period" class="border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 3 Months</option>
+                <option value="180">Last 6 Months</option>
+                <option value="365" selected>Last 12 Months</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Revenue -->
+        <div class="bg-gradient-to-br from-green-500 to-emerald-600 p-6 rounded-2xl text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-green-100 text-sm font-medium">Total Revenue</p>
+                    <p class="text-3xl font-bold mt-2" id="total-revenue">${{ analytics.total_revenue|default:"0" }}</p>
+                    <div class="flex items-center mt-2">
+                        <i class="fas fa-arrow-up text-green-200 mr-1"></i>
+                        <span class="text-green-200 text-sm" id="revenue-change">+12.5% from last period</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Booking Value -->
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-2xl text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-100 text-sm font-medium">Avg. Booking Value</p>
+                    <p class="text-3xl font-bold mt-2" id="avg-booking-value">${{ analytics.avg_booking_value|default:"0" }}</p>
+                    <div class="flex items-center mt-2">
+                        <i class="fas fa-arrow-up text-blue-200 mr-1"></i>
+                        <span class="text-blue-200 text-sm" id="avg-value-change">+8.3% from last period</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-line text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Bookings -->
+        <div class="bg-gradient-to-br from-purple-500 to-pink-600 p-6 rounded-2xl text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-100 text-sm font-medium">Total Bookings</p>
+                    <p class="text-3xl font-bold mt-2" id="total-bookings">{{ analytics.total_bookings|default:"0" }}</p>
+                    <div class="flex items-center mt-2">
+                        <i class="fas fa-arrow-up text-purple-200 mr-1"></i>
+                        <span class="text-purple-200 text-sm" id="bookings-change">+15.7% from last period</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-calendar-check text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversion Rate -->
+        <div class="bg-gradient-to-br from-orange-500 to-red-600 p-6 rounded-2xl text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-orange-100 text-sm font-medium">Conversion Rate</p>
+                    <p class="text-3xl font-bold mt-2" id="conversion-rate">{{ analytics.conversion_rate|default:"0" }}%</p>
+                    <div class="flex items-center mt-2">
+                        <i class="fas fa-arrow-up text-orange-200 mr-1"></i>
+                        <span class="text-orange-200 text-sm" id="conversion-change">+2.1% from last period</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-percentage text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Revenue Trend Chart -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Revenue Trend</h3>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-nepal-green-500 rounded-full"></div>
+                    <span class="text-sm text-gray-600">Monthly Revenue</span>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="revenue-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Bookings Trend Chart -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Bookings Trend</h3>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Bookings</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Cancellations</span>
+                    </div>
+                </div>
+            </div>
+            <div class="h-80">
+                <canvas id="bookings-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Top Packages -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">Top Performing Packages</h3>
+                <p class="text-sm text-gray-600">By revenue generated</p>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% for package in top_packages|default:""|slice:":5" %}
+                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-white font-bold text-sm">{{ forloop.counter }}</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                        {{ package.title|default:"Sample Package "|add:forloop.counter }}
+                                    </p>
+                                    <div class="flex items-center text-xs text-gray-500 space-x-3">
+                                        <span><i class="fas fa-calendar mr-1"></i>{{ package.bookings_count|default:forloop.counter0|add:5 }} bookings</span>
+                                        <span><i class="fas fa-star mr-1"></i>{{ package.avg_rating|default:"4.5" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-semibold text-gray-900">${{ package.revenue|default:forloop.counter|add:5|add:15 }}00</p>
+                            <p class="text-xs text-gray-500">${{ package.avg_price|default:forloop.counter|add:3 }}50 avg</p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Sample data when no packages exist -->
+                {% for i in "12345" %}
+                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-white font-bold text-sm">{{ forloop.counter }}</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Sample Package {{ forloop.counter }}</p>
+                                    <div class="flex items-center text-xs text-gray-500 space-x-3">
+                                        <span><i class="fas fa-calendar mr-1"></i>{{ forloop.counter|add:10 }} bookings</span>
+                                        <span><i class="fas fa-star mr-1"></i>4.{{ forloop.counter }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-semibold text-gray-900">${{ forloop.counter|add:15 }}00</p>
+                            <p class="text-xs text-gray-500">${{ forloop.counter|add:3 }}50 avg</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endfor %}
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <a href="{% url 'packages:package_list' %}" class="text-nepal-green-600 hover:text-nepal-green-700 text-sm font-medium flex items-center">
+                    <span>View all packages</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Top Guides -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">Top Performing Guides</h3>
+                <p class="text-sm text-gray-600">By bookings and ratings</p>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% for guide in top_guides|default:""|slice:":5" %}
+                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-white font-bold text-sm">{{ forloop.counter }}</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ guide.name|default:"Sample Guide "|add:forloop.counter }}
+                                    </p>
+                                    <div class="flex items-center text-xs text-gray-500 space-x-3">
+                                        <span><i class="fas fa-map-marker-alt mr-1"></i>{{ guide.location|default:"Kathmandu" }}</span>
+                                        <span><i class="fas fa-language mr-1"></i>{{ guide.languages_count|default:"3" }} languages</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="flex items-center space-x-2">
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-gray-900">{{ guide.bookings_count|default:forloop.counter|add:8 }} bookings</p>
+                                    <div class="flex items-center text-xs text-yellow-500">
+                                        {% for star in "12345" %}
+                                        <i class="fas fa-star"></i>
+                                        {% endfor %}
+                                        <span class="text-gray-500 ml-1">4.{{ forloop.counter|add:3 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Sample data when no guides exist -->
+                {% for i in "12345" %}
+                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-white font-bold text-sm">{{ forloop.counter }}</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Sample Guide {{ forloop.counter }}</p>
+                                    <div class="flex items-center text-xs text-gray-500 space-x-3">
+                                        <span><i class="fas fa-map-marker-alt mr-1"></i>Kathmandu</span>
+                                        <span><i class="fas fa-language mr-1"></i>3 languages</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-semibold text-gray-900">{{ forloop.counter|add:8 }} bookings</p>
+                            <div class="flex items-center text-xs text-yellow-500">
+                                {% for star in "12345" %}
+                                <i class="fas fa-star"></i>
+                                {% endfor %}
+                                <span class="text-gray-500 ml-1">4.{{ forloop.counter|add:3 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endfor %}
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <a href="{% url 'guides:guide_list' %}" class="text-nepal-green-600 hover:text-nepal-green-700 text-sm font-medium flex items-center">
+                    <span>View all guides</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+            <p class="text-sm text-gray-600">Latest bookings and updates</p>
+        </div>
+        <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+            {% for activity in recent_activities|default:""|slice:":10" %}
+            <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        {% if activity.type == 'booking' %}
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-calendar-plus text-green-600 text-sm"></i>
+                        </div>
+                        {% elif activity.type == 'cancellation' %}
+                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-times-circle text-red-600 text-sm"></i>
+                        </div>
+                        {% else %}
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-info-circle text-blue-600 text-sm"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-900">
+                            {{ activity.description|default:"New booking received for Sample Package "|add:forloop.counter }}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ activity.timestamp|default:"2 hours ago" }} • {{ activity.customer|default:"John Doe" }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 text-sm font-medium text-gray-900">
+                        ${{ activity.amount|default:forloop.counter|add:5 }}00
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Sample data when no activities exist -->
+            {% for i in "123456789" %}
+            <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        {% if forloop.counter|divisibleby:3 %}
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-calendar-plus text-green-600 text-sm"></i>
+                        </div>
+                        {% elif forloop.counter|divisibleby:5 %}
+                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-times-circle text-red-600 text-sm"></i>
+                        </div>
+                        {% else %}
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check-circle text-blue-600 text-sm"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-900">
+                            {% if forloop.counter|divisibleby:3 %}
+                            New booking received for Sample Package {{ forloop.counter }}
+                            {% elif forloop.counter|divisibleby:5 %}
+                            Booking cancelled for Sample Package {{ forloop.counter }}
+                            {% else %}
+                            Booking confirmed for Sample Package {{ forloop.counter }}
+                            {% endif %}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ forloop.counter }} hours ago • Customer {{ forloop.counter }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 text-sm font-medium text-gray-900">
+                        ${{ forloop.counter|add:5 }}00
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <a href="{% url 'agencies:bookings' %}" class="text-nepal-green-600 hover:text-nepal-green-700 text-sm font-medium flex items-center">
+                <span>View all bookings</span>
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sample data - replace with actual data from Django context
+    const sampleData = {
+        revenue: [1200, 1800, 1400, 2200, 1900, 2800, 2400, 3200, 2900, 3800, 3400, 4200],
+        bookings: [12, 18, 14, 22, 19, 28, 24, 32, 29, 38, 34, 42],
+        cancellations: [2, 3, 2, 4, 3, 5, 4, 6, 5, 7, 6, 8],
+        months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    };
+
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenue-chart').getContext('2d');
+    const revenueChart = new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: sampleData.months,
+            datasets: [{
+                label: 'Revenue ($)',
+                data: sampleData.revenue,
+                borderColor: 'rgb(34, 197, 94)',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: 'rgb(34, 197, 94)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#6B7280'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#F3F4F6'
+                    },
+                    ticks: {
+                        color: '#6B7280',
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    hoverBackgroundColor: 'rgb(34, 197, 94)',
+                    hoverBorderColor: '#fff'
+                }
+            }
+        }
+    });
+
+    // Bookings Chart
+    const bookingsCtx = document.getElementById('bookings-chart').getContext('2d');
+    const bookingsChart = new Chart(bookingsCtx, {
+        type: 'bar',
+        data: {
+            labels: sampleData.months,
+            datasets: [{
+                label: 'Bookings',
+                data: sampleData.bookings,
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                borderColor: 'rgb(59, 130, 246)',
+                borderWidth: 1,
+                borderRadius: 8,
+                borderSkipped: false,
+            }, {
+                label: 'Cancellations',
+                data: sampleData.cancellations,
+                backgroundColor: 'rgba(168, 85, 247, 0.8)',
+                borderColor: 'rgb(168, 85, 247)',
+                borderWidth: 1,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#6B7280'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#F3F4F6'
+                    },
+                    ticks: {
+                        color: '#6B7280',
+                        stepSize: 5
+                    }
+                }
+            }
+        }
+    });
+
+    // Time period filter
+    document.getElementById('time-period').addEventListener('change', function() {
+        const period = this.value;
+        
+        // Show loading state
+        const cards = document.querySelectorAll('[id$="-revenue"], [id$="-bookings"], [id$="-value"], [id$="-rate"]');
+        cards.forEach(card => {
+            card.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        });
+
+        // Simulate data loading (replace with actual AJAX call)
+        setTimeout(() => {
+            updateAnalyticsData(period);
+        }, 1000);
+    });
+
+    function updateAnalyticsData(period) {
+        // This would typically make an AJAX call to get filtered data
+        // For now, we'll simulate different data based on period
+        const multiplier = period / 365;
+        
+        document.getElementById('total-revenue').textContent = '$' + Math.round(50000 * multiplier);
+        document.getElementById('total-bookings').textContent = Math.round(120 * multiplier);
+        document.getElementById('avg-booking-value').textContent = '$' + Math.round(416 * (1 + multiplier * 0.1));
+        document.getElementById('conversion-rate').textContent = (12.5 + multiplier * 2).toFixed(1) + '%';
+
+        // Update change indicators
+        document.getElementById('revenue-change').textContent = '+' + (12.5 * multiplier).toFixed(1) + '% from last period';
+        document.getElementById('bookings-change').textContent = '+' + (15.7 * multiplier).toFixed(1) + '% from last period';
+        document.getElementById('avg-value-change').textContent = '+' + (8.3 * multiplier).toFixed(1) + '% from last period';
+        document.getElementById('conversion-change').textContent = '+' + (2.1 * multiplier).toFixed(1) + '% from last period';
+
+        // Update charts with filtered data
+        const filteredRevenue = sampleData.revenue.map(val => Math.round(val * multiplier));
+        const filteredBookings = sampleData.bookings.map(val => Math.round(val * multiplier));
+        const filteredCancellations = sampleData.cancellations.map(val => Math.round(val * multiplier));
+
+        revenueChart.data.datasets[0].data = filteredRevenue;
+        revenueChart.update();
+
+        bookingsChart.data.datasets[0].data = filteredBookings;
+        bookingsChart.data.datasets[1].data = filteredCancellations;
+        bookingsChart.update();
+    }
+
+    // Auto-refresh data every 5 minutes
+    setInterval(() => {
+        const currentPeriod = document.getElementById('time-period').value;
+        updateAnalyticsData(currentPeriod);
+    }, 300000);
+});
+</script>
+{% endblock %}

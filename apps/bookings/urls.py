@@ -9,4 +9,8 @@ urlpatterns = [
     path('<int:booking_id>/', views.booking_detail, name='booking_detail'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
     path('<int:booking_id>/rate/', views.add_rating, name='add_rating'),
+    path('detail/<int:booking_id>/', views.booking_detail, name='booking_detail'),
+    path('<str:payment_id>/payment/', views.process_payment, name='process_payment'),
+    path('payment/success/<str:transaction_id>/', views.payment_success, name='payment_success'),
+    path('payment/failure/<str:transaction_id>/', views.payment_failure, name='payment_failure'),
 ]

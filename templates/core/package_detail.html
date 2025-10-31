@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load core_filters %}
+
+{% block title %}{{ package.title }} - Nepal Guide Hub{% endblock %}
+
+{% block extra_css %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    .login-prompt-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: scale(0.98); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .login-prompt-card {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .hero-pattern {
+        background-image: 
+            radial-gradient(circle at 20% 80%, rgba(30, 126, 52, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(40, 167, 69, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(34, 197, 94, 0.2) 0%, transparent 50%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Package Hero Section -->
+<div class="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 overflow-hidden">
+    <div class="hero-pattern absolute inset-0"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="text-center">
+            <!-- Breadcrumb -->
+            <nav class="flex justify-center mb-8" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-2 text-sm text-gray-600">
+                    <li><a href="{% url 'core:home' %}" class="hover:text-green-600 transition-colors">Home</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><span class="text-gray-400">{{ package.title }}</span></li>
+                </ol>
+            </nav>
+            
+            <!-- Package Badge -->
+            <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 mb-4">
+                <i class="fas fa-mountain mr-2"></i>
+                {{ package.get_package_type_display }}
+            </div>
+            
+            <!-- Title -->
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">{{ package.title }}</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-8">{{ package.description|truncatewords:25 }}</p>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/20">
+                    <div class="text-2xl font-bold text-green-600 mb-1">{{ package.duration_days }}</div>
+                    <div class="text-sm text-gray-600">Days</div>
+                </div>
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/20">
+                    <div class="text-2xl font-bold text-green-600 mb-1">{{ package.max_people }}</div>
+                    <div class="text-sm text-gray-600">Max People</div>
+                </div>
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/20">
+                    <div class="text-2xl font-bold text-green-600 mb-1">{{ package.get_difficulty_level_display }}</div>
+                    <div class="text-sm text-gray-600">Difficulty</div>
+                </div>
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/20">
+                    <div class="text-2xl font-bold text-green-600 mb-1">NPR {{ package.price_per_person }}</div>
+                    <div class="text-sm text-gray-600">Per Person</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- Package Gallery -->
+            {% if package.images.all %}
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-camera text-green-600 mr-3"></i>
+                        Gallery
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for image in package.images.all|slice:":6" %}
+                        <div class="group relative aspect-square rounded-xl overflow-hidden cursor-pointer"
+                             onclick="openImageModal('{{ image.image.url }}', '{{ image.caption }}')">
+                            <img src="{{ image.image.url }}" alt="{{ image.caption }}" 
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <i class="fas fa-expand-alt text-white text-2xl"></i>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Package Details -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-info-circle text-green-600 mr-3"></i>
+                        Package Details
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 leading-relaxed mb-8 text-lg">{{ package.description }}</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center p-4 bg-green-50 rounded-xl">
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-calendar-alt text-green-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Duration</div>
+                                    <div class="text-green-600 font-medium">{{ package.duration_days }} days</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-4 bg-blue-50 rounded-xl">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-users text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Group Size</div>
+                                    <div class="text-blue-600 font-medium">{{ package.min_people }}-{{ package.max_people }} people</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-4 bg-purple-50 rounded-xl">
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Difficulty</div>
+                                    <div class="text-purple-600 font-medium">{{ package.get_difficulty_level_display }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="flex items-center p-4 bg-emerald-50 rounded-xl">
+                                <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-leaf text-emerald-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Best Season</div>
+                                    <div class="text-emerald-600 font-medium">{{ package.best_season }}</div>
+                                </div>
+                            </div>
+                            {% if package.altitude %}
+                            <div class="flex items-center p-4 bg-orange-50 rounded-xl">
+                                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-mountain text-orange-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Max Altitude</div>
+                                    <div class="text-orange-600 font-medium">{{ package.altitude }}m</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="flex items-center p-4 bg-pink-50 rounded-xl">
+                                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-tag text-pink-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Package Type</div>
+                                    <div class="text-pink-600 font-medium">{{ package.get_package_type_display }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Itinerary -->
+            {% if package.itinerary %}
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="200">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-route text-green-600 mr-3"></i>
+                        Itinerary
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        {% for day, details in package.itinerary.items %}
+                        <div class="flex items-start p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-l-4 border-green-500">
+                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <span class="text-white font-bold">{{ day }}</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900 mb-2">Day {{ day }}</h4>
+                                <p class="text-gray-700 leading-relaxed">{{ details }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Included/Excluded Services -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="300">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-list-check text-green-600 mr-3"></i>
+                        What's Included
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-green-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-green-700 mb-6 flex items-center">
+                                <i class="fas fa-check-circle mr-3"></i>Included Services
+                            </h3>
+                            <div class="space-y-3">
+                                {% for service in package.included_services|split:"," %}
+                                <div class="flex items-start">
+                                    <i class="fas fa-check text-green-600 mr-3 mt-0.5 flex-shrink-0"></i>
+                                    <span class="text-gray-700">{{ service|strip }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="bg-red-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-red-700 mb-6 flex items-center">
+                                <i class="fas fa-times-circle mr-3"></i>Not Included
+                            </h3>
+                            <div class="space-y-3">
+                                {% for service in package.excluded_services|split:"," %}
+                                <div class="flex items-start">
+                                    <i class="fas fa-times text-red-600 mr-3 mt-0.5 flex-shrink-0"></i>
+                                    <span class="text-gray-700">{{ service|strip }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Agency Information -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-up" data-aos-delay="400">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-building text-green-600 mr-3"></i>
+                        About the Agency
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
+                        {% if package.agency.logo %}
+                        <img src="{{ package.agency.logo.url }}" alt="{{ package.agency.name }}" 
+                             class="w-24 h-24 rounded-2xl object-cover shadow-lg">
+                        {% else %}
+                        <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-building text-green-600 text-3xl"></i>
+                        </div>
+                        {% endif %}
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ package.agency.name }}</h3>
+                            <div class="flex items-center mb-4">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= package.agency.rating %}
+                                        <i class="fas fa-star text-yellow-400 text-lg"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-yellow-400 text-lg"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ml-2 text-gray-600 font-medium">({{ package.agency.total_ratings }} reviews)</span>
+                            </div>
+                            <p class="text-gray-700 mb-6 leading-relaxed">{{ package.agency.description|truncatewords:30 }}</p>
+                            <a href="{% url 'core:agency_detail' package.agency.id %}" 
+                               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                <i class="fas fa-eye mr-2"></i>View Agency Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-8">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" data-aos="fade-left" data-aos-delay="200">
+                    <!-- Price Header -->
+                    <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold mb-1">NPR {{ package.price_per_person }}</div>
+                            <div class="text-green-100">per person</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <!-- Package Features -->
+                        <div class="space-y-4 mb-6">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                <span class="text-gray-700 flex items-center">
+                                    <i class="fas fa-calendar text-green-600 mr-3"></i>Duration
+                                </span>
+                                <span class="font-semibold text-gray-900">{{ package.duration_days }} days</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                <span class="text-gray-700 flex items-center">
+                                    <i class="fas fa-users text-green-600 mr-3"></i>Group Size
+                                </span>
+                                <span class="font-semibold text-gray-900">{{ package.min_people }}-{{ package.max_people }}</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                <span class="text-gray-700 flex items-center">
+                                    <i class="fas fa-star text-green-600 mr-3"></i>Difficulty
+                                </span>
+                                <span class="font-semibold text-gray-900">{{ package.get_difficulty_level_display }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Book Button -->
+                        {% if is_authenticated and user_type == 'tourist' %}
+                            <a href="{% url 'accounts:book_package' package.id %}" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center no-underline">
+                                <i class="fas fa-calendar-check mr-2"></i>Book Now
+                            </a>
+                        {% else %}
+                            <button onclick="showLoginPrompt()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center">
+                                <i class="fas fa-calendar-check mr-2"></i>Book Now
+                            </button>
+                        {% endif %}
+                        
+                        <div class="text-center text-gray-500 text-sm mt-4 flex items-center justify-center">
+                            <i class="fas fa-info-circle mr-2"></i>Free cancellation up to 24 hours before
+                        </div>
+                        
+                        <!-- Quick Info -->
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <h4 class="font-bold text-gray-900 mb-4 text-lg">Quick Info</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center p-2">
+                                    <i class="fas fa-map-marker-alt text-green-600 mr-3 w-5"></i>
+                                    <span class="text-gray-700">Nepal</span>
+                                </div>
+                                <div class="flex items-center p-2">
+                                    <i class="fas fa-language text-green-600 mr-3 w-5"></i>
+                                    <span class="text-gray-700">English, Nepali</span>
+                                </div>
+                                <div class="flex items-center p-2">
+                                    <i class="fas fa-shield-alt text-green-600 mr-3 w-5"></i>
+                                    <span class="text-gray-700">Licensed & Verified Agency</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Login Prompt Modal -->
+<div id="loginPromptModal" class="login-prompt-modal fixed inset-0 flex items-center justify-center p-4" style="display:none; z-index:99999;">
+    <div class="login-prompt-card bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center relative">
+        <!-- Close Button -->
+        <button onclick="hideLoginPrompt()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <!-- Icon -->
+        <div class="w-20 h-20 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-user-circle text-4xl text-green-600"></i>
+        </div>
+        
+        <!-- Content -->
+        <h3 class="text-2xl font-bold text-gray-900 mb-3">Login Required</h3>
+        <p class="text-gray-600 mb-8 leading-relaxed">You need to login as a tourist to book this amazing package!</p>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'account_login' %}" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center no-underline">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login
+            </a>
+            <button onclick="hideLoginPrompt()" class="bg-gray-100 text-gray-700 px-8 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-300 border border-gray-200">
+                Cancel
+            </button>
+        </div>
+        
+        <!-- Sign up link -->
+        <p class="text-sm text-gray-500 mt-6">
+            Don't have an account? <a href="{% url 'account_signup' %}" class="text-green-600 hover:text-green-700 font-medium hover:underline">Sign up here</a>
+        </p>
+    </div>
+</div>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+    
+    function showLoginPrompt() {
+        var m = document.getElementById('loginPromptModal');
+        if (m) {
+            m.style.display = 'flex';
+        }
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function hideLoginPrompt() {
+        document.getElementById('loginPromptModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('loginPromptModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideLoginPrompt();
+        }
+    });
+    
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideLoginPrompt();
+        }
+    });
+    
+    function openImageModal(imageUrl, caption) {
+        // Simple image preview - you can enhance this
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="relative max-w-4xl max-h-full p-4">
+                <img src="${imageUrl}" alt="${caption}" class="max-w-full max-h-full object-contain">
+                <button onclick="this.parentElement.parentElement.remove(); document.body.style.overflow='auto';" 
+                        class="absolute top-4 right-4 text-white text-2xl hover:text-gray-300">
+                    <i class="fas fa-times"></i>
+                </button>
+                ${caption ? `<p class="text-white text-center mt-4">${caption}</p>` : ''}
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+    }
+</script>
+{% endblock %}

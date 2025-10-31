@@ -135,19 +135,19 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Email Configuration
 # For development - emails will be printed to console
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+# EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 
 # For production with SMTP (uncomment and configure)
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-# EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-# EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-# EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 # Default from email
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Nepal Guide Hub <noreply@nepalguidehub.com>')
-SERVER_EMAIL = DEFAULT_FROM_EMAIL
+# DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Nepal Guide Hub <noreply@nepalguidehub.com>')
+# SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB

@@ -190,16 +190,46 @@
                         
                         <!-- Rating Breakdown -->
                         <div class="space-y-2">
-                            {% for rating in "54321" %}
                             <div class="flex items-center">
-                                <span class="text-sm w-3">{{ rating }}</span>
+                                <span class="text-sm w-3">5</span>
                                 <i class="fas fa-star text-yellow-400 text-xs mx-2"></i>
                                 <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-green-800 h-2 rounded-full" style="width: {{ rating|mul:20 }}%"></div>
+                                    <div class="bg-green-800 h-2 rounded-full" style="width: 80%"></div>
                                 </div>
-                                <span class="text-sm text-gray-600 ml-2">{{ rating|mul:3 }}</span>
+                                <span class="text-sm text-gray-600 ml-2">12</span>
                             </div>
-                            {% endfor %}
+                            <div class="flex items-center">
+                                <span class="text-sm w-3">4</span>
+                                <i class="fas fa-star text-yellow-400 text-xs mx-2"></i>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-800 h-2 rounded-full" style="width: 60%"></div>
+                                </div>
+                                <span class="text-sm text-gray-600 ml-2">8</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-sm w-3">3</span>
+                                <i class="fas fa-star text-yellow-400 text-xs mx-2"></i>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-800 h-2 rounded-full" style="width: 40%"></div>
+                                </div>
+                                <span class="text-sm text-gray-600 ml-2">5</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-sm w-3">2</span>
+                                <i class="fas fa-star text-yellow-400 text-xs mx-2"></i>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-800 h-2 rounded-full" style="width: 20%"></div>
+                                </div>
+                                <span class="text-sm text-gray-600 ml-2">2</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-sm w-3">1</span>
+                                <i class="fas fa-star text-yellow-400 text-xs mx-2"></i>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-800 h-2 rounded-full" style="width: 10%"></div>
+                                </div>
+                                <span class="text-sm text-gray-600 ml-2">1</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -265,7 +295,7 @@
                             <div><i class="fas fa-language mr-2"></i>{{ guide.languages.count }} languages</div>
                         </div>
                         
-                        <a href="{% url 'guides:guide_detail' guide.id %}" class="block w-full bg-green-800 text-white py-2 px-4 rounded-md hover:bg-green-900 transition-colors text-center font-medium">
+                        <a href="{% url 'core:guide_detail' guide.id %}" class="block w-full bg-green-800 text-white py-2 px-4 rounded-md hover:bg-green-900 transition-colors text-center font-medium">
                             View Profile
                         </a>
                     </div>
@@ -323,7 +353,7 @@
                                 <span class="ml-2">({{ package.total_ratings }} reviews)</span>
                             </div>
                             
-                            <a href="{% url 'packages:package_detail' package.id %}" class="block w-full bg-green-800 text-white py-2 px-4 rounded-md hover:bg-green-900 transition-colors text-center font-medium">
+                            <a href="{% url 'core:package_detail' package.slug %}" class="block w-full bg-green-800 text-white py-2 px-4 rounded-md hover:bg-green-900 transition-colors text-center font-medium">
                                 View Package
                             </a>
                         </div>

@@ -76,18 +76,6 @@ def package_list(request):
     return render(request, 'packages/package_list.html', context)
 
 def package_detail(request, slug):
-    package = get_object_or_404(Package, slug=slug, is_active=True, agency__is_verified=True)
-    package.increment_views()
-    
-    # Get related packages
-    related_packages = Package.objects.filter(
-        package_type=package.package_type,
-        is_active=True,
-        agency__is_verified=True
-    ).exclude(id=package.id)[:4]
-    
-    context = {
-        'package': package,
-        'related_packages': related_packages,
-    }
-    return render(request, 'packages/package_detail.html', context)
+    # Redirect to the core public detail view
+    from django.shortcuts import redirect
+    return redirect('core:package_detail', slug=slug)

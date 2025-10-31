@@ -1,0 +1,232 @@
+{% extends 'tourist/base.html' %}
+
+{% block title %}Complete Payment - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-8">
+        <ol class="flex items-center space-x-2 text-sm text-gray-500">
+            <li><a href="{% url 'accounts:tourist_home' %}" class="hover:text-nepal-green-600 transition-colors">Home</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'accounts:my_bookings' %}" class="hover:text-nepal-green-600 transition-colors">Bookings</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Payment</li>
+        </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Payment Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-nepal-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-credit-card text-nepal-green-600 text-2xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Complete Payment</h1>
+                    <p class="text-gray-600">Secure payment powered by eSewa</p>
+                </div>
+
+                <!-- Payment Information -->
+                <div class="bg-gradient-to-r from-nepal-green-50 to-nepal-green-100 border border-nepal-green-200 rounded-lg p-6 mb-8">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-info-circle text-nepal-green-600 mr-2"></i>
+                        <h3 class="font-semibold text-nepal-green-900">Payment Details</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600">Transaction ID:</span>
+                            <span class="font-medium text-gray-900 ml-2">#{{ payment.transaction_id }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Amount:</span>
+                            <span class="font-bold text-nepal-green-600 ml-2">NPR {{ payment.amount }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Service Charge:</span>
+                            <span class="font-medium text-gray-900 ml-2">NPR {{ payment.service_charge }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Payment Method:</span>
+                            <span class="font-medium text-gray-900 ml-2">eSewa</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- eSewa Form -->
+                <div class="text-center">
+                    <div class="mb-6">
+                        <img src="https://esewa.com.np/common/images/esewa-logo.png" alt="eSewa" class="h-12 mx-auto mb-4">
+                        <p class="text-gray-600">You will be redirected to eSewa for secure payment</p>
+                    </div>
+                    
+                    {{ form|safe }}
+                    
+                    <div class="mt-6">
+                        <button onclick="submitPayment()" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white py-3 px-8 rounded-lg font-medium transition-colors flex items-center justify-center mx-auto">
+                            <i class="fas fa-lock mr-2"></i>Proceed to eSewa
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt text-green-600 mr-2"></i>
+                        <div>
+                            <h4 class="font-medium text-gray-900">Secure Payment</h4>
+                            <p class="text-sm text-gray-600 mt-1">Your payment information is protected by 256-bit SSL encryption</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Booking Summary</h3>
+                
+                {% if package %}
+                <!-- Package Booking -->
+                <div class="mb-4">
+                    {% if package.get_main_image %}
+                        <img src="{{ package.get_main_image.image.url }}" alt="{{ package.title }}" class="w-full h-32 object-cover rounded-lg">
+                    {% else %}
+                        <div class="w-full h-32 bg-gradient-to-r from-nepal-green-500 to-nepal-green-700 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mountain text-white text-3xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-3 mb-6">
+                    <h4 class="font-semibold text-gray-900">{{ package.title }}</h4>
+                    
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-calendar-alt mr-2 text-nepal-green-600"></i>
+                        <span>{{ payment.booking.travel_date|date:"M d, Y" }}</span>
+                    </div>
+                    
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-users mr-2 text-nepal-green-600"></i>
+                        <span>{{ payment.booking.number_of_people }} person{{ payment.booking.number_of_people|pluralize }}</span>
+                    </div>
+                    
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-building mr-2 text-nepal-green-600"></i>
+                        <span>{{ package.agency.name }}</span>
+                    </div>
+                </div>
+
+                {% elif payment.booking.guide %}
+                <!-- Guide Booking -->
+                <div class="mb-4 text-center">
+                    {% if payment.booking.guide.profile_picture %}
+                        <img src="{{ payment.booking.guide.profile_picture.url }}" alt="{{ payment.booking.guide.name }}" class="w-20 h-20 rounded-full object-cover mx-auto">
+                    {% else %}
+                        <div class="w-20 h-20 bg-gradient-to-r from-nepal-green-500 to-nepal-green-700 rounded-full flex items-center justify-center mx-auto">
+                            <i class="fas fa-user text-white text-xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-3 mb-6">
+                    <h4 class="font-semibold text-gray-900 text-center">{{ payment.booking.guide.name }}</h4>
+                    
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-calendar-alt mr-2 text-nepal-green-600"></i>
+                        <span>{{ payment.booking.travel_date|date:"M d, Y" }} - {{ payment.booking.end_date|date:"M d, Y" }}</span>
+                    </div>
+                    
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-users mr-2 text-nepal-green-600"></i>
+                        <span>{{ payment.booking.number_of_people }} person{{ payment.booking.number_of_people|pluralize }}</span>
+                    </div>
+                    
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-building mr-2 text-nepal-green-600"></i>
+                        <span>{{ payment.booking.guide.agency.name }}</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Payment Summary -->
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-600">Subtotal:</span>
+                        <span class="font-semibold">NPR {{ payment.amount }}</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-600">Service Charge:</span>
+                        <span class="font-semibold">NPR {{ payment.service_charge }}</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center text-lg font-bold text-nepal-green-600 border-t pt-2">
+                        <span>Total:</span>
+                        <span>NPR {{ payment.amount }}</span>
+                    </div>
+                </div>
+
+                <!-- Booking Info -->
+                <div class="bg-gray-50 rounded-lg p-4 mt-6">
+                    <h5 class="font-medium text-gray-900 mb-2">Booking ID</h5>
+                    <p class="text-sm text-gray-600 font-mono">#{{ payment.booking.id }}</p>
+                    <p class="text-xs text-gray-500 mt-2">Keep this for your records</p>
+                </div>
+
+                <!-- Contact Support -->
+                <div class="bg-nepal-green-50 border border-nepal-green-200 rounded-lg p-4 mt-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-headset text-nepal-green-600 mr-2"></i>
+                        <div>
+                            <h5 class="font-medium text-nepal-green-900">Need Help?</h5>
+                            <p class="text-sm text-nepal-green-700 mt-1">Contact support if you encounter any issues</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function submitPayment() {
+    // Find and submit the eSewa form
+    const esewaForm = document.querySelector('form[action*="esewa"]');
+    if (esewaForm) {
+        // Show loading state
+        const button = document.querySelector('button[onclick="submitPayment()"]');
+        if (button) {
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Redirecting...';
+            button.disabled = true;
+        }
+        
+        // Submit the form
+        esewaForm.submit();
+    } else {
+        alert('Payment form not found. Please refresh the page and try again.');
+    }
+}
+
+// Auto-submit form after a delay to improve UX
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any additional initialization here
+    console.log('Payment page loaded for transaction: {{ payment.transaction_id }}');
+});
+</script>
+
+<style>
+/* Hide the default eSewa form styling */
+form[action*="esewa"] {
+    display: none;
+}
+
+/* Ensure proper mobile responsiveness */
+@media (max-width: 640px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

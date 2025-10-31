@@ -65,13 +65,6 @@ def guide_list(request):
     return render(request, 'guides/guide_list.html', context)
 
 def guide_detail(request, id):
-    guide = get_object_or_404(Guide, id=id, is_available=True, agency__is_verified=True)
-    
-    # Get guide's packages (if any)
-    packages = guide.agency.packages.filter(is_active=True)[:4]
-    
-    context = {
-        'guide': guide,
-        'packages': packages,
-    }
-    return render(request, 'guides/guide_detail.html', context)
+    # Redirect to the core public detail view
+    from django.shortcuts import redirect
+    return redirect('core:guide_detail', guide_id=id)

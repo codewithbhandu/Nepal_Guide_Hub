@@ -195,13 +195,13 @@
                         <!-- Actions -->
                         <div class="border-t pt-4">
                             <div class="grid grid-cols-2 gap-2">
-                                <a href="{% url 'agencies:agency_detail' agency.id %}" 
+                                <a href="{% url 'core:agency_detail' agency.id %}" 
                                    class="bg-green-800 text-white px-4 py-2 rounded-md hover:bg-green-900 transition-colors text-sm font-medium text-center">
                                     View Details
                                 </a>
                                 
                                 {% if agency.guides.count > 0 %}
-                                <a href="{% url 'agencies:agency_detail' agency.id %}#guides" 
+                                <a href="{% url 'core:agency_detail' agency.id %}#guides" 
                                    class="bg-nepal-blue text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium text-center">
                                     <i class="fas fa-users mr-1"></i>View Guides
                                 </a>
@@ -213,7 +213,7 @@
                             </div>
                             
                             {% if agency.packages.count > 0 %}
-                            <a href="{% url 'agencies:agency_detail' agency.id %}#packages" 
+                            <a href="{% url 'core:agency_detail' agency.id %}#packages" 
                                class="block w-full mt-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors text-sm font-medium text-center">
                                 <i class="fas fa-box mr-1"></i>View {{ agency.packages.count }} Packages
                             </a>

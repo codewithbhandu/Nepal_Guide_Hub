@@ -375,7 +375,7 @@
             <div class="package-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:100 }}">
                 <div class="card-image">
                     <div class="card-overlay">
-                        <i class="fas fa-dollar-sign mr-1"></i>${{ package.price_per_person }}
+                        <i class="fas fa-money-bill mr-1"></i>NPR {{ package.price_per_person }}
                     </div>
                     <div class="absolute inset-0 flex items-center justify-center text-white">
                         <div class="text-center">
@@ -446,7 +446,7 @@
                             {% else %}
                             <i class="fas fa-user-circle text-6xl mb-2 opacity-80"></i>
                             {% endif %}
-                            <div class="text-sm font-medium">${{ guide.daily_rate }}/day</div>
+                            <div class="text-sm font-medium">NPR {{ guide.daily_rate }}/day</div>
                         </div>
                     </div>
                 </div>

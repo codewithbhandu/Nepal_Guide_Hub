@@ -20,17 +20,23 @@
                            value="{{ request.GET.search }}" 
                            class="block w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-nepal-green-500 focus:border-nepal-green-500">
                 </div>
-                <button type="submit" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-8 py-2 rounded-lg font-medium transition-colors flex items-center justify-center">
-                    <i class="fas fa-search mr-2"></i>Search
-                </button>
+                <div class="flex space-x-2">
+                    <button type="submit" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-8 py-2 rounded-lg font-medium transition-colors flex items-center justify-center">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                    <button type="button" id="toggleFilters" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center">
+                        <i class="fas fa-filter mr-2"></i>Filters
+                        <i class="fas fa-chevron-down ml-2 transform transition-transform" id="filterToggleIcon"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Advanced Filters -->
-            <div class="border-t pt-4">
+            <div id="advancedFilters" class="border-t pt-4" style="display: {% if current_filters.specialization or current_filters.experience or current_filters.language or current_filters.min_rate or current_filters.max_rate %}block{% else %}none{% endif %};">
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
-                        <select name="specialization" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                        <select name="specialization" class="filter-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
                             <option value="">All Specializations</option>
                             <option value="trekking" {% if current_filters.specialization == 'trekking' %}selected{% endif %}>Trekking</option>
                             <option value="cultural" {% if current_filters.specialization == 'cultural' %}selected{% endif %}>Cultural Tours</option>
@@ -42,7 +48,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Experience</label>
-                        <select name="experience" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                        <select name="experience" class="filter-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
                             <option value="">Any Experience</option>
                             <option value="1-5" {% if current_filters.experience == '1-5' %}selected{% endif %}>1-5 Years</option>
                             <option value="6-10" {% if current_filters.experience == '6-10' %}selected{% endif %}>6-10 Years</option>
@@ -51,7 +57,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Language</label>
-                        <select name="language" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                        <select name="language" class="filter-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
                             <option value="">Any Language</option>
                             <option value="en" {% if current_filters.language == 'en' %}selected{% endif %}>English</option>
                             <option value="ne" {% if current_filters.language == 'ne' %}selected{% endif %}>Nepali</option>
@@ -64,13 +70,25 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Min Rate (NPR/day)</label>
                         <input type="number" name="min_rate" placeholder="Min Rate" 
                                value="{{ current_filters.min_rate }}" 
-                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                               class="filter-input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Max Rate (NPR/day)</label>
                         <input type="number" name="max_rate" placeholder="Max Rate" 
                                value="{{ current_filters.max_rate }}" 
-                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                               class="filter-input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                    </div>
+                </div>
+                
+                <!-- Filter Actions -->
+                <div class="flex justify-between items-center mt-4 pt-4 border-t">
+                    <button type="button" id="clearFilters" class="text-gray-500 hover:text-gray-700 font-medium">
+                        <i class="fas fa-times mr-1"></i>Clear Filters
+                    </button>
+                    <div class="flex space-x-3">
+                        <button type="submit" class="bg-nepal-green-600 hover:bg-nepal-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                            <i class="fas fa-filter mr-2"></i>Apply Filters
+                        </button>
                     </div>
                 </div>
             </div>
@@ -84,7 +102,7 @@
             <p class="text-gray-600">{{ guides|length }} guide{{ guides|length|pluralize }} found</p>
             <div class="flex items-center space-x-4">
                 <label class="text-sm font-medium text-gray-700">Sort by:</label>
-                <select name="sort" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                <select name="sort" id="sortSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-nepal-green-500 focus:border-nepal-green-500">
                     <option value="rating" {% if current_filters.sort == 'rating' %}selected{% endif %}>Highest Rated</option>
                     <option value="rate_low" {% if current_filters.sort == 'rate_low' %}selected{% endif %}>Rate: Low to High</option>
                     <option value="rate_high" {% if current_filters.sort == 'rate_high' %}selected{% endif %}>Rate: High to Low</option>
@@ -200,4 +218,61 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[method="GET"]');
+    const sortSelect = document.getElementById('sortSelect');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    const toggleFiltersBtn = document.getElementById('toggleFilters');
+    const advancedFilters = document.getElementById('advancedFilters');
+    const filterToggleIcon = document.getElementById('filterToggleIcon');
+    
+    // Auto-submit on sort change
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const formData = new FormData(form);
+            formData.set('sort', this.value);
+            
+            const url = new URL(window.location);
+            url.search = new URLSearchParams(formData).toString();
+            window.location.href = url.toString();
+        });
+    }
+    
+    // Toggle advanced filters
+    if (toggleFiltersBtn) {
+        toggleFiltersBtn.addEventListener('click', function() {
+            const isVisible = advancedFilters.style.display !== 'none';
+            advancedFilters.style.display = isVisible ? 'none' : 'block';
+            filterToggleIcon.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+    }
+    
+    // Clear filters functionality
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            const inputs = form.querySelectorAll('input:not([name="search"]), select:not(#sortSelect)');
+            inputs.forEach(input => {
+                if (input.type === 'select-one') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+            });
+            form.submit();
+        });
+    }
+    
+    // Enter key submission for rate inputs
+    const rateInputs = document.querySelectorAll('.filter-input');
+    rateInputs.forEach(input => {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                form.submit();
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

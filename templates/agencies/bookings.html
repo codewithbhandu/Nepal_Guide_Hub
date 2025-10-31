@@ -1,0 +1,419 @@
+{% extends 'agency_base.html' %}
+
+{% block title %}Bookings Management - {{ agency.name }} - Nepal Guide Hub{% endblock %}
+
+{% block page_title %}Bookings Management{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white overflow-hidden shadow-lg rounded-2xl border border-gray-100">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-calendar-check text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500 truncate">Total Bookings</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="total-bookings">{{ agency.booking_set.count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow-lg rounded-2xl border border-gray-100">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-clock text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500 truncate">Pending</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="pending-bookings">{{ pending_count|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow-lg rounded-2xl border border-gray-100">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-check-circle text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500 truncate">Confirmed</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="confirmed-bookings">{{ confirmed_count|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow-lg rounded-2xl border border-gray-100">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-flag-checkered text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500 truncate">Completed</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="completed-bookings">{{ completed_count|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white shadow-lg rounded-2xl border border-gray-100 p-6 mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <h2 class="text-xl font-semibold text-gray-900">Filter Bookings</h2>
+            
+            <div class="flex flex-col sm:flex-row gap-4">
+                <!-- Status Filter -->
+                <div class="relative">
+                    <select id="status-filter" class="appearance-none bg-white border border-gray-300 rounded-xl px-4 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-nepal-green-500 focus:border-nepal-green-500">
+                        <option value="">All Status</option>
+                        <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="confirmed" {% if current_status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                        <option value="completed" {% if current_status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Date Filter -->
+                <input type="date" id="date-filter" class="border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-nepal-green-500 focus:border-nepal-green-500">
+
+                <!-- Search -->
+                <div class="relative">
+                    <input type="text" id="search-bookings" placeholder="Search bookings..." class="border border-gray-300 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-nepal-green-500 focus:border-nepal-green-500 w-full sm:w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="bg-white shadow-lg rounded-2xl border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Recent Bookings</h2>
+        </div>
+
+        {% if page_obj %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="bookings-table-body">
+                    {% for booking in page_obj %}
+                    <tr class="hover:bg-gray-50 transition-colors duration-200 booking-row" data-status="{{ booking.status }}" data-date="{{ booking.travel_date|date:'Y-m-d' }}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">#{{ booking.id }}</div>
+                            <div class="text-sm text-gray-500">{{ booking.booking_date|date:"M d, Y" }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">{{ booking.tourist.user.get_full_name|default:booking.tourist.user.username }}</div>
+                                    <div class="text-sm text-gray-500">{{ booking.tourist.user.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if booking.package %}
+                                <div class="text-sm font-medium text-gray-900">{{ booking.package.title|truncatechars:30 }}</div>
+                                <div class="text-sm text-gray-500">Package • {{ booking.package.duration_days }} days</div>
+                            {% elif booking.guide %}
+                                <div class="text-sm font-medium text-gray-900">{{ booking.guide.name }}</div>
+                                <div class="text-sm text-gray-500">Guide Service</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ booking.travel_date|date:"M d, Y" }}</div>
+                            {% if booking.end_date %}
+                                <div class="text-sm text-gray-500">to {{ booking.end_date|date:"M d, Y" }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">NPR {{ booking.total_amount }}</div>
+                            <div class="text-sm text-gray-500">{{ booking.number_of_people }} people</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if booking.status == 'confirmed' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check-circle mr-1"></i>Confirmed
+                                </span>
+                            {% elif booking.status == 'pending' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-clock mr-1"></i>Pending
+                                </span>
+                            {% elif booking.status == 'completed' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <i class="fas fa-flag-checkered mr-1"></i>Completed
+                                </span>
+                            {% elif booking.status == 'cancelled' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-times-circle mr-1"></i>Cancelled
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <button onclick="viewBooking({{ booking.id }})" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-lg transition-all duration-200">
+                                    <i class="fas fa-eye mr-1"></i>View
+                                </button>
+                                {% if booking.status == 'pending' %}
+                                <form method="post" action="{% url 'agencies:confirm_booking' booking.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-lg transition-all duration-200">
+                                        <i class="fas fa-check mr-1"></i>Confirm
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'agencies:reject_booking' booking.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-lg transition-all duration-200">
+                                        <i class="fas fa-times mr-1"></i>Reject
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="bg-white px-6 py-4 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} results
+                </div>
+                <nav class="flex items-center space-x-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" 
+                       class="px-3 py-2 bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 rounded-md transition-colors">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="px-3 py-2 bg-nepal-green-600 text-white rounded-md">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if current_status %}&status={{ current_status }}{% endif %}" 
+                           class="px-3 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md transition-colors">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" 
+                       class="px-3 py-2 bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 rounded-md transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-16">
+            <i class="fas fa-calendar-times text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No bookings found</h3>
+            <p class="text-gray-500">When customers book your services, they'll appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Booking Detail Modal -->
+<div id="booking-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-900">Booking Details</h2>
+                    <button onclick="closeBookingModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="booking-modal-content" class="p-6">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const statusFilter = document.getElementById('status-filter');
+    const dateFilter = document.getElementById('date-filter');
+    const searchInput = document.getElementById('search-bookings');
+    const bookingRows = document.querySelectorAll('.booking-row');
+
+    function filterBookings() {
+        const statusValue = statusFilter.value;
+        const dateValue = dateFilter.value;
+        const searchValue = searchInput.value.toLowerCase();
+
+        bookingRows.forEach(row => {
+            const rowStatus = row.dataset.status;
+            const rowDate = row.dataset.date;
+            const rowText = row.textContent.toLowerCase();
+
+            let showRow = true;
+
+            // Status filter
+            if (statusValue && rowStatus !== statusValue) {
+                showRow = false;
+            }
+
+            // Date filter
+            if (dateValue && rowDate !== dateValue) {
+                showRow = false;
+            }
+
+            // Search filter
+            if (searchValue && !rowText.includes(searchValue)) {
+                showRow = false;
+            }
+
+            row.style.display = showRow ? '' : 'none';
+        });
+    }
+
+    // Apply filters on change
+    statusFilter.addEventListener('change', function() {
+        const url = new URL(window.location);
+        if (this.value) {
+            url.searchParams.set('status', this.value);
+        } else {
+            url.searchParams.delete('status');
+        }
+        window.location.href = url.toString();
+    });
+
+    dateFilter.addEventListener('change', filterBookings);
+    searchInput.addEventListener('input', filterBookings);
+
+    // Real-time stats update
+    function updateStats() {
+        const visibleRows = document.querySelectorAll('.booking-row:not([style*="display: none"])');
+        const stats = {
+            total: visibleRows.length,
+            pending: 0,
+            confirmed: 0,
+            completed: 0
+        };
+
+        visibleRows.forEach(row => {
+            const status = row.dataset.status;
+            if (stats[status] !== undefined) {
+                stats[status]++;
+            }
+        });
+
+        // Update displayed stats if filtering
+        if (statusFilter.value || dateFilter.value || searchInput.value) {
+            document.getElementById('total-bookings').textContent = stats.total;
+            document.getElementById('pending-bookings').textContent = stats.pending;
+            document.getElementById('confirmed-bookings').textContent = stats.confirmed;
+            document.getElementById('completed-bookings').textContent = stats.completed;
+        }
+    }
+
+    // Update stats when filters change
+    [statusFilter, dateFilter, searchInput].forEach(element => {
+        element.addEventListener('change', updateStats);
+        element.addEventListener('input', updateStats);
+    });
+});
+
+function viewBooking(bookingId) {
+    // Show modal
+    document.getElementById('booking-modal').classList.remove('hidden');
+    
+    // Load booking details (you can implement AJAX here)
+    const modalContent = document.getElementById('booking-modal-content');
+    modalContent.innerHTML = `
+        <div class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-nepal-green-600 text-3xl mb-4"></i>
+            <p class="text-gray-600">Loading booking details...</p>
+        </div>
+    `;
+    
+    // Simulate loading (replace with actual AJAX call)
+    setTimeout(() => {
+        modalContent.innerHTML = `
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Booking ID</label>
+                        <p class="text-gray-900">#${bookingId}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <i class="fas fa-clock mr-1"></i>Pending
+                        </span>
+                    </div>
+                </div>
+                <div class="text-center pt-4">
+                    <p class="text-gray-500">Full booking details would be loaded here via AJAX.</p>
+                </div>
+            </div>
+        `;
+    }, 1000);
+}
+
+function closeBookingModal() {
+    document.getElementById('booking-modal').classList.add('hidden');
+}
+
+function updateBookingStatus(bookingId, status) {
+    if (confirm(`Are you sure you want to ${status} this booking?`)) {
+        // Implement AJAX call to update booking status
+        alert(`Booking #${bookingId} has been ${status}. This would be implemented with AJAX.`);
+    }
+}
+
+// Close modal when clicking outside
+document.getElementById('booking-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeBookingModal();
+    }
+});
+</script>
+{% endblock %}

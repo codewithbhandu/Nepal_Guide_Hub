@@ -1,0 +1,237 @@
+{% extends 'tourist/base.html' %}
+
+{% block title %}Book {{ package.title }} - Nepal Guide Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-8">
+        <ol class="flex items-center space-x-2 text-sm text-gray-500">
+            <li><a href="{% url 'accounts:tourist_home' %}" class="hover:text-nepal-green-600 transition-colors">Home</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'packages:package_list' %}" class="hover:text-nepal-green-600 transition-colors">Packages</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'core:package_detail' package.slug %}" class="hover:text-nepal-green-600 transition-colors">{{ package.title|truncatechars:30 }}</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Book Package</li>
+        </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Booking Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Book Your Adventure</h1>
+                <p class="text-gray-600 mb-8">Complete the form below to book {{ package.title }}</p>
+
+                <form method="POST" class="space-y-6" id="bookingForm">
+                    {% csrf_token %}
+                    
+                    <!-- Travel Date -->
+                    <div>
+                        <label for="{{ form.travel_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt mr-2 text-nepal-green-600"></i>Travel Date *
+                        </label>
+                        {{ form.travel_date }}
+                        {% if form.travel_date.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ form.travel_date.help_text }}</p>
+                        {% endif %}
+                        {% if form.travel_date.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.travel_date.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- End Date (if needed) -->
+                    {% if package.package_type == 'trekking' or package.package_type == 'tour' %}
+                    <div>
+                        <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-check mr-2 text-nepal-green-600"></i>End Date (Optional)
+                        </label>
+                        {{ form.end_date }}
+                        {% if form.end_date.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ form.end_date.help_text }}</p>
+                        {% endif %}
+                        {% if form.end_date.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.end_date.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Number of People -->
+                    <div>
+                        <label for="{{ form.number_of_people.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-users mr-2 text-nepal-green-600"></i>Number of People *
+                        </label>
+                        {{ form.number_of_people }}
+                        <p class="mt-1 text-sm text-gray-500">Minimum: {{ package.min_people }}, Maximum: {{ package.max_people }}</p>
+                        {% if form.number_of_people.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.number_of_people.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Special Requirements -->
+                    <div>
+                        <label for="{{ form.special_requirements.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-clipboard-list mr-2 text-nepal-green-600"></i>Special Requirements
+                        </label>
+                        {{ form.special_requirements }}
+                        <p class="mt-1 text-sm text-gray-500">Dietary restrictions, accessibility needs, etc.</p>
+                        {% if form.special_requirements.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.special_requirements.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Form Errors -->
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-red-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    {% for error in form.non_field_errors %}
+                                        <p class="text-sm text-red-800">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Submit Button -->
+                    <div class="flex space-x-4 pt-6">
+                        <button type="submit" class="flex-1 bg-nepal-green-600 hover:bg-nepal-green-700 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center">
+                            <i class="fas fa-rocket mr-2"></i>Start Adventure
+                        </button>
+                        <a href="{% url 'core:package_detail' package.slug %}" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-lg font-medium transition-colors text-center">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to Package
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Package Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Package Summary</h3>
+                
+                <!-- Package Image -->
+                <div class="mb-4">
+                    {% if package.get_main_image %}
+                        <img src="{{ package.get_main_image.image.url }}" alt="{{ package.title }}" class="w-full h-32 object-cover rounded-lg">
+                    {% else %}
+                        <div class="w-full h-32 bg-gradient-to-r from-nepal-green-500 to-nepal-green-700 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mountain text-white text-3xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Package Details -->
+                <div class="space-y-3 mb-6">
+                    <h4 class="font-semibold text-gray-900">{{ package.title }}</h4>
+                    
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-calendar-alt mr-2 text-nepal-green-600"></i>
+                        <span>{{ package.duration_days }} Days</span>
+                    </div>
+                    
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-chart-line mr-2 text-nepal-green-600"></i>
+                        <span>{{ package.get_difficulty_level_display }}</span>
+                    </div>
+                    
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-building mr-2 text-nepal-green-600"></i>
+                        <span>{{ package.agency.name }}</span>
+                    </div>
+                </div>
+
+                <!-- Pricing -->
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-600">Price per person:</span>
+                        <span class="font-semibold">NPR {{ package.price_per_person }}</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm text-gray-600">Number of people:</span>
+                        <span class="font-semibold" id="peopleCount">1</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center text-lg font-bold text-nepal-green-600 border-t pt-2">
+                        <span>Total Amount:</span>
+                        <span id="totalAmount">NPR {{ package.price_per_person }}</span>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="bg-gray-50 rounded-lg p-4 mt-6">
+                    <h5 class="font-medium text-gray-900 mb-2">Need Help?</h5>
+                    <p class="text-sm text-gray-600">Contact the agency directly for any questions about this package.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const peopleInput = document.getElementById('{{ form.number_of_people.id_for_label }}');
+    const peopleCount = document.getElementById('peopleCount');
+    const totalAmount = document.getElementById('totalAmount');
+    const pricePerPerson = {{ package.price_per_person }};
+    
+    function updateTotal() {
+        const people = parseInt(peopleInput.value) || 1;
+        peopleCount.textContent = people;
+        totalAmount.textContent = '$' + (pricePerPerson * people).toFixed(2);
+    }
+    
+    // Update total when number of people changes
+    if (peopleInput) {
+        peopleInput.addEventListener('input', updateTotal);
+        peopleInput.addEventListener('change', updateTotal);
+        
+        // Set constraints
+        peopleInput.setAttribute('min', '{{ package.min_people }}');
+        peopleInput.setAttribute('max', '{{ package.max_people }}');
+        
+        // Initial update
+        updateTotal();
+    }
+    
+    // Date validation
+    const travelDate = document.getElementById('{{ form.travel_date.id_for_label }}');
+    const endDate = document.getElementById('{{ form.end_date.id_for_label }}');
+    
+    if (travelDate && endDate) {
+        travelDate.addEventListener('change', function() {
+            if (this.value) {
+                endDate.setAttribute('min', this.value);
+                
+                // Clear end date if it's before travel date
+                if (endDate.value && endDate.value <= this.value) {
+                    endDate.value = '';
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

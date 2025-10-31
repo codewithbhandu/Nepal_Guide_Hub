@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Booking, Rating
+from .models import Booking, Rating,Payment
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
@@ -44,3 +44,10 @@ class RatingAdmin(admin.ModelAdmin):
             return obj.package.title
         return '-'
     get_target.short_description = 'Target'
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('transaction_id', 'booking', 'amount', 'status')
+    list_filter = ('status',)
+    search_fields = ('transaction_id', 'booking__tourist__full_name', 'booking__agency__name')
+     
