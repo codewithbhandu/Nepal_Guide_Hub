@@ -216,3 +216,5 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+
+ESEWA_SECRET_KEY = '8gBm/:&EnhH.1/q'

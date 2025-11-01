@@ -88,5 +88,4 @@ class Payment(models.Model):
     payment_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=status_choices, default='pending')
     transaction_id = models.CharField(max_length=100, unique=True)
-    service_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-            
+    service_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)

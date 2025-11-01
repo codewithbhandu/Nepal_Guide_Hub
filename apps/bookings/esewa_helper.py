@@ -19,7 +19,7 @@ class SimpleEsewaPayment:
         self.product_delivery_charge = str(product_delivery_charge)
         self.success_url = success_url
         self.failure_url = failure_url
-        self.secret_key = getattr(settings, 'ESEWA_SECRET_KEY', 'NePaLiGuIdE!@#')
+        self.secret_key = getattr(settings, 'ESEWA_SECRET_KEY', '8gBm/:&EnhH.1/q')
         self.merchant_id = getattr(settings, 'ESEWA_MERCHANT_ID', 'EPAYTEST')
         
     def create_signature(self, transaction_uuid=None):
@@ -50,7 +50,6 @@ class SimpleEsewaPayment:
         self.create_signature()
         
         form_html = f'''
-        <form action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST" style="display: none;" id="esewaForm">
             <input type="hidden" name="amount" value="{self.amount}">
             <input type="hidden" name="tax_amount" value="{self.tax_amount}">
             <input type="hidden" name="total_amount" value="{self.total_amount}">
@@ -62,7 +61,6 @@ class SimpleEsewaPayment:
             <input type="hidden" name="failure_url" value="{self.failure_url}">
             <input type="hidden" name="signed_field_names" value="total_amount,transaction_uuid,product_code">
             <input type="hidden" name="signature" value="{self.signature}">
-        </form>
         '''
         
         return form_html
