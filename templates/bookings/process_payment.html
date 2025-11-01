@@ -59,7 +59,7 @@
                         <img src="https://esewa.com.np/common/images/esewa-logo.png" alt="eSewa" class="h-12 mx-auto mb-4">
                         <p class="text-gray-600">You will be redirected to eSewa for secure payment</p>
                     </div>
-                    
+                    <form action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
                     {{ form|safe }}
                     
                     <div class="mt-6">
@@ -67,6 +67,7 @@
                             <i class="fas fa-lock mr-2"></i>Proceed to eSewa
                         </button>
                     </div>
+                    </form>
                 </div>
 
                 <!-- Security Notice -->
@@ -218,9 +219,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 /* Hide the default eSewa form styling */
-form[action*="esewa"] {
-    display: none;
-}
 
 /* Ensure proper mobile responsiveness */
 @media (max-width: 640px) {

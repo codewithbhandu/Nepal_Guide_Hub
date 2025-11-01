@@ -18,6 +18,7 @@ from datetime import date, datetime, timedelta
 from django.utils import timezone
 import re
 import json
+from decimal import Decimal
 
 # ============= CUSTOM SEARCH, SORT, AND FILTER ALGORITHMS =============
 
@@ -983,9 +984,9 @@ def payment_view(request, booking_type, booking_id):
         
         # Calculate payment amount based on method
         if payment_method == 'advance':
-            payment_amount = booking.total_amount * 0.5
+            payment_amount = booking.total_amount * Decimal(0.5)
         elif payment_method == 'full':
-            payment_amount = booking.total_amount * 0.95  # 5% discount for full payment
+            payment_amount = booking.total_amount * Decimal(0.95)  # 5% discount for full payment
         else:
             messages.error(request, 'Invalid payment method selected.')
             return redirect('accounts:payment_view', booking_type=booking_type, booking_id=booking_id)
@@ -1011,8 +1012,8 @@ def payment_view(request, booking_type, booking_id):
         'booking': booking,
         'booking_type': booking_type,
         'is_tourist': True,
-        'advance_amount': booking.total_amount * 0.5,
-        'full_discounted': booking.total_amount * 0.95,
+        'advance_amount': booking.total_amount * Decimal(0.5),
+        'full_discounted': booking.total_amount * Decimal(0.95),
     }
     
     return render(request, 'tourist/payment.html', context)

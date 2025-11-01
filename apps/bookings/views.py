@@ -177,11 +177,11 @@ def process_payment(request, payment_id):
     
     epayment = EsewaPayment(
         amount=payment.amount,
-        tax_amount=0,
+        tax_amount=0.0,
         total_amount=payment.amount,
         product_service_charge=payment.service_charge,
         transaction_uuid=payment_id,
-        product_delivery_charge=0,
+        product_delivery_charge=0.0,
         success_url=f'http://localhost:8000/bookings/payment/success/{payment.transaction_id}/',
         failure_url=f'http://localhost:8000/bookings/payment/failure/{payment.transaction_id}/',
     )
@@ -192,6 +192,8 @@ def process_payment(request, payment_id):
         'package': payment.booking.package,
     }
     return render(request, 'bookings/process_payment.html', context)
+
+@login_required
 def payment_success(request, transaction_id):
     payment = get_object_or_404(Payment, transaction_id=transaction_id, status='pending')
     epayment = EsewaPayment(
@@ -215,6 +217,9 @@ def payment_success(request, transaction_id):
     
     messages.success(request, 'Payment completed successfully!')
     return redirect('bookings:booking_detail', booking_id=payment.booking.id)
+
+
+
 def payment_failure(request, transaction_id):
     payment = get_object_or_404(Payment, transaction_id=transaction_id, status='pending')
     payment.status = 'failed'
