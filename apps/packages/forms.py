@@ -43,6 +43,8 @@ class PackageImageForm(forms.ModelForm):
         self.fields['is_main'].widget.attrs.update({
             'class': 'h-4 w-4 text-nepal-green-600 focus:ring-nepal-green-500 border-gray-300 rounded'
         })
+        # Make image field optional for formsets
+        self.fields['image'].required = False
 
 # Multiple image upload formset
 PackageImageFormSet = forms.modelformset_factory(

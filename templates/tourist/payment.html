@@ -1,286 +1,408 @@
-{% extends 'tourist/base.html' %}
+ {% extends 'tourist/base.html' %}
 {% load static %}
 
 {% block title %}Payment - Nepal Guide Hub{% endblock %}
 
 {% block extra_css %}
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-    .payment-header {
-        background: linear-gradient(135deg, #fd7e14, #ffc107);
-        color: white;
-        padding: 2rem 0;
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    .payment-card {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        border: none;
+    
+    .animate-slide-in {
+        animation: slideIn 0.5s ease-out;
     }
-    .booking-summary {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 2rem;
-    }
+    
     .payment-option {
-        border: 2px solid #e9ecef;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    
     .payment-option:hover {
-        border-color: #fd7e14;
-        background: #fff8f0;
-    }
-    .payment-option.selected {
-        border-color: #fd7e14;
-        background: #fff8f0;
-        box-shadow: 0 2px 4px rgba(253, 126, 20, 0.2);
-    }
-    .payment-option input[type="radio"] {
-        display: none;
-    }
-    .btn-pay {
-        background: linear-gradient(135deg, #fd7e14, #ffc107);
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 25px;
-        color: white;
-        font-weight: bold;
-        transition: all 0.3s ease;
-    }
-    .btn-pay:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(253, 126, 20, 0.3);
-        color: white;
     }
-    .amount-badge {
-        background: linear-gradient(135deg, #fd7e14, #ffc107);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 1.1rem;
+    
+    .payment-option.selected {
+        background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
     }
-    .booking-detail {
-        border-left: 4px solid #fd7e14;
-        background: #fff8f0;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-radius: 5px;
+    
+    .gradient-border {
+        position: relative;
+        background: white;
+        border-radius: 1rem;
     }
-    .payment-methods {
-        display: grid;
-        gap: 1rem;
+    
+    .gradient-border::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 1rem;
+        padding: 2px;
+        background: linear-gradient(135deg, #f97316, #fbbf24);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .gradient-border.selected::before {
+        opacity: 1;
+    }
+    
+    .shimmer {
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    
+    .price-badge {
+        background: linear-gradient(135deg, #f97316, #fbbf24);
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="payment-header">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="display-4">Complete Your Booking</h1>
-                <p class="lead">Secure payment for your {{ booking_type|title }} booking</p>
+<!-- Hero Header with Gradient -->
+<div class="relative bg-gradient-to-r from-orange-500 via-orange-400 to-amber-400 text-white overflow-hidden">
+    <div class="absolute inset-0 bg-black opacity-10"></div>
+    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    
+    <div class="container mx-auto px-4 py-12 md:py-16 relative z-10">
+        <div class="max-w-4xl mx-auto text-center animate-slide-in">
+            <div class="inline-block mb-4">
+                <span class="bg-white bg-opacity-20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm">
+                    <i class="fas fa-shield-alt mr-2"></i>Secure Payment
+                </span>
             </div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">Complete Your Booking</h1>
+            <p class="text-lg md:text-xl opacity-95">Secure payment for your {{ booking_type|title }} adventure</p>
         </div>
+    </div>
+    
+    <!-- Wave Divider -->
+    <div class="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+        </svg>
     </div>
 </div>
 
-<div class="container my-5">
-    <div class="row">
-        <div class="col-md-8">
-            <!-- Payment Options -->
-            <div class="card payment-card p-4">
-                <h4 class="mb-4">Choose Payment Method</h4>
+<!-- Main Content -->
+<div class="container mx-auto px-4 -mt-8 pb-16 relative z-20">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
+        <!-- Payment Section -->
+        <div class="lg:col-span-2 animate-slide-in">
+            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+                <!-- Progress Steps -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-amber-400 text-white flex items-center justify-center font-bold">1</div>
+                            <span class="ml-3 font-semibold text-gray-800">Select Payment</span>
+                        </div>
+                        <div class="flex-1 h-1 mx-4 bg-gray-200 rounded">
+                            <div class="h-full w-1/2 bg-gradient-to-r from-orange-500 to-amber-400 rounded"></div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold">2</div>
+                            <span class="ml-3 font-semibold text-gray-400">Confirm</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-wallet text-orange-500 mr-2"></i>Choose Payment Method
+                </h2>
                 
                 <form method="POST" id="paymentForm">
                     {% csrf_token %}
                     
-                    <div class="payment-methods">
+                    <!-- Payment Options -->
+                    <div class="space-y-4 mb-8">
                         <!-- Advance Payment -->
-                        <label class="payment-option" for="advance">
-                            <input type="radio" id="advance" name="payment_method" value="advance" checked>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="mb-1">
-                                        <i class="fas fa-credit-card text-warning"></i> 
-                                        Pay Advance (50%)
-                                    </h5>
-                                    <p class="mb-0 text-muted">
-                                        Pay 50% now, remaining before trip
-                                    </p>
-                                </div>
-                                <div class="text-right">
-                                    <strong class="amount-badge">NPR {{ advance_amount }}</strong>
+                        <label class="payment-option gradient-border block cursor-pointer" for="advance">
+                            <input type="radio" id="advance" name="payment_method" value="advance" class="hidden" checked>
+                            <div class="p-5 md:p-6 rounded-2xl">
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                    <div class="flex-1">
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center mr-4">
+                                                <i class="fas fa-credit-card text-2xl text-orange-500"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="text-lg md:text-xl font-bold text-gray-800">Pay Advance (50%)</h3>
+                                                <p class="text-sm text-gray-600">Pay 50% now, remaining before trip</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-16 md:ml-16">
+                                            <ul class="text-sm text-gray-600 space-y-1">
+                                                <li><i class="fas fa-check text-green-500 mr-2"></i>Flexible payment option</li>
+                                                <li><i class="fas fa-check text-green-500 mr-2"></i>Secure your booking instantly</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="flex md:flex-col items-center md:items-end gap-2">
+                                        <div class="price-badge text-white px-5 py-3 rounded-xl">
+                                            <div class="text-2xl md:text-3xl font-bold">NPR {{ advance_amount }}</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </label>
 
                         <!-- Full Payment -->
-                        <label class="payment-option" for="full">
-                            <input type="radio" id="full" name="payment_method" value="full">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="mb-1">
-                                        <i class="fas fa-money-check-alt text-success"></i> 
-                                        Pay Full Amount
-                                    </h5>
-                                    <p class="mb-0 text-muted">
-                                        Complete payment now (5% discount applied)
-                                    </p>
+                        <label class="payment-option gradient-border block cursor-pointer" for="full">
+                            <input type="radio" id="full" name="payment_method" value="full" class="hidden">
+                            <div class="p-5 md:p-6 rounded-2xl relative overflow-hidden">
+                                <!-- Discount Badge -->
+                                <div class="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                    SAVE 5%
                                 </div>
-                                <div class="text-right">
-                                    <strong class="amount-badge">NPR {{ full_discounted|floatformat:2 }}</strong>
-                                    <small class="d-block text-success">
-                                        <del class="text-muted">NPR {{ booking.total_amount|floatformat:2 }}</del>
-                                        Save 5%
-                                    </small>
+                                
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                    <div class="flex-1">
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mr-4">
+                                                <i class="fas fa-money-check-alt text-2xl text-green-500"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="text-lg md:text-xl font-bold text-gray-800">Pay Full Amount</h3>
+                                                <p class="text-sm text-gray-600">Complete payment now with discount</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-16 md:ml-16">
+                                            <ul class="text-sm text-gray-600 space-y-1">
+                                                <li><i class="fas fa-check text-green-500 mr-2"></i>One-time payment convenience</li>
+                                                <li><i class="fas fa-check text-green-500 mr-2"></i>No remaining balance</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="flex md:flex-col items-center md:items-end gap-2">
+                                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-3 rounded-xl shadow-lg">
+                                            <div class="text-2xl md:text-3xl font-bold">NPR {{ full_discounted|floatformat:2 }}</div>
+                                            <div class="text-xs opacity-90">
+                                                <del>NPR {{ booking.total_amount|floatformat:2 }}</del>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </label>
                     </div>
 
                     <!-- Payment Gateway Selection -->
-                    <div class="mt-4">
-                        <h5>Payment Gateway</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <div class="payment-option" style="padding: 1rem;">
-                                    <label for="esewa" class="d-flex align-items-center mb-0">
-                                        <input type="radio" id="esewa" name="gateway" value="esewa" checked>
-                                        <img src="{% static 'images/esewa-logo.png' %}" alt="eSewa" height="30" class="mr-2">
-                                        <span>eSewa</span>
-                                    </label>
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-university text-orange-500 mr-2"></i>Payment Gateway
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label class="payment-option gradient-border block cursor-pointer" for="esewa">
+                                <input type="radio" id="esewa" name="gateway" value="esewa" class="hidden" checked>
+                                <div class="p-4 rounded-xl flex items-center justify-center">
+                                    <img src="{% static 'images/esewa-logo.png' %}" alt="eSewa" class="h-10 md:h-12 object-contain">
                                 </div>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <div class="payment-option" style="padding: 1rem;">
-                                    <label for="khalti" class="d-flex align-items-center mb-0">
-                                        <input type="radio" id="khalti" name="gateway" value="khalti">
-                                        <img src="{% static 'images/khalti-logo.png' %}" alt="Khalti" height="30" class="mr-2">
-                                        <span>Khalti</span>
-                                    </label>
+                            </label>
+                            
+                            <label class="payment-option gradient-border block cursor-pointer" for="khalti">
+                                <input type="radio" id="khalti" name="gateway" value="khalti" class="hidden">
+                                <div class="p-4 rounded-xl flex items-center justify-center">
+                                    <img src="{% static 'images/khalti-logo.png' %}" alt="Khalti" class="h-10 md:h-12 object-contain">
                                 </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Security Badge -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-shield-alt text-blue-500 text-xl mr-3 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-1">Secure Payment</h4>
+                                <p class="text-sm text-gray-600">Your payment information is encrypted and secure. We never store your card details.</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Terms & Conditions -->
-                    <div class="mt-4">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="terms" required>
-                            <label class="custom-control-label" for="terms">
-                                I agree to the <a href="#" data-toggle="modal" data-target="#termsModal">Terms & Conditions</a>
-                                and <a href="#" data-toggle="modal" data-target="#policyModal">Cancellation Policy</a>
-                            </label>
-                        </div>
+                    <div class="bg-gray-50 p-5 rounded-xl mb-6">
+                        <label class="flex items-start cursor-pointer group">
+                            <input type="checkbox" id="terms" class="mt-1 w-5 h-5 text-orange-500 rounded focus:ring-orange-500 focus:ring-2" required>
+                            <span class="ml-3 text-sm text-gray-700">
+                                I agree to the 
+                                <a href="#" data-toggle="modal" data-target="#termsModal" class="text-orange-500 hover:text-orange-600 font-semibold underline">Terms & Conditions</a>
+                                and 
+                                <a href="#" data-toggle="modal" data-target="#policyModal" class="text-orange-500 hover:text-orange-600 font-semibold underline">Cancellation Policy</a>
+                            </span>
+                        </label>
                     </div>
 
-                    <button type="submit" class="btn btn-pay btn-lg btn-block mt-4">
-                        <i class="fas fa-lock"></i> Secure Payment
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-lg">
+                        <i class="fas fa-lock mr-2"></i>Secure Payment
                     </button>
+                    
+                    <p class="text-center text-sm text-gray-500 mt-4">
+                        <i class="fas fa-info-circle mr-1"></i>You will be redirected to the payment gateway
+                    </p>
                 </form>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <!-- Booking Summary -->
-            <div class="booking-summary">
-                <h4 class="mb-4">Booking Summary</h4>
+        <!-- Booking Summary Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sticky top-4 animate-slide-in" style="animation-delay: 0.1s;">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-file-invoice text-orange-500 mr-2"></i>Booking Summary
+                </h3>
                 
                 {% if booking.package %}
-                <!-- Package Booking Summary -->
-                <div class="booking-detail">
-                    <h6><i class="fas fa-box text-warning"></i> Package</h6>
-                    <p class="mb-0">{{ booking.package.title }}</p>
-                </div>
+                <!-- Package Booking -->
+                <div class="space-y-4 mb-6">
+                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border-l-4 border-orange-500">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-box text-orange-500 mr-2"></i>
+                            <span class="text-sm font-semibold text-gray-600">Package</span>
+                        </div>
+                        <p class="font-bold text-gray-800">{{ booking.package.title }}</p>
+                    </div>
 
-                <div class="booking-detail">
-                    <h6><i class="fas fa-building text-warning"></i> Agency</h6>
-                    <p class="mb-0">{{ booking.package.agency.name }}</p>
-                </div>
+                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border-l-4 border-orange-500">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-building text-orange-500 mr-2"></i>
+                            <span class="text-sm font-semibold text-gray-600">Agency</span>
+                        </div>
+                        <p class="font-bold text-gray-800">{{ booking.package.agency.name }}</p>
+                    </div>
 
-                <div class="booking-detail">
-                    <h6><i class="fas fa-calendar text-warning"></i> Duration</h6>
-                    <p class="mb-0">
-                        {{ booking.travel_date|date:"M d, Y" }} - {{ booking.end_date|date:"M d, Y" }}
-                        <br><small class="text-muted">{{ booking.package.duration_days }} days</small>
-                    </p>
-                </div>
+                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border-l-4 border-orange-500">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-calendar text-orange-500 mr-2"></i>
+                            <span class="text-sm font-semibold text-gray-600">Duration</span>
+                        </div>
+                        <p class="font-bold text-gray-800">{{ booking.travel_date|date:"M d, Y" }} - {{ booking.end_date|date:"M d, Y" }}</p>
+                        <p class="text-sm text-gray-600 mt-1">{{ booking.package.duration_days }} days</p>
+                    </div>
 
-                <div class="booking-detail">
-                    <h6><i class="fas fa-users text-warning"></i> Travelers</h6>
-                    <p class="mb-0">{{ booking.number_of_people }} person{{ booking.number_of_people|pluralize }}</p>
+                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border-l-4 border-orange-500">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-users text-orange-500 mr-2"></i>
+                            <span class="text-sm font-semibold text-gray-600">Travelers</span>
+                        </div>
+                        <p class="font-bold text-gray-800">{{ booking.number_of_people }} person{{ booking.number_of_people|pluralize }}</p>
+                    </div>
                 </div>
-
+                
                 {% else %}
-                <!-- Guide Booking Summary -->
-                <div class="booking-detail">
-                    <h6><i class="fas fa-user-tie text-warning"></i> Guide</h6>
-                    <p class="mb-0">{{ booking.guide.name }}</p>
-                </div>
+                <!-- Guide Booking -->
+                <div class="space-y-4 mb-6">
+                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border-l-4 border-orange-500">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-user-tie text-orange-500 mr-2"></i>
+                            <span class="text-sm font-semibold text-gray-600">Guide</span>
+                        </div>
+                        <p class="font-bold text-gray-800">{{ booking.guide.name }}</p>
+                    </div>
 
-                <div class="booking-detail">
-                    <h6><i class="fas fa-building text-warning"></i> Agency</h6>
-                    <p class="mb-0">{{ booking.guide.agency.name }}</p>
-                </div>
+                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border-l-4 border-orange-500">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-building text-orange-500 mr-2"></i>
+                            <span class="text-sm font-semibold text-gray-600">Agency</span>
+                        </div>
+                        <p class="font-bold text-gray-800">{{ booking.guide.agency.name }}</p>
+                    </div>
 
-                <div class="booking-detail">
-                    <h6><i class="fas fa-calendar text-warning"></i> Duration</h6>
-                    <p class="mb-0">
-                        {{ booking.travel_date|date:"M d, Y" }} - {{ booking.end_date|date:"M d, Y" }}
-                        <br><small class="text-muted">{{ booking.duration_days }} day{{ booking.duration_days|pluralize }}</small>
-                    </p>
-                </div>
+                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border-l-4 border-orange-500">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-calendar text-orange-500 mr-2"></i>
+                            <span class="text-sm font-semibold text-gray-600">Duration</span>
+                        </div>
+                        <p class="font-bold text-gray-800">{{ booking.travel_date|date:"M d, Y" }} - {{ booking.end_date|date:"M d, Y" }}</p>
+                        <p class="text-sm text-gray-600 mt-1">{{ booking.duration_days }} day{{ booking.duration_days|pluralize }}</p>
+                    </div>
 
-                <div class="booking-detail">
-                    <h6><i class="fas fa-users text-warning"></i> Group Size</h6>
-                    <p class="mb-0">{{ booking.number_of_people }} person{{ booking.number_of_people|pluralize }}</p>
+                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border-l-4 border-orange-500">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-users text-orange-500 mr-2"></i>
+                            <span class="text-sm font-semibold text-gray-600">Group Size</span>
+                        </div>
+                        <p class="font-bold text-gray-800">{{ booking.number_of_people }} person{{ booking.number_of_people|pluralize }}</p>
+                    </div>
                 </div>
                 {% endif %}
 
                 <!-- Price Breakdown -->
-                <div class="mt-4 pt-3 border-top">
-                    <h6>Price Breakdown</h6>
-                    {% if booking.package %}
-                    <div class="d-flex justify-content-between">
-                        <span>NPR {{ booking.package.price_per_person }} × {{ booking.number_of_people }} person{{ booking.number_of_people|pluralize }}</span>
-                        <span>NPR {{ booking.total_amount }}</span>
-                    </div>
-                    {% else %}
-                    <div class="d-flex justify-content-between">
-                        <span>NPR {{ booking.guide.daily_rate }} × {{ booking.duration_days }} day{{ booking.duration_days|pluralize }}</span>
-                        <span>NPR {{ booking.total_amount }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    <hr>
-                    <div class="d-flex justify-content-between">
-                        <strong>Total Amount</strong>
-                        <strong>NPR {{ booking.total_amount }}</strong>
+                <div class="border-t-2 border-gray-200 pt-4 mb-6">
+                    <h4 class="font-bold text-gray-800 mb-3">Price Breakdown</h4>
+                    <div class="space-y-2 text-sm">
+                        {% if booking.package %}
+                        <div class="flex justify-between text-gray-600">
+                            <span>NPR {{ booking.package.price_per_person }} × {{ booking.number_of_people }} person{{ booking.number_of_people|pluralize }}</span>
+                            <span class="font-semibold">NPR {{ booking.total_amount }}</span>
+                        </div>
+                        {% else %}
+                        <div class="flex justify-between text-gray-600">
+                            <span>NPR {{ booking.guide.daily_rate }} × {{ booking.duration_days }} day{{ booking.duration_days|pluralize }}</span>
+                            <span class="font-semibold">NPR {{ booking.total_amount }}</span>
+                        </div>
+                        {% endif %}
                     </div>
                     
-                    <div class="d-flex justify-content-between text-success mt-2" id="advanceAmount">
-                        <span>Advance Payment (50%)</span>
-                        <strong>NPR {{ advance_amount }}</strong>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between text-info mt-1" id="remainingAmount">
-                        <small>Remaining Amount</small>
-                        <small>NPR {{ booking.remaining_amount }}</small>
+                    <div class="border-t border-gray-200 mt-3 pt-3">
+                        <div class="flex justify-between text-lg font-bold text-gray-800 mb-3">
+                            <span>Total Amount</span>
+                            <span>NPR {{ booking.total_amount }}</span>
+                        </div>
+                        
+                        <div id="advanceAmount" class="flex justify-between text-green-600 font-semibold mb-2">
+                            <span>Advance Payment (50%)</span>
+                            <span>NPR {{ advance_amount }}</span>
+                        </div>
+                        
+                        <div id="remainingAmount" class="flex justify-between text-blue-600 text-sm">
+                            <span>Remaining Amount</span>
+                            <span>NPR {{ booking.remaining_amount }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Contact Information -->
-                <div class="mt-4 pt-3 border-top">
-                    <h6>Need Help?</h6>
-                    <p class="small text-muted">
-                        <i class="fas fa-phone"></i> +977-1-4567890<br>
-                        <i class="fas fa-envelope"></i> support@nepalguide.com<br>
-                        <i class="fas fa-clock"></i> 24/7 Customer Support
-                    </p>
+                <!-- Contact Support -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-headset text-blue-500 mr-2"></i>Need Help?
+                    </h4>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-blue-500 w-5"></i>
+                            <span class="ml-2">+977-1-4567890</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-blue-500 w-5"></i>
+                            <span class="ml-2">support@nepalguide.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-blue-500 w-5"></i>
+                            <span class="ml-2">24/7 Customer Support</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -290,31 +412,31 @@
 <!-- Terms & Conditions Modal -->
 <div class="modal fade" id="termsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Terms & Conditions</h5>
-                <button type="button" class="close" data-dismiss="modal">
+        <div class="modal-content rounded-2xl border-0">
+            <div class="modal-header bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-t-2xl">
+                <h5 class="modal-title font-bold">Terms & Conditions</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <h6>Booking Terms</h6>
-                <ul>
+            <div class="modal-body p-6">
+                <h6 class="font-bold text-gray-800 mb-3">Booking Terms</h6>
+                <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
                     <li>All bookings are subject to availability confirmation</li>
                     <li>Advance payment is non-refundable in case of no-show</li>
                     <li>Full payment bookings receive 5% discount</li>
                     <li>Weather conditions may affect travel plans</li>
                 </ul>
                 
-                <h6>Cancellation Policy</h6>
-                <ul>
+                <h6 class="font-bold text-gray-800 mb-3">Cancellation Policy</h6>
+                <ul class="list-disc list-inside space-y-2 text-gray-600">
                     <li>Free cancellation up to 7 days before travel date</li>
                     <li>50% refund for cancellations 3-7 days before travel</li>
                     <li>No refund for cancellations less than 3 days</li>
                 </ul>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <div class="modal-footer border-t">
+                <button type="button" class="btn btn-secondary rounded-xl" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -329,32 +451,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const remainingAmountDisplay = document.getElementById('remainingAmount');
     const totalAmount = {{ booking.total_amount }};
     const advanceAmount = {{ advance_amount }};
+    const fullDiscounted = {{ full_discounted|floatformat:2 }};
     
     // Handle payment option selection
     paymentOptions.forEach(option => {
         option.addEventListener('click', function() {
-            // Remove selected class from all options
-            paymentOptions.forEach(opt => opt.classList.remove('selected'));
+            const radioBtn = this.querySelector('input[type="radio"]');
+            if (!radioBtn) return;
+            
+            // Remove selected class from all payment options
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
             
             // Add selected class to clicked option
             this.classList.add('selected');
             
             // Check the radio button
-            const radioBtn = this.querySelector('input[type="radio"]');
-            if (radioBtn) {
-                radioBtn.checked = true;
-                
-                // Update price display based on selection
+            radioBtn.checked = true;
+            
+            // Update price display based on selection
+            if (radioBtn.name === 'payment_method') {
                 if (radioBtn.value === 'full') {
                     advanceAmountDisplay.innerHTML = `
                         <span>Full Payment</span>
-                        <strong>NPR ${totalAmount}</strong>
+                        <span>NPR ${fullDiscounted}</span>
                     `;
                     remainingAmountDisplay.style.display = 'none';
                 } else {
                     advanceAmountDisplay.innerHTML = `
                         <span>Advance Payment (50%)</span>
-                        <strong>NPR ${advanceAmount}</strong>
+                        <span>NPR ${advanceAmount}</span>
                     `;
                     remainingAmountDisplay.style.display = 'flex';
                 }
@@ -366,7 +493,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const gatewayOptions = document.querySelectorAll('input[name="gateway"]');
     gatewayOptions.forEach(option => {
         option.addEventListener('change', function() {
-            // Update UI based on selected gateway
             console.log('Selected gateway:', this.value);
         });
     });
@@ -382,14 +508,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show loading state
         const submitBtn = this.querySelector('button[type="submit"]');
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+        const originalContent = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing Payment...';
         submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
         
         // In a real implementation, you would integrate with actual payment gateways here
         setTimeout(() => {
             // Re-enable button if payment fails
-            submitBtn.innerHTML = '<i class="fas fa-lock"></i> Secure Payment';
+            submitBtn.innerHTML = originalContent;
             submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
         }, 5000);
     });
     

@@ -265,7 +265,7 @@ def add_package(request):
             
             # Save images
             for image_form in image_formset:
-                if image_form.cleaned_data:
+                if image_form.cleaned_data and image_form.cleaned_data.get('image'):
                     image = image_form.save(commit=False)
                     image.package = package
                     image.save()
@@ -299,17 +299,25 @@ def edit_package(request, package_id):
             
             # Save images
             for image_form in image_formset:
-                if image_form.cleaned_data:
-                    if image_form.cleaned_data.get('DELETE'):
-                        if image_form.instance.pk:
-                            image_form.instance.delete()
-                    else:
+                if image_form.cleaned_data and not image_form.cleaned_data.get('DELETE'):
+                    # Only save if there's an image file
+                    if image_form.cleaned_data.get('image') or image_form.instance.pk:
                         image = image_form.save(commit=False)
                         image.package = package
                         image.save()
+                elif image_form.cleaned_data and image_form.cleaned_data.get('DELETE'):
+                    # Delete the image
+                    if image_form.instance.pk:
+                        image_form.instance.delete()
             
             messages.success(request, 'Package updated successfully!')
             return redirect('agencies:manage_packages')
+        else:
+            # Display form errors
+            if not form.is_valid():
+                messages.error(request, 'Please correct the errors in the form.')
+            if not image_formset.is_valid():
+                messages.error(request, 'Please correct the errors in the images.')
     else:
         form = PackageForm(instance=package)
         image_formset = PackageImageFormSet(queryset=package.images.all())
